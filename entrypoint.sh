@@ -2,11 +2,14 @@
 
 echo "Hello $1"
 
-echo "Where am I?"
-pwd
 echo "Who am I?"
 whoami
-echo "file system"
-find / -type d
+
+echo "Where am I?"
+pwd
+
+echo "ls -lha $(pwd)"
+ls -lha $(pwd)
+
 time=$(date)
 echo "::set-output name=time::$time"
