@@ -1,6 +1,8 @@
 # Container image that runs your code
 FROM openjdk:11-jdk AS build
 
+RUN apt-get update && apt-get --no-install-recommends -y install hub
+
 COPY . /build
 WORKDIR /build
 RUN ./gradlew shadowJar --no-daemon --info --console=plain
