@@ -9,6 +9,8 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
 val gitHubApi: String = System.getenv("GITHUB_API_URL") ?: "https://api.github.com"
+val gitEmail: String = System.getenv("AUTHOR_EMAIL") ?: "foo@bar.com"
+val gitName: String = System.getenv("AUTHOR_NAME") ?: "Foo Bar"
 
 val baseBranchName = getBaseBranch()
 
@@ -80,16 +82,20 @@ data class UpdateBranch(val updateCandidate: UpdateCandidate, val updateBranchNa
     private fun createPullRequest() {
         println("createPullRequest")
         // https://hub.github.com/hub-pull-request.1.html
-        shellRun(
-            "hub",
-            listOf(
-                "pull-request",
-                "--push",
-                "--message update ${updateCandidate.buildpackCandidate.buildpackName} ${updateCandidate.latestVersion}",
-                "--base $baseBranchName",
-                "--labels buildpack-update-action"
+        shellRun {
+            command("git config --global user.email \"$gitEmail\"")
+            command("git config --global user.name \"$gitName\"")
+            command(
+                "hub",
+                listOf(
+                    "pull-request",
+                    "--push",
+                    "--message update ${updateCandidate.buildpackCandidate.buildpackName} ${updateCandidate.latestVersion}",
+                    "--base $baseBranchName",
+                    "--labels buildpack-update-action"
+                )
             )
-        )
+        }
     }
 
     fun update() {
@@ -107,7 +113,7 @@ data class UpdateBranch(val updateCandidate: UpdateCandidate, val updateBranchNa
         println("commitChanges")
         shellRun {
             with(updateCandidate) {
-                git.commit("update ${buildpackCandidate.buildpackName} from version ${buildpackCandidate.currentVersion} to ${latestVersion}")
+                git.commit("update ${buildpackCandidate.buildpackName} from version ${buildpackCandidate.currentVersion} to $latestVersion")
             }
         }
     }
