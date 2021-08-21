@@ -13,6 +13,10 @@ repositories {
     mavenCentral()
 }
 
+dependencies {
+    implementation("com.lordcodes.turtle:turtle:0.5.0")
+}
+
 tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = "11"
 }
