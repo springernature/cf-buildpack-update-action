@@ -15,6 +15,9 @@ val gitName: String = System.getenv("AUTHOR_NAME") ?: "Foo Bar"
 val baseBranchName = getBaseBranch()
 
 fun main(args: Array<String>) {
+
+    gitInit()
+
     println("manifest file candidates found:")
 
     // using extension function walk
@@ -83,8 +86,6 @@ data class UpdateBranch(val updateCandidate: UpdateCandidate, val updateBranchNa
         println("createPullRequest")
         // https://hub.github.com/hub-pull-request.1.html
         shellRun {
-            command("git config --global user.email \"$gitEmail\"")
-            command("git config --global user.name \"$gitName\"")
             command(
                 "hub",
                 listOf(
@@ -176,4 +177,12 @@ fun getBaseBranch(): String {
     return shellRun {
         git.currentBranch()
     }
+}
+
+private fun gitInit() {
+    shellRun {
+        command("git config --global user.email \"$gitEmail\"")
+        command("git config --global user.name \"$gitName\"")
+    }
+
 }
