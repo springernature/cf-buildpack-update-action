@@ -181,8 +181,7 @@ fun getBaseBranch(): String {
 
 private fun gitInit() {
     shellRun {
-        command("git config --global user.email \"$gitEmail\"")
-        command("git config --global user.name \"$gitName\"")
+        command("git", listOf("config", "--global", "user.email", "\"$gitEmail\""))
+        command("git", listOf("config", "--global", "user.name", "\"$gitName\""))
     }
-
 }
