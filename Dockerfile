@@ -1,7 +1,7 @@
 # Container image that runs your code
 FROM openjdk:11-jdk AS build
 
-RUN apt-get update && apt-get --no-install-recommends -y install hub
+RUN apt-get update && apt-get --no-install-recommends -y install hub git
 
 COPY . /build
 WORKDIR /build
