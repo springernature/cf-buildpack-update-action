@@ -14,6 +14,20 @@ val gitName: String = System.getenv("AUTHOR_NAME") ?: "Foo Bar"
 
 val baseBranchName = getBaseBranch()
 
+fun main2(args: Array<String>) {
+    println(shellRun {
+        command(
+            "hub",
+            listOf(
+                "pull-request",
+                "--message=update foo bar",
+                "--base=main",
+                "--labels=buildpack-update-action"
+            )
+        )
+    })
+}
+
 fun main(args: Array<String>) {
 
     gitInit()
@@ -91,9 +105,9 @@ data class UpdateBranch(val updateCandidate: UpdateCandidate, val updateBranchNa
                 listOf(
                     "pull-request",
                     "--push",
-                    "--message update ${updateCandidate.buildpackCandidate.buildpackName} ${updateCandidate.latestVersion}",
-                    "--base $baseBranchName",
-                    "--labels buildpack-update-action"
+                    "--message=update ${updateCandidate.buildpackCandidate.buildpackName} ${updateCandidate.latestVersion}",
+                    "--base=$baseBranchName",
+                    "--labels=buildpack-update-action"
                 )
             )
         }
