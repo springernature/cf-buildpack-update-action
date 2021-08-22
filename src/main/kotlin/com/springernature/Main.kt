@@ -183,5 +183,6 @@ private fun gitInit() {
     shellRun {
         command("git", listOf("config", "--global", "user.email", "\"$gitEmail\""))
         command("git", listOf("config", "--global", "user.name", "\"$gitName\""))
+        command("git", listOf("remote", "prune", "origin"))
     }
 }
