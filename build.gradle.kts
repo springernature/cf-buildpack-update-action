@@ -17,7 +17,7 @@ dependencies {
     implementation("com.lordcodes.turtle:turtle:0.5.0")
 }
 
-tasks.withType<KotlinCompile>() {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "11"
 }
 
