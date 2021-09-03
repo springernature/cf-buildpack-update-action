@@ -50,7 +50,7 @@ data class UpdateBranch(val updateCandidate: UpdateCandidate, val updateBranchNa
             println("branch already exists: $updateBranchName")
             false
         } catch (e: ShellRunException) {
-            println("branch does not exist: $updateBranchName")
+            println("branch does not exist: $updateBranchName\n$e")
             true
         } finally {
             switchToExistingBranch(baseBranchName)
@@ -59,7 +59,7 @@ data class UpdateBranch(val updateCandidate: UpdateCandidate, val updateBranchNa
 
     private fun switchToExistingBranch(targetBranchName: String) {
         shellRun {
-            git.checkout(targetBranchName, false)
+            git.gitCommand(listOf("switch", targetBranchName))
         }
     }
 
