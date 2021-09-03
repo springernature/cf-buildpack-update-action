@@ -1,5 +1,6 @@
 package com.springernature
 
+import com.lordcodes.turtle.GitCommands
 import com.lordcodes.turtle.ShellRunException
 import com.lordcodes.turtle.shellRun
 import java.io.File
@@ -9,8 +10,8 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
 val gitHubApi: String = System.getenv("GITHUB_API_URL") ?: "https://api.github.com"
-val gitEmail: String = System.getenv("AUTHOR_EMAIL") ?: "foo@bar.com"
-val gitName: String = System.getenv("AUTHOR_NAME") ?: "Foo Bar"
+val gitEmail: String = System.getenv("AUTHOR_EMAIL") ?: "do_not_reply@springernature.com"
+val gitName: String = System.getenv("AUTHOR_NAME") ?: "buildpack update action"
 
 val baseBranchName = getBaseBranch()
 
@@ -20,7 +21,7 @@ fun main(args: Array<String>) {
 
     println("manifest file candidates found:")
 
-        // using extension function walk
+    // using extension function walk
     File(".")
         .walk()
         .filterNot { it.path.contains("\\.git/") }
@@ -50,7 +51,7 @@ data class UpdateBranch(val updateCandidate: UpdateCandidate, val updateBranchNa
             println("branch already exists: $updateBranchName")
             false
         } catch (e: ShellRunException) {
-            println("branch does not exist: $updateBranchName\n$e")
+            println("branch does not exist: $updateBranchName")
             true
         } finally {
             switchToExistingBranch(baseBranchName)
@@ -114,11 +115,24 @@ data class UpdateBranch(val updateCandidate: UpdateCandidate, val updateBranchNa
         println("commitChanges")
         shellRun {
             with(updateCandidate) {
-                git.commit("update ${buildpackCandidate.buildpackName} from version ${buildpackCandidate.currentVersion} to $latestVersion")
+                git.commit(
+                    "update ${buildpackCandidate.buildpackName} from version ${buildpackCandidate.currentVersion} to $latestVersion",
+                    gitName, gitEmail
+                )
             }
         }
     }
 
+}
+
+fun GitCommands.commit(message: String, name: String, email: String): String {
+    return gitCommand(
+        listOf(
+            "commit",
+            "--message", message,
+            "--author", "$name <$email>",
+        )
+    )
 }
 
 fun toUpdateBranch(updateCandidate: UpdateCandidate): UpdateBranch {
@@ -181,8 +195,6 @@ fun getBaseBranch(): String {
 
 private fun gitInit() {
     shellRun {
-        command("git", listOf("config", "--global", "user.email", "\"$gitEmail\""))
-        command("git", listOf("config", "--global", "user.name", "\"$gitName\""))
         command("git", listOf("remote", "prune", "origin"))
         command("git", listOf("fetch", "--prune", "--prune-tags"))
     }
