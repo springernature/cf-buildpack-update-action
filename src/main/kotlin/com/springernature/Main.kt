@@ -20,7 +20,7 @@ fun main(args: Array<String>) {
 
     println("manifest file candidates found:")
 
-    // using extension function walk
+        // using extension function walk
     File(".")
         .walk()
         .filterNot { it.path.contains("\\.git/") }
@@ -184,5 +184,6 @@ private fun gitInit() {
         command("git", listOf("config", "--global", "user.email", "\"$gitEmail\""))
         command("git", listOf("config", "--global", "user.name", "\"$gitName\""))
         command("git", listOf("remote", "prune", "origin"))
+        command("git", listOf("fetch", "--prune", "--prune-tags"))
     }
 }
