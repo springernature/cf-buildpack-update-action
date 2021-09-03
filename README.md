@@ -1,4 +1,4 @@
-# buildpack update action
+# Buildpack update action
 
 Create pull requests to update Cloud Foundry buildpacks in manifest files
 
@@ -14,8 +14,18 @@ Create pull requests to update Cloud Foundry buildpacks in manifest files
           - name: Check out the repo
             uses: actions/checkout@v2
           - name: run buildpack-update-action
-            uses: springernature/buildpack-update-action@v17
+            uses: springernature/buildpack-update-action@v21
             env:
-              GITHUB_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               AUTHOR_EMAIL: team-payzilla@springernature.com
               AUTHOR_NAME: buildpack-update-action
+
+
+## Roadmap
+
+* make it testable
+* add tests
+* create pull request description with proper description of the update, e.g. link to changelog, etc. (see dependabot PRs)
+* use YAML and JSON parser
+* make it configurable, see [Dependabot config](https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/configuration-options-for-dependency-updates
+  ) for ideas
