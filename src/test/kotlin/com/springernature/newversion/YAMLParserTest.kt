@@ -1,4 +1,4 @@
-package com.springernature.manifest
+package com.springernature.newversion
 
 import org.amshove.kluent.shouldBe
 import org.junit.jupiter.api.Test

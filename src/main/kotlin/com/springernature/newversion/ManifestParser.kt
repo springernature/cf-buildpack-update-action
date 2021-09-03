@@ -1,4 +1,4 @@
-package com.springernature.manifest
+package com.springernature.newversion
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -6,34 +6,46 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import net.swiftzer.semver.SemVer
 import java.io.File
 
-
 sealed class ManifestLoadResult
-data class Manifest(val applications: List<CFApplication>) : ManifestLoadResult()
+data class Manifest(val applications: List<CFApplication>, val path: String = "") : ManifestLoadResult()
 data class FailedManifest(
     val path: String,
     val error: Exception
 ) : ManifestLoadResult()
 
+@JvmInline
+value class Version(val s: String)
+
+fun Version.asSemVer(): SemVer {
+    return SemVer.parse(s.trimStart('v'))
+}
 
 data class CFApplication(val buildpacks: List<VersionedBuildpack>)
-data class VersionedBuildpack(val url: String, val version: String) {
+data class VersionedBuildpack(val name: String, val url: String, val version: Version) {
     companion object {
         @JvmStatic
         @JsonCreator
-        fun create(value: String) = VersionedBuildpack(value.buildpackUrl(), value.buildpackVersion())
+        fun create(value: String) =
+            VersionedBuildpack(value.name(), value.buildpackUrl(), Version(value.buildpackVersion()))
 
         private fun String.buildpackUrl(): String = "(.*github.com/.*)#v.*".toRegex().find(this)?.groups?.get(1)?.value
-            ?: throw Exception("buildpack url is in wrong format: $this")
+            ?: throw Exception("Cannot parse buildpack URL: $this")
 
         private fun String.buildpackVersion(): String =
             ".*github.com/.*#v(.*)".toRegex().find(this)?.groups?.get(1)?.value
-                ?: throw Exception("buildpack url is in wrong format: $this")
+                ?: throw Exception("Cannot parse buildpack URL: $this")
+
+        private fun String.name(): String =
+            ".*github.com/(.*)#v.*".toRegex().find(this)?.groups?.get(1)?.value
+                ?: throw Exception("Cannot parse buildpack URL: $this")
+
     }
 }
 
-fun readManifest(f: File): Manifest {
+private fun readManifest(f: File): Manifest {
     val mapper = ObjectMapper(YAMLFactory())
         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
         .registerKotlinModule()
@@ -43,13 +55,14 @@ fun readManifest(f: File): Manifest {
 
 fun loadManifests(dir: File): Sequence<ManifestLoadResult> {
     return dir.walk()
-       .filterNot { it.isDirectory }
+        .filter { it.isFile }
         .filterNot { it.path.contains("\\.git/") }
+        .filter { it.name.endsWith(".yml") || it.name.endsWith(".yaml") }
         .filter { it.name.contains("manifest") }
         .onEach { println(it) }
         .map {
             try {
-                readManifest(it)
+                readManifest(it).copy(path = it.path)
             } catch (e: Exception) {
                 FailedManifest(it.path, e)
             }
@@ -58,11 +71,4 @@ fun loadManifests(dir: File): Sequence<ManifestLoadResult> {
 
 fun loadManifests(path: String): Sequence<ManifestLoadResult> {
     return loadManifests(File(path))
-}
-
-fun main() {
-    loadManifests(".").forEach { when(it) {
-        is Manifest -> println("yay: $it")
-        is FailedManifest -> println("nay: $it")
-    } }
 }
