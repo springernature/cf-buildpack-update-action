@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import java.net.http.HttpClient
 import kotlin.test.fail
 
-class BuildpackVersionCheckerIntegrationTest {
+class VersionedBuildpackIntegrationTest {
 
     @Test
     fun `we can query GitHub to find if updates are available`() {

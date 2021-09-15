@@ -5,7 +5,7 @@ import java.net.http.HttpClient
 class BuildpackVersionChecker(
     private val manifestPath: String,
     private val httpClient: HttpClient,
-    private val publisher: GitHubPullRequestPublisher,
+    private val publisher: Publisher,
     private val settings: Settings
 ) {
 
