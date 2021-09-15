@@ -16,11 +16,19 @@ data class FailedManifest(
     val error: Exception
 ) : ManifestLoadResult()
 
-@JvmInline
-value class Version(val s: String)
+sealed class Version
+data class SemanticVersion(private val versionString: String) : Version() {
+    fun toSemVer(): SemVer {
+        return SemVer.parse(versionString.trimStart('v'))
+    }
+}
+class Latest : Version() {
+    override fun equals(other: Any?): Boolean = when (other) {
+        is Latest -> true
+        else -> false
+    }
 
-fun Version.asSemVer(): SemVer {
-    return SemVer.parse(s.trimStart('v'))
+    override fun hashCode(): Int = 1
 }
 
 data class CFApplication(val buildpacks: List<VersionedBuildpack>)
@@ -29,17 +37,17 @@ data class VersionedBuildpack(val name: String, val url: String, val version: Ve
         @JvmStatic
         @JsonCreator
         fun create(value: String) =
-            VersionedBuildpack(value.name(), value.buildpackUrl(), Version(value.buildpackVersion()))
+            VersionedBuildpack(value.name(), value.buildpackUrl(), value.buildpackVersion())
 
-        private fun String.buildpackUrl(): String = "(.*github.com/.*)#v.*".toRegex().find(this)?.groups?.get(1)?.value
+        private fun String.buildpackUrl(): String = "(.*github.com/.*?)(?:#v.*)?$".toRegex().find(this)?.groups?.get(1)?.value
             ?: throw Exception("Cannot parse buildpack URL: $this")
 
-        private fun String.buildpackVersion(): String =
-            ".*github.com/.*#v(.*)".toRegex().find(this)?.groups?.get(1)?.value
-                ?: throw Exception("Cannot parse buildpack URL: $this")
+        private fun String.buildpackVersion(): Version =
+            ".*github.com/.*#v(.*)$".toRegex().find(this)?.groups?.get(1)?.value?.let { SemanticVersion(it) }
+                ?: Latest()
 
         private fun String.name(): String =
-            ".*github.com/(.*)#v.*".toRegex().find(this)?.groups?.get(1)?.value
+            ".*github.com/(.*?)(?:#v.*)?$".toRegex().find(this)?.groups?.get(1)?.value
                 ?: throw Exception("Cannot parse buildpack URL: $this")
 
     }

@@ -1,0 +1,10 @@
+---
+applications:
+  - name: dummy-manifest-with-multiple-buildpacks-for-testing
+    instances: 1
+    health-check-type: process
+    no-route: true
+    buildpacks:
+      - https://github.com/cloudfoundry/staticfile-buildpack#v1.5.17
+      - https://github.com/cloudfoundry/java-buildpack#v4.1.2
+

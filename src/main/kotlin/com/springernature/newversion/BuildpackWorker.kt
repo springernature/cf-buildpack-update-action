@@ -33,7 +33,7 @@ private fun VersionedBuildpack.getLatestBuildpack(): VersionedBuildpack {
     val message = response.body()
     // "tag_name":"v1.5.24"
     """"tag_name":"v([^"]*)"""".toRegex().find(message)?.let {
-        return copy(version = Version(it.groups[1]!!.value))
+        return copy(version = SemanticVersion(it.groups[1]!!.value))
     }
     throw Exception("Couldn't get latest version of buildpack $name")
 }

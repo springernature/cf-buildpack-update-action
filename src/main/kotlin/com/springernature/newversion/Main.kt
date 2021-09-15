@@ -13,7 +13,13 @@ fun main() {
 
 }
 
-private fun BuildpackUpdate.hasUpdate() = currentBuildpack.version.asSemVer() < latestBuildpack.version.asSemVer()
+private fun BuildpackUpdate.hasUpdate() = when (currentBuildpack.version) {
+    is SemanticVersion -> when (latestBuildpack.version) {
+        is SemanticVersion -> currentBuildpack.version.toSemVer() < latestBuildpack.version.toSemVer()
+        else -> false
+    }
+    is Latest -> false
+}
 
 private fun BuildpackUpdate.branchname() = "update-${currentBuildpack.name.replace('/', '-')}"
 
@@ -22,7 +28,7 @@ private fun BuildpackUpdate.commitMessage() =
 
 private fun BuildpackUpdate.prMessage() =
     """
-        update ${currentBuildpack.name} to ${latestBuildpack.version} in ${manifestPath}
+        update ${currentBuildpack.name} to ${latestBuildpack.version} in $manifestPath
         
         update ${currentBuildpack.name} from ${currentBuildpack.version} to ${latestBuildpack.version}
     """.trimIndent()

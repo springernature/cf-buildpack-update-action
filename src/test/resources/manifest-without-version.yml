@@ -1,0 +1,9 @@
+---
+applications:
+  - name: dummy-manifest-with-multiple-buildpacks-for-testing
+    instances: 1
+    health-check-type: process
+    no-route: true
+    buildpacks:
+      - https://github.com/springernature/nginx-opentracing-buildpack
+
