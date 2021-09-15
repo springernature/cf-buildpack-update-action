@@ -15,7 +15,7 @@ class BuildpackVersionCheckerIntegrationTest {
             SemanticVersion("4.0.20")
         )
 
-        val latestBuildpack = buildpack.getLatestBuildpack(HttpClient.newBuilder().build())
+        val latestBuildpack = buildpack.getLatestBuildpack(HttpClient.newBuilder().build(), Settings())
 
         when (val latestVersion = latestBuildpack.version) {
             is Latest -> fail("Version lookup failed")
@@ -28,4 +28,5 @@ class BuildpackVersionCheckerIntegrationTest {
             }
         }
     }
+
 }

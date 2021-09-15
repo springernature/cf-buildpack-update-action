@@ -16,13 +16,13 @@ data class BuildpackUpdate(
     }
 
     companion object {
-        fun create(manifest: ManifestLoadResult, client: HttpClient) = when (manifest) {
+        fun create(manifest: ManifestLoadResult, client: HttpClient, settings: Settings) = when (manifest) {
             is FailedManifest -> {
                 println(manifest)
                 emptyList()
             }
             is Manifest -> manifest.applications.flatMap { app -> app.buildpacks }.map {
-                BuildpackUpdate(manifest.path, it, it.getLatestBuildpack(client))
+                BuildpackUpdate(manifest.path, it, it.getLatestBuildpack(client, settings))
             }
         }
     }
