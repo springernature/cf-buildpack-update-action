@@ -9,5 +9,6 @@ fun main() {
     val publisher = GitHubPullRequestPublisher(settings)
     val manifestPath = File(".")
 
-    BuildpackVersionChecker(manifestPath, client, publisher, settings).performChecks()
+    BuildpackVersionChecker(manifestPath, client, publisher, settings)
+        .performChecks()
 }
