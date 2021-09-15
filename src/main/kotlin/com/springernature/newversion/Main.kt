@@ -6,7 +6,7 @@ fun main() {
     val settings = Settings(System.getenv())
     val client = HttpClient.newBuilder().build()
     val publisher = GitHubPullRequestPublisher(settings)
-    val manifesPath = "."
+    val manifestPath = "."
 
-    BuildpackVersionChecker(manifesPath, client, publisher, settings).performChecks()
+    BuildpackVersionChecker(manifestPath, client, publisher, settings).performChecks()
 }
