@@ -4,10 +4,10 @@ import com.lordcodes.turtle.GitCommands
 import com.lordcodes.turtle.shellRun
 import java.io.File
 
-class GitHubPullRequestPublisher {
+class GitHubPullRequestPublisher(settings: Settings) {
 
-    private val gitEmail: String = System.getenv("AUTHOR_EMAIL") ?: "do_not_reply@springernature.com"
-    private val gitName: String = System.getenv("AUTHOR_NAME") ?: "buildpack update action"
+    private val gitEmail: String = settings.lookup(Setting.AUTHOR_EMAIL)
+    private val gitName: String = settings.lookup(Setting.AUTHOR_NAME)
 
     fun publish(update: BuildpackUpdate) {
         createPullRequest(update.branchname(), update.commitMessage(), update.prMessage(), updateManifest(update))
