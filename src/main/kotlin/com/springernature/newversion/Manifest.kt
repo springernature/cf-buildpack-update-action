@@ -2,6 +2,7 @@ package com.springernature.newversion
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import net.swiftzer.semver.SemVer
+import java.lang.RuntimeException
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -15,6 +16,9 @@ data class VersionedBuildpack(val name: String, val url: String, val version: Ve
         val url = "$gitHubApi/repos/${name}/releases/latest"
         val request = HttpRequest.newBuilder().uri(URI.create(url)).build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() != 200) {
+            throw RuntimeException("Unexpected response from GitHub for URL $url: ${response.statusCode()}; ${response.body()}")
+        }
         val message = response.body()
         // "tag_name":"v1.5.24"
         return """"tag_name":"v([^"]*)"""".toRegex().find(message)?.let {

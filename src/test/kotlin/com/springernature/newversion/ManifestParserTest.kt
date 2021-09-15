@@ -63,7 +63,7 @@ class ManifestParserTest {
                                 VersionedBuildpack(
                                     "cloudfoundry/java-buildpack",
                                     "https://github.com/cloudfoundry/java-buildpack",
-                                    SemanticVersion("4.1.2")
+                                    SemanticVersion("4.12")
                                 )
                             )
                         }

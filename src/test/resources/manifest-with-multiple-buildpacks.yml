@@ -6,5 +6,5 @@ applications:
     no-route: true
     buildpacks:
       - https://github.com/cloudfoundry/staticfile-buildpack#v1.5.17
-      - https://github.com/cloudfoundry/java-buildpack#v4.1.2
+      - https://github.com/cloudfoundry/java-buildpack#v4.12
 
