@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.io.File
 
-class YAMLParserTest {
+class ManifestParserTest {
 
     @Test
     fun `loading does not fail on directories`() {
