@@ -5,6 +5,7 @@ import java.net.http.HttpClient
 fun main() {
     val client = HttpClient.newBuilder().build()
     val publisher = GitHubPullRequestPublisher()
+    val manifesPath = "."
 
-    BuildpackVersionChecker(client, publisher).performChecks()
+    BuildpackVersionChecker(manifesPath, client, publisher).performChecks()
 }
