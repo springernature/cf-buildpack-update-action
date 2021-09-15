@@ -23,7 +23,7 @@ class BuildpackVersionCheckerTest {
         val settings = Settings(mapOf(GIT_HUB_API_URL.key to baseUrl))
         val capturingPublisher = CapturingPublisher()
         val buildpackVersionChecker = BuildpackVersionChecker(
-            manifest.absolutePath,
+            manifest,
             HttpClient.newBuilder().build(),
             capturingPublisher,
             settings

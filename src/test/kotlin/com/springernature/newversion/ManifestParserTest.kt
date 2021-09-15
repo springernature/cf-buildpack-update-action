@@ -102,7 +102,7 @@ class ManifestParserTest {
         parsedManifests shouldBe 1
     }
 
-    private fun resourcePath(path: String): String = File("src/test/resources/").absolutePath + "/" + path
+    private fun resourcePath(path: String) = File("src/test/resources/$path")
 
 }
 

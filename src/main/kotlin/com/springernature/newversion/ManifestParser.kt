@@ -20,7 +20,7 @@ private fun readManifest(f: File): Manifest = ObjectMapper(YAMLFactory())
         it.readValue(f)
     }
 
-private fun loadManifests(dir: File): Sequence<ManifestLoadResult> = dir.walk()
+fun loadManifests(dir: File): Sequence<ManifestLoadResult> = dir.walk()
     .filter { it.isFile }
     .filterNot { it.path.contains("\\.git/") }
     .filter { it.name.endsWith(".yml") || it.name.endsWith(".yaml") }
@@ -33,5 +33,3 @@ private fun loadManifests(dir: File): Sequence<ManifestLoadResult> = dir.walk()
             FailedManifest(it.path, e)
         }
     }
-
-fun loadManifests(path: String): Sequence<ManifestLoadResult> = loadManifests(File(path))

@@ -1,9 +1,10 @@
 package com.springernature.newversion
 
+import java.io.File
 import java.net.http.HttpClient
 
 class BuildpackVersionChecker(
-    private val manifestPath: String,
+    private val manifestPath: File,
     private val httpClient: HttpClient,
     private val publisher: Publisher,
     private val settings: Settings
