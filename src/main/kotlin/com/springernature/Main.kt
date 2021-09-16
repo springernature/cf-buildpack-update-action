@@ -15,7 +15,7 @@ val gitName: String = System.getenv("AUTHOR_NAME") ?: "buildpack update action"
 
 val baseBranchName = getBaseBranch()
 
-fun main(args: Array<String>) {
+fun main() {
 
     gitInit()
 
