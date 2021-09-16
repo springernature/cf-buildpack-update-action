@@ -5,13 +5,10 @@ import java.net.http.HttpClient
 data class BuildpackUpdate(
     val manifestPath: String,
     val currentBuildpack: VersionedBuildpack,
-    val latestBuildpack: VersionedBuildpack,
+    val latestVersion: SemanticVersion,
 ) {
     fun hasUpdate() = when (currentBuildpack.version) {
-        is SemanticVersion -> when (latestBuildpack.version) {
-            is SemanticVersion -> currentBuildpack.version.toSemVer() < latestBuildpack.version.toSemVer()
-            else -> false
-        }
+        is SemanticVersion -> currentBuildpack.version.toSemVer() < latestVersion.toSemVer()
         is Latest -> false
     }
 
@@ -22,7 +19,7 @@ data class BuildpackUpdate(
                 emptyList()
             }
             is Manifest -> manifest.applications.flatMap { app -> app.buildpacks }.map {
-                BuildpackUpdate(manifest.path, it, it.getLatestBuildpack(client, settings))
+                BuildpackUpdate(manifest.path, it, it.findLatestVersion(client, settings))
             }
         }
     }

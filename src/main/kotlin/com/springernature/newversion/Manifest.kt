@@ -12,7 +12,7 @@ data class CFApplication(val buildpacks: List<VersionedBuildpack>)
 
 data class VersionedBuildpack(val name: String, val url: String, val version: Version) {
 
-    fun getLatestBuildpack(client: HttpClient, settings: Settings): VersionedBuildpack {
+    fun findLatestVersion(client: HttpClient, settings: Settings): SemanticVersion {
         val url = "${settings.lookup(GIT_HUB_API_URL)}/repos/${name}/releases/latest"
         val request = HttpRequest.newBuilder().uri(URI.create(url)).build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
@@ -21,7 +21,7 @@ data class VersionedBuildpack(val name: String, val url: String, val version: Ve
         }
         val message = response.body()
         return """"tag_name":\s*"v([^"]+)"""".toRegex().find(message)?.let {
-            copy(version = SemanticVersion(it.groups[1]!!.value))
+            SemanticVersion(it.groups[1]!!.value)
         } ?: throw Exception("Couldn't get latest version of buildpack $name")
     }
 

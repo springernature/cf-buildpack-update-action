@@ -16,13 +16,13 @@ class GitHubPullRequestPublisher(settings: Settings) : Publisher {
     private fun BuildpackUpdate.branchname() = "update-${currentBuildpack.name.replace('/', '-')}"
 
     private fun BuildpackUpdate.commitMessage() =
-        "update ${currentBuildpack.name} to ${latestBuildpack.version}"
+        "update ${currentBuildpack.name} to $latestVersion"
 
     private fun BuildpackUpdate.prMessage() =
         """
-        update ${currentBuildpack.name} to ${latestBuildpack.version} in $manifestPath
+        update ${currentBuildpack.name} to $latestVersion in $manifestPath
         
-        update ${currentBuildpack.name} from ${currentBuildpack.version} to ${latestBuildpack.version}
+        update ${currentBuildpack.name} from ${currentBuildpack.version} to $latestVersion
     """.trimIndent()
 
     private fun updateManifest(update: BuildpackUpdate): () -> Unit {
@@ -32,8 +32,8 @@ class GitHubPullRequestPublisher(settings: Settings) : Publisher {
                 val manifestContent = File(manifestPath).readText(Charsets.UTF_8)
                 val newManifest =
                     manifestContent.replace(
-                        "${currentBuildpack.name}#v${currentBuildpack.name}",
-                        "${currentBuildpack.name}#v${latestBuildpack.name}"
+                        "${currentBuildpack.name}#v${currentBuildpack.version}",
+                        "${currentBuildpack.name}#v${latestVersion}"
                     )
                 File(manifestPath).writeText(newManifest, Charsets.UTF_8)
             }

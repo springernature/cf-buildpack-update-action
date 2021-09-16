@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.net.InetSocketAddress
 import java.net.http.HttpClient
-import kotlin.test.fail
 
 class VersionedBuildpackTest {
 
@@ -22,15 +21,11 @@ class VersionedBuildpackTest {
         )
 
         val settings = Settings(mapOf(GIT_HUB_API_URL.key to baseUrl))
-        val latestBuildpack = buildpack.getLatestBuildpack(HttpClient.newBuilder().build(), settings)
+        val latestBuildpackVersion = buildpack.findLatestVersion(HttpClient.newBuilder().build(), settings)
 
-        when (val latestVersion = latestBuildpack.version) {
-            is Latest -> fail("Version lookup failed")
-            is SemanticVersion -> {
-                val latestSemVer = latestVersion.toSemVer()
-                latestSemVer.major.shouldBeEqualTo(4)
-                latestSemVer.minor.shouldBeEqualTo(41)
-            }
+        latestBuildpackVersion.toSemVer().let {
+            it.major.shouldBeEqualTo(4)
+            it.minor.shouldBeEqualTo(41)
         }
     }
 
