@@ -12,7 +12,14 @@ class BuildpackVersionChecker(
         loadManifests(manifestPath)
             .flatMap { BuildpackUpdate.create(it, buildpackUpdateChecker) }
             .filter(BuildpackUpdate::hasUpdate)
-            .forEach(publisher::publish)
+            .forEach {
+                try {
+                    publisher.publish(it)
+                } catch (e: Exception) {
+                    System.err.println("Publish of $it failed: ${e.message}")
+                    e.printStackTrace(System.err)
+                }
+            }
     }
 
 }

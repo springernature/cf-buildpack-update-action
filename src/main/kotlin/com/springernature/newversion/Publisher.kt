@@ -1,6 +1,5 @@
 package com.springernature.newversion
 
-import com.lordcodes.turtle.GitCommands
 import java.io.File
 
 interface Publisher {
@@ -13,7 +12,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
     private val gitName: String = settings.lookup(Setting.AUTHOR_NAME)
 
     override fun publish(update: BuildpackUpdate) {
-        createPullRequest(update.branchname(), update.commitMessage(), update.prMessage(), updateManifest(update))
+        createPullRequest(update.branchname(), update.commitMessage(), update.prMessage()) { updateManifest(update) }
     }
 
     private fun BuildpackUpdate.branchname() = "update-${currentBuildpack.name.replace('/', '-')}"
@@ -28,19 +27,15 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         update ${currentBuildpack.name} from ${currentBuildpack.version} to $latestVersion
     """.trimIndent()
 
-    private fun updateManifest(update: BuildpackUpdate): () -> Unit {
+    private fun updateManifest(update: BuildpackUpdate) {
         println("updateManifest")
-        update.apply {
-            return {
-                val manifestContent = File(manifestPath).readText(Charsets.UTF_8)
-                val newManifest =
-                    manifestContent.replace(
-                        "${currentBuildpack.name}#v${currentBuildpack.version}",
-                        "${currentBuildpack.name}#v${latestVersion}"
-                    )
-                File(manifestPath).writeText(newManifest, Charsets.UTF_8)
-            }
-        }
+        val manifestContent = File(update.manifestPath).readText(Charsets.UTF_8)
+        val newManifest =
+            manifestContent.replace(
+                "${update.currentBuildpack.name}#v${update.currentBuildpack.version}",
+                "${update.currentBuildpack.name}#v${update.latestVersion}"
+            )
+        File(update.manifestPath).writeText(newManifest, Charsets.UTF_8)
     }
 
     private fun createPullRequest(
@@ -53,6 +48,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         gitInit()
         try {
             if (branchExistsAlready(branchName)) {
+                println("Branch already exist; skipping")
                 return
             }
             createBranchIfMissing(branchName)
@@ -67,22 +63,19 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
 
     private fun getBaseBranch(): String {
         return shell.run {
-            git.currentBranch()
+            git().currentBranch()
         }
     }
 
     private fun gitInit() {
         shell.run {
-            command("git", listOf("remote", "prune", "origin"))
-            command("git", listOf("fetch", "--prune", "--prune-tags"))
+            git().init()
         }
     }
 
     private fun branchExistsAlready(name: String) =
         try {
-            shell.run {
-                git.gitCommand(listOf("switch", name))
-            }
+            switchToBranch(name)
             true
         } catch (e: Exception) {
             false
@@ -91,31 +84,24 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
     private fun createBranchIfMissing(name: String) {
         shell.run {
             println("creating branch $name")
-            git.checkout(name, true)
+            git().checkout(name)
         }
     }
 
     private fun switchToBranch(name: String) {
+        if (name.isBlank()) {
+            throw RuntimeException("Cannot switch to empty branch name")
+        }
         shell.run {
-            git.gitCommand(listOf("switch", name))
+            git().switch(name)
         }
     }
 
     private fun commitChanges(message: String, name: String, email: String) {
         println("commitChanges")
         shell.run {
-            git.commit(message, name, email)
+            git().commit(message, name, email)
         }
-    }
-
-    private fun GitCommands.commit(message: String, name: String, email: String): String {
-        return gitCommand(
-            listOf(
-                "commit",
-                "--message", message,
-                "--author", "$name <$email>",
-            )
-        )
     }
 
     private fun createPullRequest(name: String, prMessage: String) {
@@ -133,5 +119,28 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
                 )
             )
         }
+    }
+
+    private fun Script.git() = GitCommands(this)
+
+    private class GitCommands(private val script: Script) {
+        fun init(): String {
+            script.command("git", listOf("remote", "prune", "origin"))
+            return script.command("git", listOf("fetch", "--prune", "--prune-tags"))
+        }
+
+        fun currentBranch() = script.command("git", listOf("rev-parse", "--abbrev-ref", "HEAD"))
+
+        fun switch(branchName: String) = script.command("git", listOf("switch", branchName))
+
+        fun commit(message: String, name: String, email: String) = script.command(
+            "git", listOf(
+                "commit", "-a", "-m", message, "--quiet",
+                "--message", message,
+                "--author", "$name <$email>",
+            )
+        )
+
+        fun checkout(branchName: String) = script.command("git", listOf("checkout", "-B", branchName, "--quiet"))
     }
 }
