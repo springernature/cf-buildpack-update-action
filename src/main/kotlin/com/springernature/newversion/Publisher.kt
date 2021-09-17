@@ -51,8 +51,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
                 println("Branch already exist; skipping")
                 return
             }
-            createBranchIfMissing(branchName)
-            switchToBranch(branchName)
+            createAndCheckoutBranch(branchName)
             makeChanges()
             commitChanges(commitMessage, gitName, gitEmail)
             createPullRequest(branchName, prMessage)
@@ -81,7 +80,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
             false
         }
 
-    private fun createBranchIfMissing(name: String) {
+    private fun createAndCheckoutBranch(name: String) {
         shell.run {
             println("creating branch $name")
             git().checkout(name)
@@ -113,7 +112,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
                 listOf(
                     "pull-request",
                     "--push",
-                    "--message=$prMessage",
+                    "--message='$prMessage'",
                     "--base=$name",
                     "--labels=buildpack-update"
                 )
@@ -135,7 +134,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
 
         fun commit(message: String, name: String, email: String) = script.command(
             "git", listOf(
-                "commit", "-a", "-m", message, "--quiet",
+                "commit", "-a", "--quiet",
                 "--message", message,
                 "--author", "$name <$email>",
             )

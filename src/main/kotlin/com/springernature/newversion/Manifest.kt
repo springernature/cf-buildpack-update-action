@@ -36,6 +36,7 @@ data class VersionedBuildpack(val name: String, val url: String, val version: Ve
 sealed class Version
 data class SemanticVersion(private val versionString: String) : Version() {
     fun toSemVer(): SemVer = SemVer.parse(versionString.trimStart('v'))
+    override fun toString() = versionString
 }
 
 object Latest : Version()
