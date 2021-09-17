@@ -10,18 +10,19 @@ import org.junit.jupiter.api.Test
 import java.net.InetSocketAddress
 import java.net.http.HttpClient
 
-class VersionedBuildpackTest {
+class GitHubBuildpackUpdateCheckerTest {
 
     @Test
     fun `we can query GitHub to find if updates are available`() {
+
+        val settings = Settings(mapOf(GIT_HUB_API_URL.key to baseUrl))
+        val buildpackUpdateChecker = GitHubBuildpackUpdateChecker(HttpClient.newBuilder().build(), settings)
         val buildpack = VersionedBuildpack(
             "cloudfoundry/java-buildpack",
             "https://github.com/cloudfoundry/java-buildpack",
             SemanticVersion("4.0.20")
         )
-
-        val settings = Settings(mapOf(GIT_HUB_API_URL.key to baseUrl))
-        val latestBuildpackVersion = buildpack.findLatestVersion(HttpClient.newBuilder().build(), settings)
+        val latestBuildpackVersion = buildpackUpdateChecker.findLatestVersion(buildpack)
 
         latestBuildpackVersion.toSemVer().let {
             it.major.shouldBeEqualTo(4)

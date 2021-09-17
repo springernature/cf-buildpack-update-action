@@ -5,10 +5,11 @@ import java.net.http.HttpClient
 
 fun main() {
     val settings = Settings(System.getenv())
-    val client = HttpClient.newBuilder().build()
+    val httpClient = HttpClient.newBuilder().build()
+    val buildpackUpdateChecker = GitHubBuildpackUpdateChecker(httpClient, settings)
     val publisher = GitHubPullRequestPublisher(settings)
     val manifestPath = File(".")
 
-    BuildpackVersionChecker(manifestPath, client, publisher, settings)
+    BuildpackVersionChecker(manifestPath, buildpackUpdateChecker, publisher)
         .performChecks()
 }

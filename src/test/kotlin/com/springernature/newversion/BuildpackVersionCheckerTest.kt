@@ -24,9 +24,8 @@ class BuildpackVersionCheckerTest {
         val capturingPublisher = CapturingPublisher()
         val buildpackVersionChecker = BuildpackVersionChecker(
             manifest,
-            HttpClient.newBuilder().build(),
-            capturingPublisher,
-            settings
+            GitHubBuildpackUpdateChecker(HttpClient.newBuilder().build(), settings),
+            capturingPublisher
         )
 
         buildpackVersionChecker.performChecks()

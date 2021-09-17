@@ -1,29 +1,11 @@
 package com.springernature.newversion
 
 import com.fasterxml.jackson.annotation.JsonCreator
-import com.springernature.newversion.Setting.GIT_HUB_API_URL
 import net.swiftzer.semver.SemVer
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse
 
 data class CFApplication(val buildpacks: List<VersionedBuildpack>)
 
 data class VersionedBuildpack(val name: String, val url: String, val version: Version) {
-
-    fun findLatestVersion(client: HttpClient, settings: Settings): SemanticVersion {
-        val url = "${settings.lookup(GIT_HUB_API_URL)}/repos/${name}/releases/latest"
-        val request = HttpRequest.newBuilder().uri(URI.create(url)).build()
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-        if (response.statusCode() != 200) {
-            throw RuntimeException("Unexpected response from GitHub for URL $url: ${response.statusCode()}; ${response.body()}")
-        }
-        val message = response.body()
-        return """"tag_name":\s*"v([^"]+)"""".toRegex().find(message)?.let {
-            SemanticVersion(it.groups[1]!!.value)
-        } ?: throw Exception("Couldn't get latest version of buildpack $name")
-    }
 
     companion object {
 

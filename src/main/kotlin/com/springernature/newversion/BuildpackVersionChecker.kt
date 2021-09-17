@@ -1,18 +1,16 @@
 package com.springernature.newversion
 
 import java.io.File
-import java.net.http.HttpClient
 
 class BuildpackVersionChecker(
     private val manifestPath: File,
-    private val httpClient: HttpClient,
-    private val publisher: Publisher,
-    private val settings: Settings
+    private val buildpackUpdateChecker: BuildpackUpdateChecker,
+    private val publisher: Publisher
 ) {
 
     fun performChecks() {
         loadManifests(manifestPath)
-            .flatMap { BuildpackUpdate.create(it, httpClient, settings) }
+            .flatMap { BuildpackUpdate.create(it, buildpackUpdateChecker) }
             .filter(BuildpackUpdate::hasUpdate)
             .forEach(publisher::publish)
     }

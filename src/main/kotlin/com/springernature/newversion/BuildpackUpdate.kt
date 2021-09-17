@@ -1,7 +1,5 @@
 package com.springernature.newversion
 
-import java.net.http.HttpClient
-
 data class BuildpackUpdate(
     val manifestPath: String,
     val currentBuildpack: VersionedBuildpack,
@@ -13,13 +11,13 @@ data class BuildpackUpdate(
     }
 
     companion object {
-        fun create(manifest: ManifestLoadResult, client: HttpClient, settings: Settings) = when (manifest) {
+        fun create(manifest: ManifestLoadResult, buildpackUpdateChecker: BuildpackUpdateChecker) = when (manifest) {
             is FailedManifest -> {
                 println(manifest)
                 emptyList()
             }
             is Manifest -> manifest.applications.flatMap { app -> app.buildpacks }.map {
-                BuildpackUpdate(manifest.path, it, it.findLatestVersion(client, settings))
+                BuildpackUpdate(manifest.path, it, buildpackUpdateChecker.findLatestVersion(it))
             }
         }
     }
