@@ -3,7 +3,6 @@ package com.springernature.newversion
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.File
-import java.lang.RuntimeException
 
 class GitHubPullRequestPublisherTest {
 
@@ -15,7 +14,7 @@ class GitHubPullRequestPublisherTest {
         publisher.publish(
             BuildpackUpdate(
                 createTestManifest(),
-                VersionedBuildpack("test/buildpack", "https://a.host/path/buildpack", SemanticVersion("2.0.4")),
+                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4")),
                 SemanticVersion("2.3.6")
             )
         )
@@ -31,16 +30,18 @@ class GitHubPullRequestPublisherTest {
 
     @Test
     fun `create a pull request when no existing branch is present`() {
-        val shell = CapturingShell(mapOf(
-            ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
-            ("git" to listOf("switch", "update-test-buildpack")) to { throw RuntimeException("Already exists") }))
+        val shell = CapturingShell(
+            mapOf(
+                ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
+                ("git" to listOf("switch", "update-test-buildpack")) to { throw RuntimeException("Already exists") })
+        )
         val publisher = GitHubPullRequestPublisher(shell, Settings())
         val manifest = createTestManifest()
 
         publisher.publish(
             BuildpackUpdate(
                 manifest,
-                VersionedBuildpack("test/buildpack", "https://a.host/path/buildpack", SemanticVersion("2.0.4")),
+                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4")),
                 SemanticVersion("2.3.6")
             )
         )
@@ -51,23 +52,71 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("fetch", "--prune", "--prune-tags"),
             "git" to listOf("switch", "update-test-buildpack"),
             "git" to listOf("checkout", "-B", "update-test-buildpack", "--quiet"),
-            "git" to listOf("commit", "-a", "--quiet",
+            "git" to listOf(
+                "commit", "-a", "--quiet",
                 "--message", "update test/buildpack to 2.3.6",
-                "--author", "buildpack update action <do_not_reply@springernature.com>"),
-            "hub" to listOf("pull-request", "--push",
+                "--author", "buildpack update action <do_not_reply@springernature.com>"
+            ),
+            "hub" to listOf(
+                "pull-request", "--push",
                 "--message='update test/buildpack to 2.3.6 in $manifest\n\nupdate test/buildpack from 2.0.4 to 2.3.6'",
-                "--base=update-test-buildpack", "--labels=buildpack-update"),
+                "--base=update-test-buildpack", "--labels=buildpack-update"
+            ),
             "git" to listOf("switch", "base-branch")
         )
+    }
+
+    @Test
+    fun `the manifest should be updated to point at the new version of the buildpack`() {
+        val shell = CapturingShell(
+            mapOf(
+                ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
+                ("git" to listOf("switch", "update-test-buildpack")) to { throw RuntimeException("Already exists") })
+        )
+        val publisher = GitHubPullRequestPublisher(shell, Settings())
+        val manifest = createTestManifest()
+
+        publisher.publish(
+            BuildpackUpdate(
+                manifest,
+                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4")),
+                SemanticVersion("2.3.6")
+            )
+        )
+
+        File(manifest).bufferedReader().readText() shouldBeEqualTo """
+            ---
+            applications:
+            - name: dummy-manifest-for-testing
+              instances: 1
+              health-check-type: process
+              no-route: true
+              buildpacks:
+              - https://a.host/test/buildpack#v2.3.6
+        """.trimIndent()
     }
 
     private fun createTestManifest(): String {
         return File.createTempFile("github-pull-request-publisher-test-manifest", ".yml").also {
             it.deleteOnExit()
+            it.bufferedWriter().use { writer ->
+                writer.write("""
+                    ---
+                    applications:
+                    - name: dummy-manifest-for-testing
+                      instances: 1
+                      health-check-type: process
+                      no-route: true
+                      buildpacks:
+                      - https://a.host/test/buildpack#v2.0.4
+                """.trimIndent()
+                )
+            }
         }.absolutePath
     }
 
-    private class CapturingShell(private val commandOutput: Map<Pair<String, List<String>>, () -> String> = mapOf()) : Shell {
+    private class CapturingShell(private val commandOutput: Map<Pair<String, List<String>>, () -> String> = mapOf()) :
+        Shell {
         val commands = mutableListOf<Pair<String, List<String>>>()
         override fun run(workingDirectory: File?, script: Script.() -> String): String {
             val capturingScript = CapturingScript(commandOutput)
@@ -79,7 +128,8 @@ class GitHubPullRequestPublisherTest {
         }
     }
 
-    private class CapturingScript(private val commandOutput: Map<Pair<String, List<String>>, () -> String> = mapOf()) : Script {
+    private class CapturingScript(private val commandOutput: Map<Pair<String, List<String>>, () -> String> = mapOf()) :
+        Script {
         val commands = mutableListOf<Pair<String, List<String>>>()
         override fun command(command: String, arguments: List<String>): String {
             commands.add(command to arguments)
