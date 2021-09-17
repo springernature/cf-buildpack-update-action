@@ -18,7 +18,7 @@ class BuildpackUpdateTest {
     fun `a successful manifest load returns a list of the specified buildpacks`() {
         val buildpack1 = VersionedBuildpack("test/one", "https://host/path/1", SemanticVersion("1.2.3"))
         val buildpack2 = VersionedBuildpack("test/two", "https://host/path/2", SemanticVersion("4.5.6"))
-        val buildpack3 = VersionedBuildpack("test/three", "https://host/path/3", Latest())
+        val buildpack3 = VersionedBuildpack("test/three", "https://host/path/3", Latest)
 
         val buildpacks = BuildpackUpdate.create(
             Manifest(
@@ -99,7 +99,7 @@ class BuildpackUpdateTest {
     fun `a buildpack from HEAD has no updates`() {
         val possibleUpdate = BuildpackUpdate(
             "a/path",
-            VersionedBuildpack("test/buildpack1", "https://a.host/path", Latest()),
+            VersionedBuildpack("test/buildpack1", "https://a.host/path", Latest),
             SemanticVersion("2.3.4")
         )
 
