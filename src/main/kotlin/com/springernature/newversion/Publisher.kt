@@ -1,7 +1,5 @@
 package com.springernature.newversion
 
-import java.io.File
-
 interface Publisher {
     fun publish(update: BuildpackUpdate)
 }
@@ -22,20 +20,20 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
 
     private fun BuildpackUpdate.prMessage() =
         """
-        update ${currentBuildpack.name} to $latestVersion in $manifestPath
+        update ${currentBuildpack.name} to $latestVersion in $manifest
         
         update ${currentBuildpack.name} from ${currentBuildpack.version} to $latestVersion
     """.trimIndent()
 
     private fun updateManifest(update: BuildpackUpdate) {
         println("updateManifest")
-        val manifestContent = File(update.manifestPath).readText(Charsets.UTF_8)
+        val manifestContent = update.manifest.readText(Charsets.UTF_8)
         val newManifest =
             manifestContent.replace(
                 "${update.currentBuildpack.name}#v${update.currentBuildpack.version}",
                 "${update.currentBuildpack.name}#v${update.latestVersion}"
             )
-        File(update.manifestPath).writeText(newManifest, Charsets.UTF_8)
+        update.manifest.writeText(newManifest, Charsets.UTF_8)
     }
 
     private fun createPullRequest(

@@ -8,9 +8,9 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.io.File
 
 sealed class ManifestLoadResult
-data class Manifest(val applications: List<CFApplication>, val path: String = "") : ManifestLoadResult()
+data class Manifest(val applications: List<CFApplication>, val path: File = File(".")) : ManifestLoadResult()
 data class FailedManifest(
-    val path: String,
+    val path: File,
     val error: Exception
 ) : ManifestLoadResult()
 
@@ -28,8 +28,8 @@ fun loadManifests(dir: File): Sequence<ManifestLoadResult> = dir.walk()
     .onEach { println(it) }
     .map {
         try {
-            readManifest(it).copy(path = it.path)
+            readManifest(it).copy(path = it)
         } catch (e: Exception) {
-            FailedManifest(it.path, e)
+            FailedManifest(it, e)
         }
     }

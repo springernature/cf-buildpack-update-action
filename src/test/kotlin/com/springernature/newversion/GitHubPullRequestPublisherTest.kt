@@ -84,7 +84,7 @@ class GitHubPullRequestPublisherTest {
             )
         )
 
-        File(manifest).bufferedReader().readText() shouldBeEqualTo """
+        manifest.readText() shouldBeEqualTo """
             ---
             applications:
             - name: dummy-manifest-for-testing
@@ -96,11 +96,10 @@ class GitHubPullRequestPublisherTest {
         """.trimIndent()
     }
 
-    private fun createTestManifest(): String {
-        return File.createTempFile("github-pull-request-publisher-test-manifest", ".yml").also {
+    private fun createTestManifest(): File =
+        File.createTempFile("github-pull-request-publisher-test-manifest", ".yml").also {
             it.deleteOnExit()
-            it.bufferedWriter().use { writer ->
-                writer.write("""
+            it.writeText("""
                     ---
                     applications:
                     - name: dummy-manifest-for-testing
@@ -109,11 +108,8 @@ class GitHubPullRequestPublisherTest {
                       no-route: true
                       buildpacks:
                       - https://a.host/test/buildpack#v2.0.4
-                """.trimIndent()
-                )
-            }
-        }.absolutePath
-    }
+                """.trimIndent())
+        }
 
     private class CapturingShell(private val commandOutput: Map<Pair<String, List<String>>, () -> String> = mapOf()) :
         Shell {

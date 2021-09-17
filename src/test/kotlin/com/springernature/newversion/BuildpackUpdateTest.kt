@@ -3,13 +3,14 @@ package com.springernature.newversion
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldContainAll
 import org.junit.jupiter.api.Test
+import java.io.File
 
 class BuildpackUpdateTest {
 
     @Test
     fun `a failed manifest load returns an empty list`() {
         val buildpacks =
-            BuildpackUpdate.create(FailedManifest("/a/path", RuntimeException("test")), PresetBuildpackUpdateChecker())
+            BuildpackUpdate.create(FailedManifest(File("/a/path"), RuntimeException("test")), PresetBuildpackUpdateChecker())
 
         buildpacks.isEmpty() shouldBe true
     }
@@ -31,9 +32,9 @@ class BuildpackUpdateTest {
         )
 
         buildpacks shouldContainAll listOf(
-            BuildpackUpdate("", buildpack1, SemanticVersion("1.0.0")),
-            BuildpackUpdate("", buildpack2, SemanticVersion("1.0.0")),
-            BuildpackUpdate("", buildpack3, SemanticVersion("1.0.0"))
+            BuildpackUpdate(File("."), buildpack1, SemanticVersion("1.0.0")),
+            BuildpackUpdate(File("."), buildpack2, SemanticVersion("1.0.0")),
+            BuildpackUpdate(File("."), buildpack3, SemanticVersion("1.0.0"))
         )
     }
 
@@ -57,15 +58,15 @@ class BuildpackUpdateTest {
         )
 
         buildpacks shouldContainAll listOf(
-            BuildpackUpdate("", buildpack1, SemanticVersion("2.3.4")),
-            BuildpackUpdate("", buildpack2, SemanticVersion("5.6.7")),
+            BuildpackUpdate(File("."), buildpack1, SemanticVersion("2.3.4")),
+            BuildpackUpdate(File("."), buildpack2, SemanticVersion("5.6.7")),
         )
     }
 
     @Test
     fun `a newer version is considered an update`() {
         val possibleUpdate = BuildpackUpdate(
-            "a/path",
+            File("a/path"),
             VersionedBuildpack("test/buildpack1", "https://a.host/path", SemanticVersion("1.2.0")),
             SemanticVersion("1.2.3")
         )
@@ -76,7 +77,7 @@ class BuildpackUpdateTest {
     @Test
     fun `an older version is not considered an update`() {
         val possibleUpdate = BuildpackUpdate(
-            "a/path",
+            File("a/path"),
             VersionedBuildpack("test/buildpack1", "https://a.host/path", SemanticVersion("1.5.0")),
             SemanticVersion("1.2.4")
         )
@@ -87,7 +88,7 @@ class BuildpackUpdateTest {
     @Test
     fun `the same version is not considered an update`() {
         val possibleUpdate = BuildpackUpdate(
-            "a/path",
+            File("a/path"),
             VersionedBuildpack("test/buildpack1", "https://a.host/path", SemanticVersion("2.3.4")),
             SemanticVersion("2.3.4")
         )
@@ -98,7 +99,7 @@ class BuildpackUpdateTest {
     @Test
     fun `a buildpack from HEAD has no updates`() {
         val possibleUpdate = BuildpackUpdate(
-            "a/path",
+            File("a/path"),
             VersionedBuildpack("test/buildpack1", "https://a.host/path", Latest),
             SemanticVersion("2.3.4")
         )
@@ -109,7 +110,7 @@ class BuildpackUpdateTest {
     @Test
     fun `semantic versioning is used for upgrade checks`() {
         val possibleUpdate = BuildpackUpdate(
-            "a/path",
+            File("a/path"),
             VersionedBuildpack("test/buildpack1", "https://a.host/path", SemanticVersion("1.3")),
             SemanticVersion("1.2.4")
         )

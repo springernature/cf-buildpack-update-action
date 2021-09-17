@@ -1,7 +1,9 @@
 package com.springernature.newversion
 
+import java.io.File
+
 data class BuildpackUpdate(
-    val manifestPath: String,
+    val manifest: File,
     val currentBuildpack: VersionedBuildpack,
     val latestVersion: SemanticVersion,
 ) {
