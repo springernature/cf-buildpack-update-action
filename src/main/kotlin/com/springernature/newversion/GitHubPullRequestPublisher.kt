@@ -1,10 +1,9 @@
 package com.springernature.newversion
 
 import com.lordcodes.turtle.GitCommands
-import com.lordcodes.turtle.shellRun
 import java.io.File
 
-class GitHubPullRequestPublisher(settings: Settings) : Publisher {
+class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) : Publisher {
 
     private val gitEmail: String = settings.lookup(Setting.AUTHOR_EMAIL)
     private val gitName: String = settings.lookup(Setting.AUTHOR_NAME)
@@ -63,13 +62,13 @@ class GitHubPullRequestPublisher(settings: Settings) : Publisher {
     }
 
     private fun getBaseBranch(): String {
-        return shellRun {
+        return shell.run {
             git.currentBranch()
         }
     }
 
     private fun gitInit() {
-        shellRun {
+        shell.run {
             command("git", listOf("remote", "prune", "origin"))
             command("git", listOf("fetch", "--prune", "--prune-tags"))
         }
@@ -77,7 +76,7 @@ class GitHubPullRequestPublisher(settings: Settings) : Publisher {
 
     private fun branchExistsAlready(name: String) =
         try {
-            shellRun {
+            shell.run {
                 git.gitCommand(listOf("switch", name))
             }
             true
@@ -86,21 +85,21 @@ class GitHubPullRequestPublisher(settings: Settings) : Publisher {
         }
 
     private fun createBranchIfMissing(name: String) {
-        shellRun {
+        shell.run {
             println("creating branch $name")
             git.checkout(name, true)
         }
     }
 
     private fun switchToBranch(name: String) {
-        shellRun {
+        shell.run {
             git.gitCommand(listOf("switch", name))
         }
     }
 
     private fun commitChanges(message: String, name: String, email: String) {
         println("commitChanges")
-        shellRun {
+        shell.run {
             git.commit(message, name, email)
         }
     }
@@ -118,7 +117,7 @@ class GitHubPullRequestPublisher(settings: Settings) : Publisher {
     private fun createPullRequest(name: String, prMessage: String) {
         println("createPullRequest")
         // https://hub.github.com/hub-pull-request.1.html
-        shellRun {
+        shell.run {
             command(
                 "hub",
                 listOf(

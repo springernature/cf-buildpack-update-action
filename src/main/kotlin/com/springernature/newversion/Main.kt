@@ -7,7 +7,8 @@ fun main() {
     val settings = Settings(System.getenv())
     val httpClient = HttpClient.newBuilder().build()
     val buildpackUpdateChecker = GitHubBuildpackUpdateChecker(httpClient, settings)
-    val publisher = GitHubPullRequestPublisher(settings)
+    val shellRunner = TurtleShell()
+    val publisher = GitHubPullRequestPublisher(shellRunner, settings)
     val manifestPath = File(".")
 
     BuildpackVersionChecker(manifestPath, buildpackUpdateChecker, publisher)
