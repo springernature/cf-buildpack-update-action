@@ -3,7 +3,12 @@ package com.springernature.newversion
 import com.fasterxml.jackson.annotation.JsonCreator
 import net.swiftzer.semver.SemVer
 
-data class CFApplication(val buildpacks: List<VersionedBuildpack>)
+data class CFApplication(
+    private val buildpacks: List<VersionedBuildpack> = listOf(),
+    private val buildpack: VersionedBuildpack? = null
+) {
+    fun buildpacks() = buildpack?.let { buildpacks.plus(buildpack) } ?: buildpacks
+}
 
 data class VersionedBuildpack(val name: String, val url: String, val version: Version) {
 
@@ -32,4 +37,5 @@ sealed class Version
 data class SemanticVersion(private val versionString: String) : Version() {
     fun toSemVer(): SemVer = SemVer.parse(versionString.trimStart('v'))
 }
+
 object Latest : Version()

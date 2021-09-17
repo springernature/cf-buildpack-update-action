@@ -16,7 +16,7 @@ data class BuildpackUpdate(
                 println(manifest)
                 emptyList()
             }
-            is Manifest -> manifest.applications.flatMap { app -> app.buildpacks }.map {
+            is Manifest -> manifest.applications.flatMap { app -> app.buildpacks() }.map {
                 BuildpackUpdate(manifest.path, it, buildpackUpdateChecker.findLatestVersion(it))
             }
         }

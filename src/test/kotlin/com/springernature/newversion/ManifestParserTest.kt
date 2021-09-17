@@ -28,7 +28,7 @@ class ManifestParserTest {
                     is FailedManifest -> fail("Manifest load failed: $it")
                     is Manifest -> {
                         it.applications.size shouldBe 1
-                        it.applications[0].buildpacks shouldContain VersionedBuildpack(
+                        it.applications[0].buildpacks() shouldContain VersionedBuildpack(
                             "cloudfoundry/staticfile-buildpack",
                             "https://github.com/cloudfoundry/staticfile-buildpack",
                             SemanticVersion("1.5.17")
@@ -52,7 +52,7 @@ class ManifestParserTest {
                     is FailedManifest -> fail("Manifest load failed: $it")
                     is Manifest -> {
                         it.applications.size shouldBe 1
-                        it.applications[0].buildpacks.let { buildpacks ->
+                        it.applications[0].buildpacks().let { buildpacks ->
                             buildpacks.size shouldBe 2
                             buildpacks shouldContainAll listOf(
                                 VersionedBuildpack(
@@ -74,7 +74,6 @@ class ManifestParserTest {
         parsedManifests shouldBe 1
     }
 
-
     @Test
     fun `a buildpack without a version is parsed correctly`() {
         val loadManifests = loadManifests(resourcePath("manifest-without-version.yml"))
@@ -87,12 +86,39 @@ class ManifestParserTest {
                     is FailedManifest -> fail("Manifest load failed: $it")
                     is Manifest -> {
                         it.applications.size shouldBe 1
-                        it.applications[0].buildpacks.let { buildpacks ->
+                        it.applications[0].buildpacks().let { buildpacks ->
                             buildpacks.size shouldBe 1
                             buildpacks shouldContain VersionedBuildpack(
                                 "springernature/nginx-opentracing-buildpack",
                                 "https://github.com/springernature/nginx-opentracing-buildpack",
                                 Latest
+                            )
+                        }
+                    }
+                }
+            }
+
+        parsedManifests shouldBe 1
+    }
+
+    @Test
+    fun `a manifest with a legacy buildpack attribute is parsed correctly`() {
+        val loadManifests = loadManifests(resourcePath("manifest-legacy.yml"))
+
+        var parsedManifests = 0
+        loadManifests
+            .also { parsedManifests++ }
+            .forEach {
+                when (it) {
+                    is FailedManifest -> fail("Manifest load failed: $it")
+                    is Manifest -> {
+                        it.applications.size shouldBe 1
+                        it.applications[0].buildpacks().let { buildpacks ->
+                            buildpacks.size shouldBe 1
+                            buildpacks shouldContain VersionedBuildpack(
+                                "cloudfoundry/staticfile-buildpack",
+                                "https://github.com/cloudfoundry/staticfile-buildpack",
+                                SemanticVersion("1.5.17")
                             )
                         }
                     }
