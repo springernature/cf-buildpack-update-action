@@ -10,12 +10,12 @@ class GitHubPullRequestPublisherTest {
     fun `we don't create a new pull request when a pull-request with the named branch already exists`() {
         val shell = CapturingShell(mapOf(
             ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
-            ("hub" to listOf("pr", "list", "-s", "open", "-f", "'%H %t%n'") to {
+            ("hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'") to {
                 """
-                        update/scalatest-3.2.9 Update scalatest to 3.2.9
-                        update/handlebars-4.1.2 Update handlebars to 4.1.2
-                        buildpack-update/update-test-buildpack-2.3.6 Update test/buildpack to 2.3.6
-                        update/log4j-core-2.13.3 Update log4j-core to 2.13.3
+                        update/scalatest-3.2.9
+                        update/handlebars-4.1.2
+                        buildpack-update/update-test-buildpack-2.3.6
+                        update/log4j-core-2.13.3
                     """.trimIndent()
             })))
         val publisher = GitHubPullRequestPublisher(shell, Settings())
@@ -29,10 +29,10 @@ class GitHubPullRequestPublisherTest {
         )
 
         shell.commands shouldBeEqualTo listOf(
-            "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
             "git" to listOf("remote", "prune", "origin"),
             "git" to listOf("fetch", "--prune", "--prune-tags"),
-            "hub" to listOf("pr", "list", "-s", "open", "-f", "'%H %t%n'"),
+            "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
+            "hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'"),
             "git" to listOf("switch", "base-branch")
         )
     }
@@ -42,11 +42,11 @@ class GitHubPullRequestPublisherTest {
         val shell = CapturingShell(
             mapOf(
                 ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
-                ("hub" to listOf("pr", "list", "-s", "open", "-f", "'%H %t%n'")) to {
+                ("hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'")) to {
                     """
-                        update/scalatest-3.2.9 Update scalatest to 3.2.9
-                        update/handlebars-4.1.2 Update handlebars to 4.1.2
-                        update/log4j-core-2.13.3 Update log4j-core to 2.13.3
+                        update/scalatest-3.2.9
+                        update/handlebars-4.1.2
+                        update/log4j-core-2.13.3
                     """.trimIndent()
                 }
             )
@@ -63,10 +63,10 @@ class GitHubPullRequestPublisherTest {
         )
 
         shell.commands shouldBeEqualTo listOf(
-            "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
             "git" to listOf("remote", "prune", "origin"),
             "git" to listOf("fetch", "--prune", "--prune-tags"),
-            "hub" to listOf("pr", "list", "-s", "open", "-f", "'%H %t%n'"),
+            "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
+            "hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'"),
             "git" to listOf("checkout", "-B", "buildpack-update/update-test-buildpack-2.3.6", "--quiet"),
             "git" to listOf(
                 "commit", "-a", "--quiet",
@@ -78,6 +78,56 @@ class GitHubPullRequestPublisherTest {
                 "--message='Update test/buildpack to 2.3.6 in $manifest\n\nUpdate test/buildpack from 2.0.4 to 2.3.6'",
                 "--base=buildpack-update/update-test-buildpack-2.3.6", "--labels=buildpack-update"
             ),
+            "git" to listOf("switch", "base-branch")
+        )
+    }
+
+    @Test
+    fun `clean up old pull requests when one for a newer version is created`() {
+        val shell = CapturingShell(
+            mapOf(
+                ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
+                ("hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'")) to {
+                    """
+                        update/scalatest-3.2.9
+                        buildpack-update/update-test-buildpack-2.3.5
+                        update/handlebars-4.1.2
+                        buildpack-update/update-test-buildpack-2.2.1
+                        buildpack-update/update-test-buildpack-2.4.0
+                        update/log4j-core-2.13.3
+                    """.trimIndent()
+                }
+            )
+        )
+        val publisher = GitHubPullRequestPublisher(shell, Settings())
+        val manifest = createTestManifest()
+
+        publisher.publish(
+            BuildpackUpdate(
+                manifest,
+                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4")),
+                SemanticVersion("2.3.6")
+            )
+        )
+
+        shell.commands shouldBeEqualTo listOf(
+            "git" to listOf("remote", "prune", "origin"),
+            "git" to listOf("fetch", "--prune", "--prune-tags"),
+            "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
+            "hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'"),
+            "git" to listOf("checkout", "-B", "buildpack-update/update-test-buildpack-2.3.6", "--quiet"),
+            "git" to listOf(
+                "commit", "-a", "--quiet",
+                "--message", "Update test/buildpack to 2.3.6",
+                "--author", "buildpack update action <do_not_reply@springernature.com>"
+            ),
+            "hub" to listOf(
+                "pull-request", "--push",
+                "--message='Update test/buildpack to 2.3.6 in $manifest\n\nUpdate test/buildpack from 2.0.4 to 2.3.6'",
+                "--base=buildpack-update/update-test-buildpack-2.3.6", "--labels=buildpack-update"
+            ),
+            "git" to listOf("push", "origin", ":buildpack-update/update-test-buildpack-2.3.5"),
+            "git" to listOf("push", "origin", ":buildpack-update/update-test-buildpack-2.2.1"),
             "git" to listOf("switch", "base-branch")
         )
     }
