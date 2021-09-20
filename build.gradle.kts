@@ -32,7 +32,7 @@ tasks.named<ShadowJar>("shadowJar") {
     archiveBaseName.set("buildpack-update-action")
     mergeServiceFiles()
     manifest {
-        attributes(mapOf("Main-Class" to "com.springernature.MainKt"))
+        attributes(mapOf("Main-Class" to "com.springernature.newversion.MainKt"))
     }
 
 }
