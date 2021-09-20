@@ -45,7 +45,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         val baseBranchName = getBaseBranch()
         gitInit()
         try {
-            if (branchExistsAlready(branchName)) {
+            if (pullRequestForBranchExists(branchName)) {
                 println("Branch already exist; skipping")
                 return
             }
@@ -70,13 +70,27 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         }
     }
 
-    private fun branchExistsAlready(name: String) =
-        try {
-            switchToBranch(name)
-            true
-        } catch (e: Exception) {
-            false
-        }
+    private fun pullRequestForBranchExists(branchName: String): Boolean {
+        val prWithBranchExists = shell
+            .run {
+                command("hub", listOf("pr", "list", "-s", "open", "-f", "'%H %t%n'"))
+            }
+            .split("\n")
+            .map { it.trim() }
+            .mapNotNull { resultLine ->
+                Regex("^([^\\s]+?)\\s(.+)$").matchEntire(resultLine)?.let {
+                    Pair(it.groupValues[1], it.groupValues[2])
+                }
+            }
+            .find { it.first == branchName } != null
+
+        if (prWithBranchExists)
+            println("Branch $prWithBranchExists already exists")
+        else
+            println("No branch named $branchName exists")
+
+        return prWithBranchExists
+    }
 
     private fun createAndCheckoutBranch(name: String) {
         shell.run {

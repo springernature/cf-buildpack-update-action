@@ -7,8 +7,17 @@ import java.io.File
 class GitHubPullRequestPublisherTest {
 
     @Test
-    fun `we don't create a new pull request when the branch already exists`() {
-        val shell = CapturingShell(mapOf(("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" }))
+    fun `we don't create a new pull request when a pull-request with the named branch already exists`() {
+        val shell = CapturingShell(mapOf(
+            ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
+            ("hub" to listOf("pr", "list", "-s", "open", "-f", "'%H %t%n'") to {
+                """
+                        update/scalatest-3.2.9 Update scalatest to 3.2.9
+                        update/handlebars-4.1.2 Update handlebars to 4.1.2
+                        update-test-buildpack Update cloudfoundry/java-buildpack to 4.41
+                        update/log4j-core-2.13.3 Update log4j-core to 2.13.3
+                    """.trimIndent()
+            })))
         val publisher = GitHubPullRequestPublisher(shell, Settings())
 
         publisher.publish(
@@ -23,17 +32,24 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
             "git" to listOf("remote", "prune", "origin"),
             "git" to listOf("fetch", "--prune", "--prune-tags"),
-            "git" to listOf("switch", "update-test-buildpack"), // this will succeed, meaning the branch already exists
+            "hub" to listOf("pr", "list", "-s", "open", "-f", "'%H %t%n'"),
             "git" to listOf("switch", "base-branch")
         )
     }
 
     @Test
-    fun `create a pull request when no existing branch is present`() {
+    fun `create a pull request when no existing pull request with the named branch is present`() {
         val shell = CapturingShell(
             mapOf(
                 ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
-                ("git" to listOf("switch", "update-test-buildpack")) to { throw RuntimeException("Already exists") })
+                ("hub" to listOf("pr", "list", "-s", "open", "-f", "'%H %t%n'")) to {
+                    """
+                        update/scalatest-3.2.9 Update scalatest to 3.2.9
+                        update/handlebars-4.1.2 Update handlebars to 4.1.2
+                        update/log4j-core-2.13.3 Update log4j-core to 2.13.3
+                    """.trimIndent()
+                }
+            )
         )
         val publisher = GitHubPullRequestPublisher(shell, Settings())
         val manifest = createTestManifest()
@@ -50,7 +66,7 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
             "git" to listOf("remote", "prune", "origin"),
             "git" to listOf("fetch", "--prune", "--prune-tags"),
-            "git" to listOf("switch", "update-test-buildpack"),
+            "hub" to listOf("pr", "list", "-s", "open", "-f", "'%H %t%n'"),
             "git" to listOf("checkout", "-B", "update-test-buildpack", "--quiet"),
             "git" to listOf(
                 "commit", "-a", "--quiet",
@@ -70,8 +86,8 @@ class GitHubPullRequestPublisherTest {
     fun `the manifest should be updated to point at the new version of the buildpack`() {
         val shell = CapturingShell(
             mapOf(
-                ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
-                ("git" to listOf("switch", "update-test-buildpack")) to { throw RuntimeException("Already exists") })
+                ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" }
+            )
         )
         val publisher = GitHubPullRequestPublisher(shell, Settings())
         val manifest = createTestManifest()
@@ -99,7 +115,8 @@ class GitHubPullRequestPublisherTest {
     private fun createTestManifest(): File =
         File.createTempFile("github-pull-request-publisher-test-manifest", ".yml").also {
             it.deleteOnExit()
-            it.writeText("""
+            it.writeText(
+                """
                     ---
                     applications:
                     - name: dummy-manifest-for-testing
@@ -108,7 +125,8 @@ class GitHubPullRequestPublisherTest {
                       no-route: true
                       buildpacks:
                       - https://a.host/test/buildpack#v2.0.4
-                """.trimIndent())
+                """.trimIndent()
+            )
         }
 
     private class CapturingShell(private val commandOutput: Map<Pair<String, List<String>>, () -> String> = mapOf()) :
