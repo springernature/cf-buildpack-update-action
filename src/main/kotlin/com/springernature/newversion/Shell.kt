@@ -22,7 +22,7 @@ class TurtleShell : Shell {
 class TurtleScript(private val workingDirectory: File?) : Script {
     override fun command(command: String, arguments: List<String>): String {
         return shellRun(workingDirectory) {
-            println("Shell: $command ${arguments.joinToString(" ") { """"$it"""" }}}")
+            println("Shell: $command ${arguments.joinToString(" ") { """"$it"""" }}")
             command(command, arguments)
         }
     }
