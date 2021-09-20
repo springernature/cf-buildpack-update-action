@@ -38,6 +38,29 @@ class BuildpackVersionCheckerTest {
         lastUpdate.latestVersion shouldBeEqualTo SemanticVersion("1.5.24")
     }
 
+    @Test
+    fun `find latest version if version only specifies major and minor but no patch version`() {
+        val manifest = File("src/test/resources/manifest-no-patch-version-specified.yml")
+        manifest.exists() shouldBe true
+
+        val settings = Settings(mapOf(GIT_HUB_API_URL.key to baseUrl))
+        val capturingPublisher = CapturingPublisher()
+        val buildpackVersionChecker = BuildpackVersionChecker(
+            manifest,
+            GitHubBuildpackUpdateChecker(HttpClient.newBuilder().build(), settings),
+            capturingPublisher
+        )
+
+        buildpackVersionChecker.performChecks()
+
+        val lastUpdate = capturingPublisher.lastUpdate
+        assertNotNull(lastUpdate)
+
+        lastUpdate.currentBuildpack.name shouldBeEqualTo "cloudfoundry/java-buildpack"
+        lastUpdate.currentBuildpack.version shouldBeEqualTo SemanticVersion("4.20")
+        lastUpdate.latestVersion shouldBeEqualTo SemanticVersion("4.41")
+    }
+
     class CapturingPublisher : Publisher {
         var lastUpdate: BuildpackUpdate? = null
 
@@ -47,15 +70,27 @@ class BuildpackVersionCheckerTest {
     }
 
     companion object {
-        private val server: HttpServer = HttpServer.create(InetSocketAddress(0), 0).also { server ->
-            server.createContext("/repos/cloudfoundry/staticfile-buildpack/releases/latest") { exchange ->
+        private val server: HttpServer = HttpServer.create(InetSocketAddress(0), 0)
+            .also { server ->
+                context(
+                    server,
+                    "/repos/cloudfoundry/staticfile-buildpack/releases/latest",
+                    "/github-latest-staticfile.json"
+                )
+            }.also { server ->
+                context(server, "/repos/cloudfoundry/java-buildpack/releases/latest", "/github-latest-java.json")
+            }
+
+        private fun context(server: HttpServer, path: String, responseFile: String) {
+            server.createContext(path) { exchange ->
                 exchange.sendResponse(
                     status = 200,
                     headers = mapOf("content-type" to "application/json;charset=utf-8"),
-                    body = readTestResource("/github-latest-staticfile.json")
+                    body = readTestResource(responseFile)
                 )
             }
         }
+
 
         private fun readTestResource(resourcePath: String) =
             this::class.java.getResourceAsStream(resourcePath)?.bufferedReader()?.readText()
