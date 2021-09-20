@@ -161,8 +161,8 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         fun commit(message: String, name: String, email: String) = script.command(
             "git", listOf(
                 "commit", "-a", "--quiet",
-                "--message", message,
-                "--author", "$name <$email>",
+                "-m", message,
+                "--author='$name <$email>'",
             )
         )
 
