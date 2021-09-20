@@ -71,7 +71,7 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf(
                 "commit", "-a", "--quiet",
                 "-m", "Update test/buildpack to 2.3.6",
-                "--author='buildpack update action <do_not_reply@springernature.com>'"
+                "--author='Buildpack Update Action <do_not_reply@springernature.com>'"
             ),
             "hub" to listOf(
                 "pull-request", "--push",
@@ -119,7 +119,7 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf(
                 "commit", "-a", "--quiet",
                 "-m", "Update test/buildpack to 2.3.6",
-                "--author='buildpack update action <do_not_reply@springernature.com>'"
+                "--author='Buildpack Update Action <do_not_reply@springernature.com>'"
             ),
             "hub" to listOf(
                 "pull-request", "--push",
