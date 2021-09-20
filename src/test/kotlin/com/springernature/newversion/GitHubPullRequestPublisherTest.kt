@@ -31,6 +31,8 @@ class GitHubPullRequestPublisherTest {
         shell.commands shouldBeEqualTo listOf(
             "git" to listOf("remote", "prune", "origin"),
             "git" to listOf("fetch", "--prune", "--prune-tags"),
+            "git" to listOf("config", "user.name", "Buildpack Update Action"),
+            "git" to listOf("config", "user.email", "do_not_reply@springernature.com"),
             "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
             "hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'"),
             "git" to listOf("switch", "base-branch")
@@ -65,6 +67,8 @@ class GitHubPullRequestPublisherTest {
         shell.commands shouldBeEqualTo listOf(
             "git" to listOf("remote", "prune", "origin"),
             "git" to listOf("fetch", "--prune", "--prune-tags"),
+            "git" to listOf("config", "user.name", "Buildpack Update Action"),
+            "git" to listOf("config", "user.email", "do_not_reply@springernature.com"),
             "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
             "hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'"),
             "git" to listOf("checkout", "-B", "buildpack-update/update-test-buildpack-2.3.6", "--quiet"),
@@ -113,6 +117,8 @@ class GitHubPullRequestPublisherTest {
         shell.commands shouldBeEqualTo listOf(
             "git" to listOf("remote", "prune", "origin"),
             "git" to listOf("fetch", "--prune", "--prune-tags"),
+            "git" to listOf("config", "user.name", "Buildpack Update Action"),
+            "git" to listOf("config", "user.email", "do_not_reply@springernature.com"),
             "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
             "hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'"),
             "git" to listOf("checkout", "-B", "buildpack-update/update-test-buildpack-2.3.6", "--quiet"),

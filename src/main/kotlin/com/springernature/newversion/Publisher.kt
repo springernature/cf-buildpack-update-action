@@ -45,7 +45,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         update: BuildpackUpdate,
         makeChanges: () -> Unit
     ) {
-        gitInit()
+        gitInit(gitName, gitEmail)
 
         val baseBranchName = getBaseBranch()
         val prBranchNames = openPullRequestBranchNames()
@@ -71,9 +71,11 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         git().currentBranch()
     }
 
-    private fun gitInit() {
+    private fun gitInit(defaultCommitterName: String, defaultCommitterEmail: String) {
         shell.run {
             git().init()
+            git().configUserName(defaultCommitterName)
+            git().configUserEmail(defaultCommitterEmail)
         }
     }
 
@@ -169,5 +171,13 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         fun checkout(branchName: String) = script.command("git", listOf("checkout", "-B", branchName, "--quiet"))
 
         fun deleteRemoteBranch(branchName: String) = script.command("git", listOf("push", "origin", ":$branchName"))
+
+        fun configUserName(name: String) =script.command(
+            "git", listOf("config", "user.name", name)
+        )
+
+        fun configUserEmail(email: String) =script.command(
+            "git", listOf("config", "user.email", email)
+        )
     }
 }
