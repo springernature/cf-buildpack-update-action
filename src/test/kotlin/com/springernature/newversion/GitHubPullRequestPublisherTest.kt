@@ -14,7 +14,7 @@ class GitHubPullRequestPublisherTest {
                 """
                         update/scalatest-3.2.9 Update scalatest to 3.2.9
                         update/handlebars-4.1.2 Update handlebars to 4.1.2
-                        buildpack-update/update-test-buildpack Update cloudfoundry/java-buildpack to 4.41
+                        buildpack-update/update-test-buildpack-2.3.6 Update test/buildpack to 2.3.6
                         update/log4j-core-2.13.3 Update log4j-core to 2.13.3
                     """.trimIndent()
             })))
@@ -67,16 +67,16 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("remote", "prune", "origin"),
             "git" to listOf("fetch", "--prune", "--prune-tags"),
             "hub" to listOf("pr", "list", "-s", "open", "-f", "'%H %t%n'"),
-            "git" to listOf("checkout", "-B", "buildpack-update/update-test-buildpack", "--quiet"),
+            "git" to listOf("checkout", "-B", "buildpack-update/update-test-buildpack-2.3.6", "--quiet"),
             "git" to listOf(
                 "commit", "-a", "--quiet",
-                "--message", "update test/buildpack to 2.3.6",
+                "--message", "Update test/buildpack to 2.3.6",
                 "--author", "buildpack update action <do_not_reply@springernature.com>"
             ),
             "hub" to listOf(
                 "pull-request", "--push",
-                "--message='update test/buildpack to 2.3.6 in $manifest\n\nupdate test/buildpack from 2.0.4 to 2.3.6'",
-                "--base=buildpack-update/update-test-buildpack", "--labels=buildpack-update"
+                "--message='Update test/buildpack to 2.3.6 in $manifest\n\nUpdate test/buildpack from 2.0.4 to 2.3.6'",
+                "--base=buildpack-update/update-test-buildpack-2.3.6", "--labels=buildpack-update"
             ),
             "git" to listOf("switch", "base-branch")
         )

@@ -10,19 +10,20 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
     private val gitName: String = settings.lookup(Setting.AUTHOR_NAME)
 
     override fun publish(update: BuildpackUpdate) {
-        createPullRequest(update.branchname(), update.commitMessage(), update.prMessage()) { updateManifest(update) }
+        createPullRequest(update.branchName(), update.commitMessage(), update.prMessage()) { updateManifest(update) }
     }
 
-    private fun BuildpackUpdate.branchname() = "buildpack-update/update-${currentBuildpack.name.replace('/', '-')}"
+    private fun BuildpackUpdate.branchName() =
+        "buildpack-update/update-${currentBuildpack.name.replace('/', '-')}-$latestVersion"
 
     private fun BuildpackUpdate.commitMessage() =
-        "update ${currentBuildpack.name} to $latestVersion"
+        "Update ${currentBuildpack.name} to $latestVersion"
 
     private fun BuildpackUpdate.prMessage() =
         """
-        update ${currentBuildpack.name} to $latestVersion in $manifest
+        Update ${currentBuildpack.name} to $latestVersion in $manifest
         
-        update ${currentBuildpack.name} from ${currentBuildpack.version} to $latestVersion
+        Update ${currentBuildpack.name} from ${currentBuildpack.version} to $latestVersion
     """.trimIndent()
 
     private fun updateManifest(update: BuildpackUpdate) {
