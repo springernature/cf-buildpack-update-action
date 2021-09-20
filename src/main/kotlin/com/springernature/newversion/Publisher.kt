@@ -31,7 +31,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
     """.trimIndent()
 
     private fun updateManifest(update: BuildpackUpdate) {
-        println("updateManifest")
+        println("Updating manifest for ${update.currentBuildpack.name}#v${update.currentBuildpack.version} -> v${update.latestVersion}")
         val manifestContent = update.manifest.readText(Charsets.UTF_8)
         val newManifest =
             manifestContent.replace(
@@ -95,7 +95,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
 
     private fun createAndCheckoutBranch(name: String) {
         shell.run {
-            println("creating branch $name")
+            println("Creating branch $name")
             git().checkout(name)
         }
     }
@@ -110,7 +110,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
     }
 
     private fun commitChanges(message: String, name: String, email: String) {
-        println("commitChanges")
+        println("Committing changes as $name <$email>")
         shell.run {
             git().commit(message, name, email)
         }
