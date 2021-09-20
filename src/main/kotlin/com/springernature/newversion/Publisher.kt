@@ -13,7 +13,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         createPullRequest(update.branchname(), update.commitMessage(), update.prMessage()) { updateManifest(update) }
     }
 
-    private fun BuildpackUpdate.branchname() = "update-${currentBuildpack.name.replace('/', '-')}"
+    private fun BuildpackUpdate.branchname() = "buildpack-update/update-${currentBuildpack.name.replace('/', '-')}"
 
     private fun BuildpackUpdate.commitMessage() =
         "update ${currentBuildpack.name} to $latestVersion"
@@ -115,7 +115,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         }
     }
 
-    private fun createPullRequest(name: String, prMessage: String) {
+    private fun createPullRequest(branchName: String, prMessage: String) {
         println("createPullRequest")
         // https://hub.github.com/hub-pull-request.1.html
         shell.run {
@@ -125,7 +125,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
                     "pull-request",
                     "--push",
                     "--message='$prMessage'",
-                    "--base=$name",
+                    "--base=$branchName",
                     "--labels=buildpack-update"
                 )
             )
