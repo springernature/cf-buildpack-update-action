@@ -162,7 +162,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
             "git", listOf(
                 "commit", "-a", "--quiet",
                 "-m", message,
-                "--author='$name <$email>'",
+                "--author='$name <$email>'"
             )
         )
 
