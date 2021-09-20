@@ -26,9 +26,6 @@ Create pull requests to update Cloud Foundry buildpacks in manifest files
 * use YAML and JSON parser
 * create pull request description with proper description of the update, e.g. link to changelog, etc. (see dependabot PRs)
 * use proper logging
-* make it testable
-* add tests
 * improve build time
 * make it configurable, see [Dependabot config](https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/configuration-options-for-dependency-updates
   ) for ideas
-* https://docs.cloudfoundry.org/devguide/deploy-apps/manifest-attributes.html#buildpack-deprecated
