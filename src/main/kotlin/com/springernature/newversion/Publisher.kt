@@ -58,6 +58,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
             createAndCheckoutBranch(update.branchName())
             makeChanges()
             commitChanges(update.commitMessage(), gitName, gitEmail)
+            push(update.branchName())
             createPullRequest(update.prMessage())
 
             cleanUpOldPullRequests(update.baseBranchName(), update.latestVersion, prBranchNames)
@@ -118,6 +119,12 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         }
     }
 
+    private fun push(branchName: String) {
+        shell.run {
+            git().pushAndSetUpstream(branchName)
+        }
+    }
+
     private fun createPullRequest(prMessage: String) {
         println("Creating pull request")
         shell.run {
@@ -169,6 +176,10 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         fun checkout(branchName: String) = script.command("git", listOf("checkout", "-B", branchName, "--quiet"))
 
         fun deleteRemoteBranch(branchName: String) = script.command("git", listOf("push", "origin", ":$branchName"))
+
+        fun pushAndSetUpstream(branchName: String) = script.command(
+            "git", listOf("push", "--set-upstream", "origin", branchName)
+        )
 
         fun configUserName(name: String) =script.command(
             "git", listOf("config", "user.name", name)

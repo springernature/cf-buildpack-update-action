@@ -77,6 +77,7 @@ class GitHubPullRequestPublisherTest {
                 "-m", "Update test/buildpack to 2.3.6",
                 "--author='Buildpack Update Action <do_not_reply@springernature.com>'"
             ),
+            "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/update-test-buildpack-2.3.6"),
             "hub" to listOf(
                 "pull-request", "--push",
                 "--message='Update test/buildpack to 2.3.6 in $manifest\n\nUpdate test/buildpack from 2.0.4 to 2.3.6'",
@@ -127,6 +128,7 @@ class GitHubPullRequestPublisherTest {
                 "-m", "Update test/buildpack to 2.3.6",
                 "--author='Buildpack Update Action <do_not_reply@springernature.com>'"
             ),
+            "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/update-test-buildpack-2.3.6"),
             "hub" to listOf(
                 "pull-request", "--push",
                 "--message='Update test/buildpack to 2.3.6 in $manifest\n\nUpdate test/buildpack from 2.0.4 to 2.3.6'",
