@@ -16,7 +16,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
     }
 
     private fun BuildpackUpdate.baseBranchName() =
-        "buildpack-update/update-${currentBuildpack.name.replace('/', '-')}"
+        "buildpack-update/${currentBuildpack.name.replace('/', '-')}"
 
     private fun BuildpackUpdate.branchName() = "${baseBranchName()}-$latestVersion"
 
