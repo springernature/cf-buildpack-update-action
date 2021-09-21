@@ -100,7 +100,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
 
     private fun openPullRequestBranchNames() = shell
         .run {
-            command("hub", listOf("pr", "list", "-s", "open", "-f", "'%H%n'"))
+            command("hub", listOf("pr", "list", "-s", "open", "-f", "%H%n"))
         }
         .split("\n")
         .map { it.trim() }

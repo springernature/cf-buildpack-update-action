@@ -14,7 +14,7 @@ class GitHubPullRequestPublisherTest {
         val shell = CapturingShell(
             mapOf(
                 ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
-                ("hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'") to {
+                ("hub" to listOf("pr", "list", "-s", "open", "-f", "%H%n") to {
                     """
                         update/scalatest-3.2.9
                         update/handlebars-4.1.2
@@ -40,7 +40,7 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("config", "user.name", "Buildpack Update Action"),
             "git" to listOf("config", "user.email", "do_not_reply@springernature.com"),
             "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
-            "hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'"),
+            "hub" to listOf("pr", "list", "-s", "open", "-f", "%H%n"),
             "git" to listOf("switch", "base-branch")
         )
     }
@@ -50,7 +50,7 @@ class GitHubPullRequestPublisherTest {
         val shell = CapturingShell(
             mapOf(
                 ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
-                ("hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'")) to {
+                ("hub" to listOf("pr", "list", "-s", "open", "-f", "%H%n")) to {
                     """
                         update/scalatest-3.2.9
                         update/handlebars-4.1.2
@@ -76,7 +76,7 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("config", "user.name", "Buildpack Update Action"),
             "git" to listOf("config", "user.email", "do_not_reply@springernature.com"),
             "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
-            "hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'"),
+            "hub" to listOf("pr", "list", "-s", "open", "-f", "%H%n"),
             "git" to listOf("checkout", "-B", "buildpack-update/test-buildpack-2.3.6", "--quiet"),
             "git" to listOf(
                 "commit", "-a", "--quiet",
@@ -101,7 +101,7 @@ class GitHubPullRequestPublisherTest {
         val shell = CapturingShell(
             mapOf(
                 ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
-                ("hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'")) to {
+                ("hub" to listOf("pr", "list", "-s", "open", "-f", "%H%n")) to {
                     """
                         update/scalatest-3.2.9
                         update/handlebars-4.1.2
@@ -145,7 +145,7 @@ class GitHubPullRequestPublisherTest {
         val shell = CapturingShell(
             mapOf(
                 ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
-                ("hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'")) to {
+                ("hub" to listOf("pr", "list", "-s", "open", "-f", "%H%n")) to {
                     """
                         update/scalatest-3.2.9
                         buildpack-update/test-buildpack-2.3.5
@@ -174,7 +174,7 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("config", "user.name", "Buildpack Update Action"),
             "git" to listOf("config", "user.email", "do_not_reply@springernature.com"),
             "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
-            "hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'"),
+            "hub" to listOf("pr", "list", "-s", "open", "-f", "%H%n"),
             "git" to listOf("checkout", "-B", "buildpack-update/test-buildpack-2.3.6", "--quiet"),
             "git" to listOf(
                 "commit", "-a", "--quiet",
@@ -201,7 +201,7 @@ class GitHubPullRequestPublisherTest {
         val shell = CapturingShell(
             mapOf(
                 ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
-                ("hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'")) to {
+                ("hub" to listOf("pr", "list", "-s", "open", "-f", "%H%n")) to {
                     """
                         update/scalatest-3.2.9
                         buildpack-update/test-buildpack-2.3.5
