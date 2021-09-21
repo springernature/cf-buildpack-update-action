@@ -57,7 +57,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         gitInit(gitName, gitEmail)
 
         val baseBranchName = getBaseBranch()
-        val prBranchNames = openPullRequestBranchNames()
+        val prBranchNames = remoteBranchNames()
 
         try {
             if (pullRequestForBranchExists(update.branchName(), prBranchNames)) {
@@ -92,12 +92,14 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
     private fun pullRequestForBranchExists(branchName: String, prBranchNames: List<String>) = prBranchNames
         .contains(branchName)
 
-    private fun openPullRequestBranchNames() = shell
+    private fun remoteBranchNames() = shell
         .run {
-            command("hub", listOf("pr", "list", "-s", "open", "-f", "%H%n"))
+            command("git", listOf("branch", "-r"))
         }
         .split("\n")
         .map { it.trim() }
+        .map { it.replaceFirst(Regex("^origin/"), "") }
+        .map { it.split(' ').first().trim() }
 
     private fun createAndCheckoutBranch(name: String) {
         shell.run {

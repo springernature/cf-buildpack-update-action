@@ -14,12 +14,14 @@ class GitHubPullRequestPublisherTest {
         val shell = CapturingShell(
             mapOf(
                 ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
-                ("hub" to listOf("pr", "list", "-s", "open", "-f", "%H%n") to {
+                ("git" to listOf("branch", "-r") to {
                     """
-                        update/scalatest-3.2.9
-                        update/handlebars-4.1.2
-                        buildpack-update/test-buildpack-2.3.6
-                        update/log4j-core-2.13.3
+                        origin/HEAD -> origin/main
+                        origin/main
+                        origin/update/scalatest-3.2.9
+                        origin/update/handlebars-4.1.2
+                        origin/buildpack-update/test-buildpack-2.3.6
+                        origin/update/log4j-core-2.13.3
                     """.trimIndent()
                 })
             )
@@ -40,7 +42,7 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("config", "user.name", "Buildpack Update Action"),
             "git" to listOf("config", "user.email", "do_not_reply@springernature.com"),
             "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
-            "hub" to listOf("pr", "list", "-s", "open", "-f", "%H%n"),
+            "git" to listOf("branch", "-r"),
             "git" to listOf("switch", "base-branch")
         )
     }
@@ -50,11 +52,13 @@ class GitHubPullRequestPublisherTest {
         val shell = CapturingShell(
             mapOf(
                 ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
-                ("hub" to listOf("pr", "list", "-s", "open", "-f", "%H%n")) to {
+                ("git" to listOf("branch", "-r")) to {
                     """
-                        update/scalatest-3.2.9
-                        update/handlebars-4.1.2
-                        update/log4j-core-2.13.3
+                        origin/HEAD -> origin/main
+                        origin/main
+                        origin/update/scalatest-3.2.9
+                        origin/update/handlebars-4.1.2
+                        origin/update/log4j-core-2.13.3
                     """.trimIndent()
                 }
             )
@@ -76,7 +80,7 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("config", "user.name", "Buildpack Update Action"),
             "git" to listOf("config", "user.email", "do_not_reply@springernature.com"),
             "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
-            "hub" to listOf("pr", "list", "-s", "open", "-f", "%H%n"),
+            "git" to listOf("branch", "-r"),
             "git" to listOf("checkout", "-B", "buildpack-update/test-buildpack-2.3.6", "--quiet"),
             "git" to listOf(
                 "commit", "-a", "--quiet",
@@ -101,11 +105,13 @@ class GitHubPullRequestPublisherTest {
         val shell = CapturingShell(
             mapOf(
                 ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
-                ("hub" to listOf("pr", "list", "-s", "open", "-f", "%H%n")) to {
+                ("git" to listOf("branch", "-r")) to {
                     """
-                        update/scalatest-3.2.9
-                        update/handlebars-4.1.2
-                        update/log4j-core-2.13.3
+                        origin/HEAD -> origin/main
+                        origin/main
+                        origin/update/scalatest-3.2.9
+                        origin/update/handlebars-4.1.2
+                        origin/update/log4j-core-2.13.3
                     """.trimIndent()
                 }
             )
@@ -145,14 +151,16 @@ class GitHubPullRequestPublisherTest {
         val shell = CapturingShell(
             mapOf(
                 ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
-                ("hub" to listOf("pr", "list", "-s", "open", "-f", "%H%n")) to {
+                ("git" to listOf("branch", "-r")) to {
                     """
-                        update/scalatest-3.2.9
-                        buildpack-update/test-buildpack-2.3.5
-                        update/handlebars-4.1.2
-                        buildpack-update/test-buildpack-2.2.1
-                        buildpack-update/test-buildpack-2.4.0
-                        update/log4j-core-2.13.3
+                        origin/HEAD -> origin/main
+                        origin/main
+                        origin/update/scalatest-3.2.9
+                        origin/buildpack-update/test-buildpack-2.3.5
+                        origin/update/handlebars-4.1.2
+                        origin/buildpack-update/test-buildpack-2.2.1
+                        origin/buildpack-update/test-buildpack-2.4.0
+                        origin/update/log4j-core-2.13.3
                     """.trimIndent()
                 }
             )
@@ -174,7 +182,7 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("config", "user.name", "Buildpack Update Action"),
             "git" to listOf("config", "user.email", "do_not_reply@springernature.com"),
             "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
-            "hub" to listOf("pr", "list", "-s", "open", "-f", "%H%n"),
+            "git" to listOf("branch", "-r"),
             "git" to listOf("checkout", "-B", "buildpack-update/test-buildpack-2.3.6", "--quiet"),
             "git" to listOf(
                 "commit", "-a", "--quiet",
@@ -201,14 +209,16 @@ class GitHubPullRequestPublisherTest {
         val shell = CapturingShell(
             mapOf(
                 ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
-                ("hub" to listOf("pr", "list", "-s", "open", "-f", "%H%n")) to {
+                ("git" to listOf("branch", "-r")) to {
                     """
-                        update/scalatest-3.2.9
-                        buildpack-update/test-buildpack-2.3.5
-                        update/handlebars-4.1.2
-                        buildpack-update/test-buildpack-2.2.1
-                        buildpack-update/test-buildpack-2.4.0
-                        update/log4j-core-2.13.3
+                        origin/HEAD -> origin/main
+                        origin/main
+                        origin/update/scalatest-3.2.9
+                        origin/buildpack-update/test-buildpack-2.3.5
+                        origin/update/handlebars-4.1.2
+                        origin/buildpack-update/test-buildpack-2.2.1
+                        origin/buildpack-update/test-buildpack-2.4.0
+                        origin/update/log4j-core-2.13.3
                     """.trimIndent()
                 }
             )
