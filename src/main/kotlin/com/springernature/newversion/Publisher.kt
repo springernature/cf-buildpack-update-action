@@ -61,7 +61,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
 
         try {
             if (pullRequestForBranchExists(update.branchName(), prBranchNames)) {
-                LOG.info("Branch {} already exists; skipping", update.branchName())
+                LOG.info("The PR branch {} already exists; skipping", update.branchName())
                 return
             }
             createAndCheckoutBranch(update.branchName())
@@ -91,12 +91,6 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
 
     private fun pullRequestForBranchExists(branchName: String, prBranchNames: List<String>) = prBranchNames
         .contains(branchName)
-        .also {
-            if (it)
-                LOG.info("Branch {} already exists", branchName)
-            else
-                LOG.info("No branch named {} exists", branchName)
-        }
 
     private fun openPullRequestBranchNames() = shell
         .run {
