@@ -1,5 +1,7 @@
 package com.springernature.newversion
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.File
 
 data class BuildpackUpdate(
@@ -13,9 +15,11 @@ data class BuildpackUpdate(
     }
 
     companion object {
+        private val LOG: Logger = LoggerFactory.getLogger(BuildpackUpdate::class.java)
+
         fun create(manifest: ManifestLoadResult, buildpackUpdateChecker: BuildpackUpdateChecker) = when (manifest) {
             is FailedManifest -> {
-                println(manifest)
+                LOG.error("Failed to parse manifest {}", manifest)
                 emptyList()
             }
             is Manifest -> manifest.applications.flatMap { app -> app.buildpacks() }.map {

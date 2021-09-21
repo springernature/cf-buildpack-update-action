@@ -1,5 +1,7 @@
 package com.springernature.newversion
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.File
 
 class BuildpackVersionChecker(
@@ -9,17 +11,20 @@ class BuildpackVersionChecker(
 ) {
 
     fun performChecks() {
-        loadManifests(manifestPath)
+        ManifestParser.load(manifestPath)
             .flatMap { BuildpackUpdate.create(it, buildpackUpdateChecker) }
             .filter(BuildpackUpdate::hasUpdate)
             .forEach {
                 try {
                     publisher.publish(it)
                 } catch (e: Exception) {
-                    System.err.println("Publish of $it failed: ${e.message}")
-                    e.printStackTrace(System.err)
+                    LOG.error("Publish of update failed: {}", it, e)
                 }
             }
+    }
+
+    companion object {
+        private val LOG: Logger = LoggerFactory.getLogger(BuildpackVersionChecker::class.java)
     }
 
 }

@@ -11,14 +11,14 @@ class ManifestParserTest {
 
     @Test
     fun `loading does not fail on directories`() {
-        val loadManifests = loadManifests(resourcePath("/directory-name-test"))
+        val loadManifests = ManifestParser.load(resourcePath("/directory-name-test"))
         val failedCount = loadManifests.filterIsInstance<FailedManifest>().count()
         failedCount shouldBe 0
     }
 
     @Test
     fun `a buildpack can be determined from a manifest`() {
-        val loadManifests = loadManifests(resourcePath("manifest.yml"))
+        val loadManifests = ManifestParser.load(resourcePath("manifest.yml"))
 
         var parsedManifests = 0
         loadManifests
@@ -43,7 +43,7 @@ class ManifestParserTest {
 
     @Test
     fun `all buildpacks in a manifest are loaded`() {
-        val loadManifests = loadManifests(resourcePath("manifest-with-multiple-buildpacks.yml"))
+        val loadManifests = ManifestParser.load(resourcePath("manifest-with-multiple-buildpacks.yml"))
 
         var parsedManifests = 0
         loadManifests
@@ -79,7 +79,7 @@ class ManifestParserTest {
 
     @Test
     fun `a buildpack without a version is parsed correctly`() {
-        val loadManifests = loadManifests(resourcePath("manifest-without-version.yml"))
+        val loadManifests = ManifestParser.load(resourcePath("manifest-without-version.yml"))
 
         var parsedManifests = 0
         loadManifests
@@ -107,7 +107,7 @@ class ManifestParserTest {
 
     @Test
     fun `a manifest with a legacy buildpack attribute is parsed correctly`() {
-        val loadManifests = loadManifests(resourcePath("manifest-legacy.yml"))
+        val loadManifests = ManifestParser.load(resourcePath("manifest-legacy.yml"))
 
         var parsedManifests = 0
         loadManifests

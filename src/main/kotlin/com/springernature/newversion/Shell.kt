@@ -1,6 +1,8 @@
 package com.springernature.newversion
 
 import com.lordcodes.turtle.shellRun
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.File
 
 interface Shell {
@@ -22,8 +24,12 @@ class TurtleShell : Shell {
 class TurtleScript(private val workingDirectory: File?) : Script {
     override fun command(command: String, arguments: List<String>): String {
         return shellRun(workingDirectory) {
-            println("Shell: $command ${arguments.joinToString(" ") { """"$it"""" }}")
+            LOG.debug("Shell: {} {}", command, arguments.joinToString(" ") { """"$it"""" })
             command(command, arguments)
         }
+    }
+
+    companion object {
+        private val LOG: Logger = LoggerFactory.getLogger(TurtleScript::class.java)
     }
 }

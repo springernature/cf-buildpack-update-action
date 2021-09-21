@@ -1,6 +1,8 @@
 package com.springernature.newversion
 
 import net.swiftzer.semver.SemVer
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.File
 
 interface Publisher {
@@ -37,7 +39,8 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
     private fun File.toPrettyString(): String = toString().replace(Regex("^./"), "")
 
     private fun updateManifest(update: BuildpackUpdate) {
-        println("Updating manifest for ${update.currentBuildpack.name}#${update.currentBuildpack.tag?.value} -> ${update.latestUpdate.tag.value}")
+        LOG.info("Updating manifest for {}#{} -> {}",
+            update.currentBuildpack.name, update.currentBuildpack.tag?.value, update.latestUpdate.tag.value)
         val manifestContent = update.manifest.readText(Charsets.UTF_8)
         val newManifest =
             manifestContent.replace(
@@ -58,7 +61,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
 
         try {
             if (pullRequestForBranchExists(update.branchName(), prBranchNames)) {
-                println("Branch ${update.branchName()} already exists; skipping")
+                LOG.info("Branch {} already exists; skipping", update.branchName())
                 return
             }
             createAndCheckoutBranch(update.branchName())
@@ -90,9 +93,9 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         .contains(branchName)
         .also {
             if (it)
-                println("Branch $branchName already exists")
+                LOG.info("Branch {} already exists", branchName)
             else
-                println("No branch named $branchName exists")
+                LOG.info("No branch named {} exists", branchName)
         }
 
     private fun openPullRequestBranchNames() = shell
@@ -104,7 +107,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
 
     private fun createAndCheckoutBranch(name: String) {
         shell.run {
-            println("Creating branch $name")
+            LOG.info("Creating branch {}", name)
             git().checkout(name)
         }
     }
@@ -119,7 +122,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
     }
 
     private fun commitChanges(message: String, name: String, email: String) {
-        println("Committing changes as $name <$email>")
+        LOG.info("Committing changes as '{} <{}>'", name, email)
         shell.run {
             git().commit(message, name, email)
         }
@@ -135,7 +138,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         prMessage: String,
         baseBranchName: String
     ) {
-        println("Creating pull request from base $baseBranchName")
+        LOG.info("Creating pull request from base {}", baseBranchName)
         shell.run {
             command(
                 "hub",
@@ -155,12 +158,12 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         currentVersion: SemanticVersion,
         prBranchNames: List<String>
     ) {
-        println("Cleaning up old PRs for $baseBranchName")
+        LOG.info("Cleaning up old PRs for {}", baseBranchName)
         prBranchNames
             .filter { it.startsWith(baseBranchName) }
             .filter { SemVer.parse(it.substringAfterLast("-")) < currentVersion.toSemVer() }
             .forEach {
-                println("- Deleting old PR branch $it")
+                LOG.info("Deleting old PR branch {}", it)
                 shell.run {
                     git().deleteRemoteBranch(it)
                 }
@@ -202,5 +205,9 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         fun configUserEmail(email: String) = script.command(
             "git", listOf("config", "user.email", email)
         )
+    }
+
+    companion object {
+        private val LOG: Logger = LoggerFactory.getLogger(GitHubPullRequestPublisher::class.java)
     }
 }
