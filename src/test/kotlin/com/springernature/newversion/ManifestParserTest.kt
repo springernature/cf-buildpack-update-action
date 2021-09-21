@@ -31,7 +31,8 @@ class ManifestParserTest {
                         it.applications[0].buildpacks() shouldContain VersionedBuildpack(
                             "cloudfoundry/staticfile-buildpack",
                             "https://github.com/cloudfoundry/staticfile-buildpack",
-                            SemanticVersion("1.5.17")
+                            SemanticVersion("1.5.17"),
+                            GitTag("v1.5.17")
                         )
                     }
                 }
@@ -58,12 +59,14 @@ class ManifestParserTest {
                                 VersionedBuildpack(
                                     "cloudfoundry/staticfile-buildpack",
                                     "https://github.com/cloudfoundry/staticfile-buildpack",
-                                    SemanticVersion("1.5.17")
+                                    SemanticVersion("1.5.17"),
+                                    GitTag("v1.5.17")
                                 ),
                                 VersionedBuildpack(
                                     "cloudfoundry/java-buildpack",
                                     "https://github.com/cloudfoundry/java-buildpack",
-                                    SemanticVersion("4.12")
+                                    SemanticVersion("4.12"),
+                                    GitTag("v4.12")
                                 )
                             )
                         }
@@ -91,7 +94,8 @@ class ManifestParserTest {
                             buildpacks shouldContain VersionedBuildpack(
                                 "springernature/nginx-opentracing-buildpack",
                                 "https://github.com/springernature/nginx-opentracing-buildpack",
-                                Latest
+                                Latest,
+                                null
                             )
                         }
                     }
@@ -118,7 +122,8 @@ class ManifestParserTest {
                             buildpacks shouldContain VersionedBuildpack(
                                 "cloudfoundry/staticfile-buildpack",
                                 "https://github.com/cloudfoundry/staticfile-buildpack",
-                                SemanticVersion("1.5.17")
+                                SemanticVersion("1.5.17"),
+                                GitTag("v1.5.17")
                             )
                         }
                     }

@@ -10,22 +10,25 @@ data class CFApplication(
     fun buildpacks() = buildpack?.let { buildpacks.plus(buildpack) } ?: buildpacks
 }
 
-data class VersionedBuildpack(val name: String, val url: String, val version: Version) {
+data class VersionedBuildpack(val name: String, val url: String, val version: Version, val tag: GitTag?) {
 
     companion object {
 
         @JvmStatic
         @JsonCreator
         fun create(value: String) =
-            VersionedBuildpack(value.name(), value.buildpackUrl(), value.buildpackVersion())
+            VersionedBuildpack(value.name(), value.buildpackUrl(), value.buildpackVersion(), value.buildpackTag())
 
         private fun String.buildpackUrl(): String =
-            "(.*github.com/.*?)(?:#v.*)?$".toRegex().find(this)?.groups?.get(1)?.value
+            "(.*github.com/.*?)(?:#v?.*)?$".toRegex().find(this)?.groups?.get(1)?.value
                 ?: throw Exception("Cannot parse buildpack URL: $this")
 
         private fun String.buildpackVersion(): Version =
-            ".*github.com/.*#v(.*)$".toRegex().find(this)?.groups?.get(1)?.value?.let { SemanticVersion(it) }
+            ".*github.com/.*#v?(.*)$".toRegex().find(this)?.groups?.get(1)?.value?.let { SemanticVersion(it) }
                 ?: Latest
+
+        private fun String.buildpackTag(): GitTag? =
+            ".*github.com/.*#(v?.*)$".toRegex().find(this)?.groups?.get(1)?.value?.let { GitTag(it) }
 
         private fun String.name(): String =
             ".*github.com/(.*?)(?:#v.*)?$".toRegex().find(this)?.groups?.get(1)?.value

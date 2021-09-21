@@ -1,5 +1,6 @@
 package com.springernature.newversion
 
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.junit.jupiter.api.Test
 import java.net.http.HttpClient
@@ -12,16 +13,18 @@ class GitHubBuildpackUpdateCheckerIntegrationTest {
         val buildpack = VersionedBuildpack(
             "cloudfoundry/java-buildpack",
             "https://github.com/cloudfoundry/java-buildpack",
-            SemanticVersion("4.0.20")
+            SemanticVersion("4.0.20"),
+            GitTag("v4.0.20")
         )
 
         val latestBuildpackVersion = buildpackUpdateChecker.findLatestVersion(buildpack)
-        latestBuildpackVersion.toSemVer().let {
+        latestBuildpackVersion.version.toSemVer().let {
             it.major.shouldBeGreaterOrEqualTo(4)
             if (it.major == 4) {
                 it.minor.shouldBeGreaterOrEqualTo(41)
             }
         }
+        latestBuildpackVersion.tag shouldBeEqualTo GitTag("v${latestBuildpackVersion.version}")
     }
 
 }

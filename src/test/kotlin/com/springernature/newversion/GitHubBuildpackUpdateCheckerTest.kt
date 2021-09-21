@@ -20,14 +20,16 @@ class GitHubBuildpackUpdateCheckerTest {
         val buildpack = VersionedBuildpack(
             "cloudfoundry/java-buildpack",
             "https://github.com/cloudfoundry/java-buildpack",
-            SemanticVersion("4.0.20")
+            SemanticVersion("4.0.20"),
+            GitTag("v4.0.20")
         )
         val latestBuildpackVersion = buildpackUpdateChecker.findLatestVersion(buildpack)
 
-        latestBuildpackVersion.toSemVer().let {
+        latestBuildpackVersion.version.toSemVer().let {
             it.major.shouldBeEqualTo(4)
             it.minor.shouldBeEqualTo(41)
         }
+        latestBuildpackVersion.tag shouldBeEqualTo GitTag("v4.41")
     }
 
     companion object {

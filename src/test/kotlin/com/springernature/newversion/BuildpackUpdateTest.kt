@@ -17,9 +17,9 @@ class BuildpackUpdateTest {
 
     @Test
     fun `a successful manifest load returns a list of the specified buildpacks`() {
-        val buildpack1 = VersionedBuildpack("test/one", "https://host/path/1", SemanticVersion("1.2.3"))
-        val buildpack2 = VersionedBuildpack("test/two", "https://host/path/2", SemanticVersion("4.5.6"))
-        val buildpack3 = VersionedBuildpack("test/three", "https://host/path/3", Latest)
+        val buildpack1 = VersionedBuildpack("test/one", "https://host/path/1", SemanticVersion("1.2.3"), GitTag("v1.2.3"))
+        val buildpack2 = VersionedBuildpack("test/two", "https://host/path/2", SemanticVersion("4.5.6"), GitTag("v4.5.6"))
+        val buildpack3 = VersionedBuildpack("test/three", "https://host/path/3", Latest, null)
 
         val buildpacks = BuildpackUpdate.create(
             Manifest(
@@ -32,16 +32,16 @@ class BuildpackUpdateTest {
         )
 
         buildpacks shouldContainAll listOf(
-            BuildpackUpdate(File("."), buildpack1, SemanticVersion("1.0.0")),
-            BuildpackUpdate(File("."), buildpack2, SemanticVersion("1.0.0")),
-            BuildpackUpdate(File("."), buildpack3, SemanticVersion("1.0.0"))
+            BuildpackUpdate(File("."), buildpack1, BuildpackVersion(SemanticVersion("1.0.0"), GitTag("v1.0.0"))),
+            BuildpackUpdate(File("."), buildpack2, BuildpackVersion(SemanticVersion("1.0.0"), GitTag("v1.0.0"))),
+            BuildpackUpdate(File("."), buildpack3, BuildpackVersion(SemanticVersion("1.0.0"), GitTag("v1.0.0")))
         )
     }
 
     @Test
     fun `a successful manifest load checks for buildpack updates`() {
-        val buildpack1 = VersionedBuildpack("test/one", "https://host/path/1", SemanticVersion("1.2.3"))
-        val buildpack2 = VersionedBuildpack("test/two", "https://host/path/2", SemanticVersion("4.5.6"))
+        val buildpack1 = VersionedBuildpack("test/one", "https://host/path/1", SemanticVersion("1.2.3"), GitTag("v1.2.3"))
+        val buildpack2 = VersionedBuildpack("test/two", "https://host/path/2", SemanticVersion("4.5.6"), GitTag("v4.5.6"))
 
         val buildpacks = BuildpackUpdate.create(
             Manifest(
@@ -51,15 +51,15 @@ class BuildpackUpdateTest {
             ),
             PresetBuildpackUpdateChecker(
                 mapOf(
-                    "test/one" to SemanticVersion("2.3.4"),
-                    "test/two" to SemanticVersion("5.6.7")
+                    "test/one" to BuildpackVersion(SemanticVersion("2.3.4"), GitTag("v2.3.4")),
+                    "test/two" to BuildpackVersion(SemanticVersion("5.6.7"), GitTag("v5.6.7"))
                 )
             )
         )
 
         buildpacks shouldContainAll listOf(
-            BuildpackUpdate(File("."), buildpack1, SemanticVersion("2.3.4")),
-            BuildpackUpdate(File("."), buildpack2, SemanticVersion("5.6.7")),
+            BuildpackUpdate(File("."), buildpack1, BuildpackVersion(SemanticVersion("2.3.4"), GitTag("v2.3.4"))),
+            BuildpackUpdate(File("."), buildpack2, BuildpackVersion(SemanticVersion("5.6.7"), GitTag("v5.6.7"))),
         )
     }
 
@@ -67,8 +67,8 @@ class BuildpackUpdateTest {
     fun `a newer version is considered an update`() {
         val possibleUpdate = BuildpackUpdate(
             File("a/path"),
-            VersionedBuildpack("test/buildpack1", "https://a.host/path", SemanticVersion("1.2.0")),
-            SemanticVersion("1.2.3")
+            VersionedBuildpack("test/buildpack1", "https://a.host/path", SemanticVersion("1.2.0"), GitTag("v1.2.0")),
+            BuildpackVersion(SemanticVersion("1.2.3"), GitTag("v1.2.3"))
         )
 
         possibleUpdate.hasUpdate() shouldBe true
@@ -78,8 +78,8 @@ class BuildpackUpdateTest {
     fun `an older version is not considered an update`() {
         val possibleUpdate = BuildpackUpdate(
             File("a/path"),
-            VersionedBuildpack("test/buildpack1", "https://a.host/path", SemanticVersion("1.5.0")),
-            SemanticVersion("1.2.4")
+            VersionedBuildpack("test/buildpack1", "https://a.host/path", SemanticVersion("1.5.0"), GitTag("v.1.5.0")),
+            BuildpackVersion(SemanticVersion("1.2.4"), GitTag("v1.2.4"))
         )
 
         possibleUpdate.hasUpdate() shouldBe false
@@ -89,8 +89,8 @@ class BuildpackUpdateTest {
     fun `the same version is not considered an update`() {
         val possibleUpdate = BuildpackUpdate(
             File("a/path"),
-            VersionedBuildpack("test/buildpack1", "https://a.host/path", SemanticVersion("2.3.4")),
-            SemanticVersion("2.3.4")
+            VersionedBuildpack("test/buildpack1", "https://a.host/path", SemanticVersion("2.3.4"), GitTag("v2.3.4")),
+            BuildpackVersion(SemanticVersion("2.3.4"), GitTag("v2.3.4"))
         )
 
         possibleUpdate.hasUpdate() shouldBe false
@@ -100,8 +100,8 @@ class BuildpackUpdateTest {
     fun `a buildpack from HEAD has no updates`() {
         val possibleUpdate = BuildpackUpdate(
             File("a/path"),
-            VersionedBuildpack("test/buildpack1", "https://a.host/path", Latest),
-            SemanticVersion("2.3.4")
+            VersionedBuildpack("test/buildpack1", "https://a.host/path", Latest, null),
+            BuildpackVersion(SemanticVersion("2.3.4"), GitTag("v2.3.4"))
         )
 
         possibleUpdate.hasUpdate() shouldBe false
@@ -111,16 +111,16 @@ class BuildpackUpdateTest {
     fun `semantic versioning is used for upgrade checks`() {
         val possibleUpdate = BuildpackUpdate(
             File("a/path"),
-            VersionedBuildpack("test/buildpack1", "https://a.host/path", SemanticVersion("1.3")),
-            SemanticVersion("1.2.4")
+            VersionedBuildpack("test/buildpack1", "https://a.host/path", SemanticVersion("1.3"), GitTag("v1.3")),
+            BuildpackVersion(SemanticVersion("1.2.4"), GitTag("v1.2.4"))
         )
 
         possibleUpdate.hasUpdate() shouldBe false
     }
 
-    private class PresetBuildpackUpdateChecker(private val updates: Map<String, SemanticVersion> = mapOf())
+    private class PresetBuildpackUpdateChecker(private val updates: Map<String, BuildpackVersion> = mapOf())
         : BuildpackUpdateChecker {
-        override fun findLatestVersion(buildpack: VersionedBuildpack): SemanticVersion =
-            updates[buildpack.name] ?: SemanticVersion("1.0.0")
+        override fun findLatestVersion(buildpack: VersionedBuildpack): BuildpackVersion =
+            updates[buildpack.name] ?: BuildpackVersion(SemanticVersion("1.0.0"), GitTag("v1.0.0"))
     }
 }

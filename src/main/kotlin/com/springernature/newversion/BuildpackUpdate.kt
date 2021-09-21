@@ -5,10 +5,10 @@ import java.io.File
 data class BuildpackUpdate(
     val manifest: File,
     val currentBuildpack: VersionedBuildpack,
-    val latestVersion: SemanticVersion,
+    val latestUpdate: BuildpackVersion,
 ) {
     fun hasUpdate() = when (currentBuildpack.version) {
-        is SemanticVersion -> currentBuildpack.version.toSemVer() < latestVersion.toSemVer()
+        is SemanticVersion -> currentBuildpack.version.toSemVer() < latestUpdate.version.toSemVer()
         is Latest -> false
     }
 

@@ -3,6 +3,7 @@ package com.springernature.newversion
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
+import org.amshove.kluent.shouldContainAll
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -28,8 +29,8 @@ class GitHubPullRequestPublisherTest {
         publisher.publish(
             BuildpackUpdate(
                 createTestManifest(),
-                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4")),
-                SemanticVersion("2.3.6")
+                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4"), GitTag("v2.0.4")),
+                BuildpackVersion(SemanticVersion("2.3.6"), GitTag("v2.3.6"))
             )
         )
 
@@ -64,8 +65,8 @@ class GitHubPullRequestPublisherTest {
         publisher.publish(
             BuildpackUpdate(
                 manifest,
-                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4")),
-                SemanticVersion("2.3.6")
+                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4"), GitTag("v2.0.4")),
+                BuildpackVersion(SemanticVersion("2.3.6"), GitTag("v2.3.6"))
             )
         )
 
@@ -96,6 +97,50 @@ class GitHubPullRequestPublisherTest {
     }
 
     @Test
+    fun `the pull request is created correctly when the tag does not use a 'v' prefix`() {
+        val shell = CapturingShell(
+            mapOf(
+                ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
+                ("hub" to listOf("pr", "list", "-s", "open", "-f", "'%H%n'")) to {
+                    """
+                        update/scalatest-3.2.9
+                        update/handlebars-4.1.2
+                        update/log4j-core-2.13.3
+                    """.trimIndent()
+                }
+            )
+        )
+        val publisher = GitHubPullRequestPublisher(shell, Settings())
+        val manifest = createTestManifest()
+
+        publisher.publish(
+            BuildpackUpdate(
+                manifest,
+                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.5"), GitTag("2.0.5")),
+                BuildpackVersion(SemanticVersion("2.3.6"), GitTag("2.3.6"))
+            )
+        )
+
+        shell.commands shouldContainAll listOf(
+            "git" to listOf("checkout", "-B", "buildpack-update/test-buildpack-2.3.6", "--quiet"),
+            "git" to listOf(
+                "commit", "-a", "--quiet",
+                "-m", "Update test/buildpack to 2.3.6",
+                "--author", "Buildpack Update Action <do_not_reply@springernature.com>"
+            ),
+            "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/test-buildpack-2.3.6"),
+            "hub" to listOf(
+                "pull-request", "--push",
+                "--message", "Update test/buildpack to 2.3.6 in $manifest\n\n"
+                        + "Update test/buildpack from 2.0.5 to 2.3.6 in $manifest.\n\n"
+                        + "* [Release Notes](https://github.com/test/buildpack/releases/tag/2.3.6)\n"
+                        + "* [Diff](https://github.com/test/buildpack/compare/2.0.5...2.3.6)",
+                "--base", "base-branch", "--labels", "buildpack-update"
+            )
+        )
+    }
+
+    @Test
     fun `clean up old pull requests when one for a newer version is created`() {
         val shell = CapturingShell(
             mapOf(
@@ -118,8 +163,8 @@ class GitHubPullRequestPublisherTest {
         publisher.publish(
             BuildpackUpdate(
                 manifest,
-                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4")),
-                SemanticVersion("2.3.6")
+                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4"), GitTag("v2.0.4")),
+                BuildpackVersion(SemanticVersion("2.3.6"), GitTag("v2.3.6"))
             )
         )
 
@@ -176,8 +221,8 @@ class GitHubPullRequestPublisherTest {
             publisher.publish(
                 BuildpackUpdate(
                     manifest,
-                    VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4")),
-                    SemanticVersion("2.3.6")
+                    VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4"), GitTag("v2.0.4")),
+                    BuildpackVersion(SemanticVersion("2.3.6"), GitTag("v2.3.6"))
                 )
             )
 
@@ -213,8 +258,8 @@ class GitHubPullRequestPublisherTest {
         publisher.publish(
             BuildpackUpdate(
                 manifest,
-                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4")),
-                SemanticVersion("2.3.6")
+                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4"), GitTag("v2.0.4")),
+                BuildpackVersion(SemanticVersion("2.3.6"), GitTag("v2.3.6"))
             )
         )
 

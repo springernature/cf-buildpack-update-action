@@ -19,30 +19,30 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
     private fun BuildpackUpdate.baseBranchName() =
         "buildpack-update/${currentBuildpack.name.replace('/', '-')}"
 
-    private fun BuildpackUpdate.branchName() = "${baseBranchName()}-$latestVersion"
+    private fun BuildpackUpdate.branchName() = "${baseBranchName()}-${latestUpdate.version}"
 
     private fun BuildpackUpdate.commitMessage() =
-        "Update ${currentBuildpack.name} to $latestVersion"
+        "Update ${currentBuildpack.name} to ${latestUpdate.version}"
 
     private fun BuildpackUpdate.pullRequestMessage() =
         """
-        Update ${currentBuildpack.name} to $latestVersion in ${manifest.toPrettyString()}
+        Update ${currentBuildpack.name} to ${latestUpdate.version} in ${manifest.toPrettyString()}
         
-        Update ${currentBuildpack.name} from ${currentBuildpack.version} to $latestVersion in ${manifest.toPrettyString()}.
+        Update ${currentBuildpack.name} from ${currentBuildpack.version} to ${latestUpdate.version} in ${manifest.toPrettyString()}.
         
-        * [Release Notes](https://github.com/${currentBuildpack.name}/releases/tag/v$latestVersion)
-        * [Diff](https://github.com/${currentBuildpack.name}/compare/v${currentBuildpack.version}...v$latestVersion)
+        * [Release Notes](https://github.com/${currentBuildpack.name}/releases/tag/${latestUpdate.tag.value})
+        * [Diff](https://github.com/${currentBuildpack.name}/compare/${currentBuildpack.tag?.value}...${latestUpdate.tag.value})
     """.trimIndent()
 
     private fun File.toPrettyString(): String = toString().replace(Regex("^./"), "")
 
     private fun updateManifest(update: BuildpackUpdate) {
-        println("Updating manifest for ${update.currentBuildpack.name}#v${update.currentBuildpack.version} -> v${update.latestVersion}")
+        println("Updating manifest for ${update.currentBuildpack.name}#${update.currentBuildpack.tag?.value} -> ${update.latestUpdate.tag.value}")
         val manifestContent = update.manifest.readText(Charsets.UTF_8)
         val newManifest =
             manifestContent.replace(
-                "${update.currentBuildpack.name}#v${update.currentBuildpack.version}",
-                "${update.currentBuildpack.name}#v${update.latestVersion}"
+                "${update.currentBuildpack.name}#${update.currentBuildpack.tag?.value}",
+                "${update.currentBuildpack.name}#${update.latestUpdate.tag.value}"
             )
         update.manifest.writeText(newManifest, Charsets.UTF_8)
     }
@@ -67,7 +67,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
             push(update.branchName())
             createPullRequest(update.pullRequestMessage(), baseBranchName)
 
-            cleanUpOldPullRequests(update.baseBranchName(), update.latestVersion, prBranchNames)
+            cleanUpOldPullRequests(update.baseBranchName(), update.latestUpdate.version, prBranchNames)
 
         } finally {
             switchToBranch(baseBranchName)

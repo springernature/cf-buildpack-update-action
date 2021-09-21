@@ -35,7 +35,8 @@ class BuildpackVersionCheckerTest {
 
         lastUpdate.currentBuildpack.name shouldBeEqualTo "cloudfoundry/staticfile-buildpack"
         lastUpdate.currentBuildpack.version shouldBeEqualTo SemanticVersion("1.5.17")
-        lastUpdate.latestVersion shouldBeEqualTo SemanticVersion("1.5.24")
+        lastUpdate.latestUpdate.version shouldBeEqualTo SemanticVersion("1.5.24")
+        lastUpdate.latestUpdate.tag shouldBeEqualTo GitTag("v1.5.24")
     }
 
     @Test
@@ -58,7 +59,8 @@ class BuildpackVersionCheckerTest {
 
         lastUpdate.currentBuildpack.name shouldBeEqualTo "cloudfoundry/java-buildpack"
         lastUpdate.currentBuildpack.version shouldBeEqualTo SemanticVersion("4.20")
-        lastUpdate.latestVersion shouldBeEqualTo SemanticVersion("4.41")
+        lastUpdate.latestUpdate.version shouldBeEqualTo SemanticVersion("4.41")
+        lastUpdate.latestUpdate.tag shouldBeEqualTo GitTag("v4.41")
     }
 
     class CapturingPublisher : Publisher {
