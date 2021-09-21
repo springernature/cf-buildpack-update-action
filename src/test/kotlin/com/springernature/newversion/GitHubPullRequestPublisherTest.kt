@@ -80,7 +80,7 @@ class GitHubPullRequestPublisherTest {
             "hub" to listOf(
                 "pull-request", "--push",
                 "--message='Update test/buildpack to 2.3.6 in $manifest\n\nUpdate test/buildpack from 2.0.4 to 2.3.6'",
-                "--base=buildpack-update/update-test-buildpack-2.3.6", "--labels=buildpack-update"
+                "--labels=buildpack-update"
             ),
             "git" to listOf("switch", "base-branch")
         )
@@ -130,7 +130,7 @@ class GitHubPullRequestPublisherTest {
             "hub" to listOf(
                 "pull-request", "--push",
                 "--message='Update test/buildpack to 2.3.6 in $manifest\n\nUpdate test/buildpack from 2.0.4 to 2.3.6'",
-                "--base=buildpack-update/update-test-buildpack-2.3.6", "--labels=buildpack-update"
+                "--labels=buildpack-update"
             ),
             "git" to listOf("push", "origin", ":buildpack-update/update-test-buildpack-2.3.5"),
             "git" to listOf("push", "origin", ":buildpack-update/update-test-buildpack-2.2.1"),

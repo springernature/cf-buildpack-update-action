@@ -58,7 +58,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
             createAndCheckoutBranch(update.branchName())
             makeChanges()
             commitChanges(update.commitMessage(), gitName, gitEmail)
-            createPullRequest(update.branchName(), update.prMessage())
+            createPullRequest(update.prMessage())
 
             cleanUpOldPullRequests(update.baseBranchName(), update.latestVersion, prBranchNames)
 
@@ -118,9 +118,8 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         }
     }
 
-    private fun createPullRequest(branchName: String, prMessage: String) {
-        println("createPullRequest")
-        // https://hub.github.com/hub-pull-request.1.html
+    private fun createPullRequest(prMessage: String) {
+        println("Creating pull request")
         shell.run {
             command(
                 "hub",
@@ -128,7 +127,6 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
                     "pull-request",
                     "--push",
                     "--message='$prMessage'",
-                    "--base=$branchName",
                     "--labels=buildpack-update"
                 )
             )
