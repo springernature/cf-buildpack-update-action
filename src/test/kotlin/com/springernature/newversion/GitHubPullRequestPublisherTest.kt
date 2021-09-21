@@ -75,13 +75,13 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf(
                 "commit", "-a", "--quiet",
                 "-m", "Update test/buildpack to 2.3.6",
-                "--author='Buildpack Update Action <do_not_reply@springernature.com>'"
+                "--author", "Buildpack Update Action <do_not_reply@springernature.com>"
             ),
             "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/test-buildpack-2.3.6"),
             "hub" to listOf(
                 "pull-request", "--push",
-                "--message='Update test/buildpack to 2.3.6 in $manifest\n\nUpdate test/buildpack from 2.0.4 to 2.3.6'",
-                "--base=base-branch", "--labels=buildpack-update"
+                "--message", "Update test/buildpack to 2.3.6 in $manifest\n\nUpdate test/buildpack from 2.0.4 to 2.3.6",
+                "--base", "base-branch", "--labels", "buildpack-update"
             ),
             "git" to listOf("switch", "base-branch")
         )
@@ -126,13 +126,13 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf(
                 "commit", "-a", "--quiet",
                 "-m", "Update test/buildpack to 2.3.6",
-                "--author='Buildpack Update Action <do_not_reply@springernature.com>'"
+                "--author", "Buildpack Update Action <do_not_reply@springernature.com>"
             ),
             "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/test-buildpack-2.3.6"),
             "hub" to listOf(
                 "pull-request", "--push",
-                "--message='Update test/buildpack to 2.3.6 in $manifest\n\nUpdate test/buildpack from 2.0.4 to 2.3.6'",
-                "--base=base-branch", "--labels=buildpack-update"
+                "--message", "Update test/buildpack to 2.3.6 in $manifest\n\nUpdate test/buildpack from 2.0.4 to 2.3.6",
+                "--base", "base-branch", "--labels", "buildpack-update"
             ),
             "git" to listOf("push", "origin", ":buildpack-update/test-buildpack-2.3.5"),
             "git" to listOf("push", "origin", ":buildpack-update/test-buildpack-2.2.1"),

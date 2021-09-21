@@ -90,11 +90,11 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         }
 
     private fun openPullRequestBranchNames() = shell
-            .run {
-                command("hub", listOf("pr", "list", "-s", "open", "-f", "'%H%n'"))
-            }
-            .split("\n")
-            .map { it.trim() }
+        .run {
+            command("hub", listOf("pr", "list", "-s", "open", "-f", "'%H%n'"))
+        }
+        .split("\n")
+        .map { it.trim() }
 
     private fun createAndCheckoutBranch(name: String) {
         shell.run {
@@ -125,8 +125,10 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         }
     }
 
-    private fun createPullRequest(prMessage: String,
-                                  baseBranchName: String) {
+    private fun createPullRequest(
+        prMessage: String,
+        baseBranchName: String
+    ) {
         println("Creating pull request from base $baseBranchName")
         shell.run {
             command(
@@ -134,15 +136,19 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
                 listOf(
                     "pull-request",
                     "--push",
-                    "--message='$prMessage'",
-                    "--base=$baseBranchName",
-                    "--labels=buildpack-update"
+                    "--message", prMessage,
+                    "--base", baseBranchName,
+                    "--labels", "buildpack-update"
                 )
             )
         }
     }
 
-    private fun cleanUpOldPullRequests(baseBranchName: String, currentVersion: SemanticVersion, prBranchNames: List<String>) {
+    private fun cleanUpOldPullRequests(
+        baseBranchName: String,
+        currentVersion: SemanticVersion,
+        prBranchNames: List<String>
+    ) {
         println("Cleaning up old PRs for $baseBranchName")
         prBranchNames
             .filter { it.startsWith(baseBranchName) }
@@ -171,7 +177,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
             "git", listOf(
                 "commit", "-a", "--quiet",
                 "-m", message,
-                "--author='$name <$email>'"
+                "--author", "$name <$email>"
             )
         )
 
@@ -183,11 +189,11 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
             "git", listOf("push", "--set-upstream", "origin", branchName)
         )
 
-        fun configUserName(name: String) =script.command(
+        fun configUserName(name: String) = script.command(
             "git", listOf("config", "user.name", name)
         )
 
-        fun configUserEmail(email: String) =script.command(
+        fun configUserEmail(email: String) = script.command(
             "git", listOf("config", "user.email", email)
         )
     }
