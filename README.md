@@ -1,6 +1,6 @@
 # Buildpack update action
 
-Create pull requests to update Cloud Foundry buildpacks in manifest files
+Create pull requests to update Cloud Foundry buildpacks in manifest files.
 
 ## Example usage
 
@@ -23,9 +23,6 @@ Create pull requests to update Cloud Foundry buildpacks in manifest files
 
 ## Roadmap
 
-* use YAML and JSON parser
-* create pull request description with proper description of the update, e.g. link to changelog, etc. (see dependabot PRs)
 * use proper logging
 * improve build time
-* make it configurable, see [Dependabot config](https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/configuration-options-for-dependency-updates
-  ) for ideas
+* make it configurable, see [Dependabot config](https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/configuration-options-for-dependency-updates) for ideas
