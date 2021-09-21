@@ -1,6 +1,7 @@
 package com.springernature.newversion
 
 import net.swiftzer.semver.SemVer
+import java.io.File
 
 interface Publisher {
     fun publish(update: BuildpackUpdate)
@@ -23,12 +24,14 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
     private fun BuildpackUpdate.commitMessage() =
         "Update ${currentBuildpack.name} to $latestVersion"
 
-    private fun BuildpackUpdate.prMessage() =
+    private fun BuildpackUpdate.pullRequestMessage() =
         """
-        Update ${currentBuildpack.name} to $latestVersion in $manifest
+        Update ${currentBuildpack.name} to $latestVersion in ${manifest.toPrettyString()}
         
         Update ${currentBuildpack.name} from ${currentBuildpack.version} to $latestVersion
     """.trimIndent()
+
+    private fun File.toPrettyString(): String = toString().replace(Regex("^./"), "")
 
     private fun updateManifest(update: BuildpackUpdate) {
         println("Updating manifest for ${update.currentBuildpack.name}#v${update.currentBuildpack.version} -> v${update.latestVersion}")
@@ -59,7 +62,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
             makeChanges()
             commitChanges(update.commitMessage(), gitName, gitEmail)
             push(update.branchName())
-            createPullRequest(update.prMessage(), baseBranchName)
+            createPullRequest(update.pullRequestMessage(), baseBranchName)
 
             cleanUpOldPullRequests(update.baseBranchName(), update.latestVersion, prBranchNames)
 
