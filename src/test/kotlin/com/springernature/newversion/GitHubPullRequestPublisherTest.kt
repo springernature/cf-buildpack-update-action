@@ -85,7 +85,10 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/test-buildpack-2.3.6"),
             "hub" to listOf(
                 "pull-request", "--push",
-                "--message", "Update test/buildpack to 2.3.6 in $manifest\n\nUpdate test/buildpack from 2.0.4 to 2.3.6",
+                "--message", "Update test/buildpack to 2.3.6 in $manifest\n\n"
+                        + "Update test/buildpack from 2.0.4 to 2.3.6 in $manifest.\n\n"
+                        + "* [Release Notes](https://github.com/test/buildpack/releases/tag/v2.3.6)\n"
+                        + "* [Diff](https://github.com/test/buildpack/compare/v2.0.4...v2.3.6)",
                 "--base", "base-branch", "--labels", "buildpack-update"
             ),
             "git" to listOf("switch", "base-branch")
@@ -136,7 +139,10 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/test-buildpack-2.3.6"),
             "hub" to listOf(
                 "pull-request", "--push",
-                "--message", "Update test/buildpack to 2.3.6 in $manifest\n\nUpdate test/buildpack from 2.0.4 to 2.3.6",
+                "--message", "Update test/buildpack to 2.3.6 in $manifest\n\n"
+                        + "Update test/buildpack from 2.0.4 to 2.3.6 in $manifest.\n\n"
+                        + "* [Release Notes](https://github.com/test/buildpack/releases/tag/v2.3.6)\n"
+                        + "* [Diff](https://github.com/test/buildpack/compare/v2.0.4...v2.3.6)",
                 "--base", "base-branch", "--labels", "buildpack-update"
             ),
             "git" to listOf("push", "origin", ":buildpack-update/test-buildpack-2.3.5"),
@@ -180,7 +186,10 @@ class GitHubPullRequestPublisherTest {
                         "pull-request",
                         "--push",
                         "--message",
-                        "Update test/buildpack to 2.3.6 in local-test-manifest.yml\n\nUpdate test/buildpack from 2.0.4 to 2.3.6",
+                        "Update test/buildpack to 2.3.6 in local-test-manifest.yml\n\n"
+                                + "Update test/buildpack from 2.0.4 to 2.3.6 in local-test-manifest.yml.\n\n"
+                                + "* [Release Notes](https://github.com/test/buildpack/releases/tag/v2.3.6)\n"
+                                + "* [Diff](https://github.com/test/buildpack/compare/v2.0.4...v2.3.6)",
                         "--base",
                         "base-branch",
                         "--labels",

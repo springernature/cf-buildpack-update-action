@@ -28,7 +28,10 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         """
         Update ${currentBuildpack.name} to $latestVersion in ${manifest.toPrettyString()}
         
-        Update ${currentBuildpack.name} from ${currentBuildpack.version} to $latestVersion
+        Update ${currentBuildpack.name} from ${currentBuildpack.version} to $latestVersion in ${manifest.toPrettyString()}.
+        
+        * [Release Notes](https://github.com/${currentBuildpack.name}/releases/tag/v$latestVersion)
+        * [Diff](https://github.com/${currentBuildpack.name}/compare/v${currentBuildpack.version}...v$latestVersion)
     """.trimIndent()
 
     private fun File.toPrettyString(): String = toString().replace(Regex("^./"), "")
