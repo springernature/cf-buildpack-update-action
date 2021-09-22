@@ -48,7 +48,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
                     "${update.currentBuildpack.name}#${update.latestUpdate.tag.value}"
                 ).replace(
                     "${update.currentBuildpack.name}.git#${update.currentBuildpack.tag?.value}",
-                    "${update.currentBuildpack.name}#${update.latestUpdate.tag.value}"
+                    "${update.currentBuildpack.name}.git#${update.latestUpdate.tag.value}"
                 )
             manifest.writeText(newManifest, Charsets.UTF_8)
         }

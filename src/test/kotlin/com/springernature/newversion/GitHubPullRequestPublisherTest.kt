@@ -339,6 +339,7 @@ class GitHubPullRequestPublisherTest {
         )
 
         manifests.forEachIndexed { index, manifest ->
+            val suffix = if (index == 0) ".git" else ""
             manifest.readText() shouldBeEqualTo """
             ---
             applications:
@@ -347,7 +348,7 @@ class GitHubPullRequestPublisherTest {
               health-check-type: process
               no-route: true
               buildpacks:
-              - https://a.host/test/buildpack#v2.3.6
+              - https://a.host/test/buildpack$suffix#v2.3.6
         """.trimIndent()
         }
     }
