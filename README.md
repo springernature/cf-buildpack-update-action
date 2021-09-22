@@ -28,5 +28,6 @@ Create pull requests to update Cloud Foundry buildpacks in manifest files.
 * enhance documentation
 * create a proper release
   * have an automated release process? 
+* open source it: https://github.com/springernature/open-source
 * improve build time
 * make it configurable, see [Dependabot config](https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/configuration-options-for-dependency-updates) for ideas
