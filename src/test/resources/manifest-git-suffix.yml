@@ -1,0 +1,19 @@
+---
+applications:
+  - name: uptime-girl
+    memory: 64Mb
+    buildpacks:
+      - https://github.com/cloudfoundry/ruby-buildpack.git#v1.8.46
+    instances: 1
+    disk_quota: 256MB
+    command: 'bundle exec clockwork lib/workers.rb'
+    routes:
+      - route: uptime-girl.springernature.app
+      - route: coco-nfr-dashboard.springernature.app
+    services:
+      - tools-app-logging-gcp-elk
+      - coco-prometheus
+    env:
+      DATASTORE_HOSTNAME: gcp-content-consumption-dev-mysql-01.de.gcp.springernature.cloud
+      INITIAL_CHECK_PERIOD_DAYS: 730
+      SENTRY_DSN: https://bbb9e61b66b141f58ddf9a2feafeb7b7@o173313.ingest.sentry.io/5666646

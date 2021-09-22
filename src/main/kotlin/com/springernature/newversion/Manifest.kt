@@ -20,7 +20,7 @@ data class VersionedBuildpack(val name: String, val url: String, val version: Ve
             VersionedBuildpack(value.name(), value.buildpackUrl(), value.buildpackVersion(), value.buildpackTag())
 
         private fun String.buildpackUrl(): String =
-            "(.*github.com/.*?)(?:#v?.*)?$".toRegex().find(this)?.groups?.get(1)?.value
+            "(.*github.com/.*?)(?:\\.git)?(?:#v?.*)?$".toRegex().find(this)?.groups?.get(1)?.value
                 ?: throw Exception("Cannot parse buildpack URL: $this")
 
         private fun String.buildpackVersion(): Version =
@@ -31,8 +31,8 @@ data class VersionedBuildpack(val name: String, val url: String, val version: Ve
             ".*github.com/.*#(v?.*)$".toRegex().find(this)?.groups?.get(1)?.value?.let { GitTag(it) }
 
         private fun String.name(): String =
-            ".*github.com/(.*?)(?:#v.*)?$".toRegex().find(this)?.groups?.get(1)?.value
-                ?: throw Exception("Cannot parse buildpack URL: $this")
+            ".*github.com/(.*?)(?:\\.git)?(?:#v.*)?$".toRegex().find(this)?.groups?.get(1)?.value
+                ?: throw Exception("Cannot parse buildpack name: $this")
     }
 }
 

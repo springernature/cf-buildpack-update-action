@@ -42,6 +42,31 @@ class ManifestParserTest {
     }
 
     @Test
+    fun `a buildpack with a git suffix can be determined from a manifest`() {
+        val loadManifests = ManifestParser.load(resourcePath("manifest-git-suffix.yml"))
+
+        var parsedManifests = 0
+        loadManifests
+            .also { parsedManifests++ }
+            .forEach {
+                when (it) {
+                    is FailedManifest -> fail("Manifest load failed: $it")
+                    is Manifest -> {
+                        it.applications.size shouldBe 1
+                        it.applications[0].buildpacks() shouldContain VersionedBuildpack(
+                            "cloudfoundry/ruby-buildpack",
+                            "https://github.com/cloudfoundry/ruby-buildpack",
+                            SemanticVersion("1.8.46"),
+                            GitTag("v1.8.46")
+                        )
+                    }
+                }
+            }
+
+        parsedManifests shouldBe 1
+    }
+
+    @Test
     fun `all buildpacks in a manifest are loaded`() {
         val loadManifests = ManifestParser.load(resourcePath("manifest-with-multiple-buildpacks.yml"))
 
