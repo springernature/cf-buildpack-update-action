@@ -30,8 +30,13 @@ class GitHubPullRequestPublisherTest {
 
         publisher.publish(
             BuildpackUpdate(
-                createTestManifest(),
-                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4"), GitTag("v2.0.4")),
+                listOf(createTestManifest()),
+                VersionedBuildpack(
+                    "test/buildpack",
+                    "https://a.host/test/buildpack",
+                    SemanticVersion("2.0.4"),
+                    GitTag("v2.0.4")
+                ),
                 BuildpackVersion(SemanticVersion("2.3.6"), GitTag("v2.3.6"))
             )
         )
@@ -64,12 +69,17 @@ class GitHubPullRequestPublisherTest {
             )
         )
         val publisher = GitHubPullRequestPublisher(shell, Settings())
-        val manifest = createTestManifest()
+        val manifests = listOf(createTestManifest(), createTestManifest())
 
         publisher.publish(
             BuildpackUpdate(
-                manifest,
-                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4"), GitTag("v2.0.4")),
+                manifests,
+                VersionedBuildpack(
+                    "test/buildpack",
+                    "https://a.host/test/buildpack",
+                    SemanticVersion("2.0.4"),
+                    GitTag("v2.0.4")
+                ),
                 BuildpackVersion(SemanticVersion("2.3.6"), GitTag("v2.3.6"))
             )
         )
@@ -90,8 +100,9 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/test-buildpack-2.3.6"),
             "hub" to listOf(
                 "pull-request", "--push",
-                "--message", "Update test/buildpack to 2.3.6 in $manifest\n\n"
-                        + "Update test/buildpack from 2.0.4 to 2.3.6 in $manifest.\n\n"
+                "--message", "Update test/buildpack to 2.3.6\n\n"
+                        + "Update test/buildpack from 2.0.4 to 2.3.6 in\n"
+                        + manifests.joinToString("\n") { "* $it" } + "\n\n"
                         + "* [Release Notes](https://github.com/test/buildpack/releases/tag/v2.3.6)\n"
                         + "* [Diff](https://github.com/test/buildpack/compare/v2.0.4...v2.3.6)",
                 "--base", "base-branch", "--labels", "buildpack-update"
@@ -121,8 +132,13 @@ class GitHubPullRequestPublisherTest {
 
         publisher.publish(
             BuildpackUpdate(
-                manifest,
-                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.5"), GitTag("2.0.5")),
+                listOf(manifest),
+                VersionedBuildpack(
+                    "test/buildpack",
+                    "https://a.host/test/buildpack",
+                    SemanticVersion("2.0.5"),
+                    GitTag("2.0.5")
+                ),
                 BuildpackVersion(SemanticVersion("2.3.6"), GitTag("2.3.6"))
             )
         )
@@ -137,8 +153,9 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/test-buildpack-2.3.6"),
             "hub" to listOf(
                 "pull-request", "--push",
-                "--message", "Update test/buildpack to 2.3.6 in $manifest\n\n"
-                        + "Update test/buildpack from 2.0.5 to 2.3.6 in $manifest.\n\n"
+                "--message", "Update test/buildpack to 2.3.6\n\n"
+                        + "Update test/buildpack from 2.0.5 to 2.3.6 in\n"
+                        + "* $manifest\n\n"
                         + "* [Release Notes](https://github.com/test/buildpack/releases/tag/2.3.6)\n"
                         + "* [Diff](https://github.com/test/buildpack/compare/2.0.5...2.3.6)",
                 "--base", "base-branch", "--labels", "buildpack-update"
@@ -170,8 +187,13 @@ class GitHubPullRequestPublisherTest {
 
         publisher.publish(
             BuildpackUpdate(
-                manifest,
-                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4"), GitTag("v2.0.4")),
+                listOf(manifest),
+                VersionedBuildpack(
+                    "test/buildpack",
+                    "https://a.host/test/buildpack",
+                    SemanticVersion("2.0.4"),
+                    GitTag("v2.0.4")
+                ),
                 BuildpackVersion(SemanticVersion("2.3.6"), GitTag("v2.3.6"))
             )
         )
@@ -192,8 +214,9 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/test-buildpack-2.3.6"),
             "hub" to listOf(
                 "pull-request", "--push",
-                "--message", "Update test/buildpack to 2.3.6 in $manifest\n\n"
-                        + "Update test/buildpack from 2.0.4 to 2.3.6 in $manifest.\n\n"
+                "--message", "Update test/buildpack to 2.3.6\n\n"
+                        + "Update test/buildpack from 2.0.4 to 2.3.6 in\n"
+                        + "* $manifest\n\n"
                         + "* [Release Notes](https://github.com/test/buildpack/releases/tag/v2.3.6)\n"
                         + "* [Diff](https://github.com/test/buildpack/compare/v2.0.4...v2.3.6)",
                 "--base", "base-branch", "--labels", "buildpack-update"
@@ -230,8 +253,13 @@ class GitHubPullRequestPublisherTest {
         try {
             publisher.publish(
                 BuildpackUpdate(
-                    manifest,
-                    VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4"), GitTag("v2.0.4")),
+                    listOf(manifest),
+                    VersionedBuildpack(
+                        "test/buildpack",
+                        "https://a.host/test/buildpack",
+                        SemanticVersion("2.0.4"),
+                        GitTag("v2.0.4")
+                    ),
                     BuildpackVersion(SemanticVersion("2.3.6"), GitTag("v2.3.6"))
                 )
             )
@@ -241,8 +269,9 @@ class GitHubPullRequestPublisherTest {
                         "pull-request",
                         "--push",
                         "--message",
-                        "Update test/buildpack to 2.3.6 in local-test-manifest.yml\n\n"
-                                + "Update test/buildpack from 2.0.4 to 2.3.6 in local-test-manifest.yml.\n\n"
+                        "Update test/buildpack to 2.3.6\n\n"
+                                + "Update test/buildpack from 2.0.4 to 2.3.6 in\n"
+                                + "* local-test-manifest.yml\n\n"
                                 + "* [Release Notes](https://github.com/test/buildpack/releases/tag/v2.3.6)\n"
                                 + "* [Diff](https://github.com/test/buildpack/compare/v2.0.4...v2.3.6)",
                         "--base",
@@ -267,8 +296,13 @@ class GitHubPullRequestPublisherTest {
 
         publisher.publish(
             BuildpackUpdate(
-                manifest,
-                VersionedBuildpack("test/buildpack", "https://a.host/test/buildpack", SemanticVersion("2.0.4"), GitTag("v2.0.4")),
+                listOf(manifest),
+                VersionedBuildpack(
+                    "test/buildpack",
+                    "https://a.host/test/buildpack",
+                    SemanticVersion("2.0.4"),
+                    GitTag("v2.0.4")
+                ),
                 BuildpackVersion(SemanticVersion("2.3.6"), GitTag("v2.3.6"))
             )
         )
@@ -285,11 +319,49 @@ class GitHubPullRequestPublisherTest {
         """.trimIndent()
     }
 
+    @Test
+    fun `the manifests should be updated to point at the new version of the buildpack when more than one manifest is provided`() {
+        val shell = CapturingShell(
+            mapOf(
+                ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" }
+            )
+        )
+        val publisher = GitHubPullRequestPublisher(shell, Settings())
+        val manifests = listOf(createTestManifest(name = "dummy1"), createTestManifest(name = "dummy2"))
+
+        publisher.publish(
+            BuildpackUpdate(
+                manifests,
+                VersionedBuildpack(
+                    "test/buildpack",
+                    "https://a.host/test/buildpack",
+                    SemanticVersion("2.0.4"),
+                    GitTag("v2.0.4")
+                ),
+                BuildpackVersion(SemanticVersion("2.3.6"), GitTag("v2.3.6"))
+            )
+        )
+
+        manifests.forEachIndexed { index, manifest ->
+            manifest.readText() shouldBeEqualTo """
+            ---
+            applications:
+            - name: dummy${index + 1}
+              instances: 1
+              health-check-type: process
+              no-route: true
+              buildpacks:
+              - https://a.host/test/buildpack#v2.3.6
+        """.trimIndent()
+        }
+    }
+
     private fun createTestManifest(
         file: File = File.createTempFile(
             "github-pull-request-publisher-test-manifest",
             ".yml"
-        )
+        ),
+        name: String = "dummy-manifest-for-testing"
     ): File =
         file.also {
             it.deleteOnExit()
@@ -297,7 +369,7 @@ class GitHubPullRequestPublisherTest {
                 """
                     ---
                     applications:
-                    - name: dummy-manifest-for-testing
+                    - name: $name
                       instances: 1
                       health-check-type: process
                       no-route: true

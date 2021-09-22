@@ -11,12 +11,11 @@ import org.junit.jupiter.api.Test
 import java.io.File
 import java.net.InetSocketAddress
 import java.net.http.HttpClient
-import kotlin.test.assertNotNull
 
 class BuildpackVersionCheckerTest {
 
     @Test
-    fun `we can query GitHub to find if updates are available`() {
+    fun `we query GitHub to find if updates are available`() {
         val manifest = File("src/test/resources/manifest.yml")
         manifest.exists() shouldBe true
 
@@ -30,8 +29,8 @@ class BuildpackVersionCheckerTest {
 
         buildpackVersionChecker.performChecks()
 
-        val lastUpdate = capturingPublisher.lastUpdate
-        assertNotNull(lastUpdate)
+        capturingPublisher.updates().size shouldBe 1
+        val lastUpdate = capturingPublisher.updates().first()
 
         lastUpdate.currentBuildpack.name shouldBeEqualTo "cloudfoundry/staticfile-buildpack"
         lastUpdate.currentBuildpack.version shouldBeEqualTo SemanticVersion("1.5.17")
@@ -40,7 +39,7 @@ class BuildpackVersionCheckerTest {
     }
 
     @Test
-    fun `find latest version if version only specifies major and minor but no patch version`() {
+    fun `we can find the latest version if version only specifies major and minor but no patch version`() {
         val manifest = File("src/test/resources/manifest-no-patch-version-specified.yml")
         manifest.exists() shouldBe true
 
@@ -54,8 +53,8 @@ class BuildpackVersionCheckerTest {
 
         buildpackVersionChecker.performChecks()
 
-        val lastUpdate = capturingPublisher.lastUpdate
-        assertNotNull(lastUpdate)
+        capturingPublisher.updates().size shouldBe 1
+        val lastUpdate = capturingPublisher.updates().first()
 
         lastUpdate.currentBuildpack.name shouldBeEqualTo "cloudfoundry/java-buildpack"
         lastUpdate.currentBuildpack.version shouldBeEqualTo SemanticVersion("4.20")
@@ -63,12 +62,68 @@ class BuildpackVersionCheckerTest {
         lastUpdate.latestUpdate.tag shouldBeEqualTo GitTag("v4.41")
     }
 
+    @Test
+    fun `a failed manifest load performs no updates`() {
+        val manifest = File("src/test/resources/manifest-bad.yml")
+        manifest.exists() shouldBe true
+
+        val settings = Settings(mapOf(GIT_HUB_API_URL.key to baseUrl))
+        val capturingPublisher = CapturingPublisher()
+        val buildpackVersionChecker = BuildpackVersionChecker(
+            manifest,
+            GitHubBuildpackUpdateChecker(HttpClient.newBuilder().build(), settings),
+            capturingPublisher
+        )
+
+        buildpackVersionChecker.performChecks()
+
+        capturingPublisher.updates().size shouldBe 0
+    }
+
+    @Test
+    fun `a successful manifest load acts on every loaded buildpack`() {
+        val manifestDir = File("src/test/resources/all-manifests-test")
+        manifestDir.exists() shouldBe true
+        manifestDir.listFiles()?.size shouldBe 3
+
+        val settings = Settings(mapOf(GIT_HUB_API_URL.key to baseUrl))
+        val capturingPublisher = CapturingPublisher()
+        val buildpackVersionChecker = BuildpackVersionChecker(
+            manifestDir,
+            GitHubBuildpackUpdateChecker(HttpClient.newBuilder().build(), settings),
+            capturingPublisher
+        )
+
+        buildpackVersionChecker.performChecks()
+
+        val updates = capturingPublisher.updates().sortedBy { it.currentBuildpack.name }
+        updates.size shouldBe 2
+
+        updates[0].let {
+            it.manifests shouldBeEqualTo listOf(File(manifestDir, "manifest2.yml"), File(manifestDir, "manifest3.yml"))
+            it.currentBuildpack.name shouldBeEqualTo "cloudfoundry/java-buildpack"
+            it.currentBuildpack.version shouldBeEqualTo SemanticVersion("4.39")
+            it.latestUpdate.version shouldBeEqualTo SemanticVersion("4.41")
+            it.latestUpdate.tag shouldBeEqualTo GitTag("v4.41")
+        }
+
+        updates[1].let {
+            it.manifests shouldBeEqualTo listOf(File(manifestDir, "manifest1.yml"))
+            it.currentBuildpack.name shouldBeEqualTo "cloudfoundry/staticfile-buildpack"
+            it.currentBuildpack.version shouldBeEqualTo SemanticVersion("1.5.17")
+            it.latestUpdate.version shouldBeEqualTo SemanticVersion("1.5.24")
+            it.latestUpdate.tag shouldBeEqualTo GitTag("v1.5.24")
+        }
+    }
+
     class CapturingPublisher : Publisher {
-        var lastUpdate: BuildpackUpdate? = null
+        private val update = mutableListOf<BuildpackUpdate>()
 
         override fun publish(update: BuildpackUpdate) {
-            lastUpdate = update
+            this.update.add(update)
         }
+
+        fun updates(): List<BuildpackUpdate> = update
     }
 
     companion object {
@@ -92,7 +147,6 @@ class BuildpackVersionCheckerTest {
                 )
             }
         }
-
 
         private fun readTestResource(resourcePath: String) =
             this::class.java.getResourceAsStream(resourcePath)?.bufferedReader()?.readText()
@@ -124,7 +178,5 @@ class BuildpackVersionCheckerTest {
         fun stopServer() {
             server.stop(0)
         }
-
     }
-
 }

@@ -12,7 +12,11 @@ class BuildpackVersionChecker(
 
     fun performChecks() {
         ManifestParser.load(manifestPath)
-            .flatMap { BuildpackUpdate.create(it, buildpackUpdateChecker) }
+            .flatMap { ManifestBuildpack.from(it) }
+            .groupBy { it.buildpack }
+            .map { (buildpack, manifestBuildpacks) ->
+                BuildpackUpdate(manifestBuildpacks.map { it.manifest }, buildpack, buildpackUpdateChecker.findLatestVersion(buildpack))
+            }
             .filter(BuildpackUpdate::hasUpdate)
             .forEach {
                 try {
@@ -25,6 +29,24 @@ class BuildpackVersionChecker(
 
     companion object {
         private val LOG: Logger = LoggerFactory.getLogger(BuildpackVersionChecker::class.java)
+    }
+
+    private data class ManifestBuildpack(val manifest: File, val buildpack: VersionedBuildpack) {
+
+        companion object {
+            private val LOG: Logger = LoggerFactory.getLogger(BuildpackUpdate::class.java)
+
+            fun from(manifest: ManifestLoadResult) = when (manifest) {
+                is FailedManifest -> {
+                    LOG.error("Failed to parse manifest {}", manifest)
+                    emptyList()
+                }
+                is Manifest -> manifest.applications.flatMap { app -> app.buildpacks() }.map {
+                    ManifestBuildpack(manifest.path, it)
+                }
+            }
+        }
+
     }
 
 }

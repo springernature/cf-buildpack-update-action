@@ -23,6 +23,5 @@ Create pull requests to update Cloud Foundry buildpacks in manifest files.
 
 ## Roadmap
 
-* make a single commit for all buildpacks of a single type in a repository
 * improve build time
 * make it configurable, see [Dependabot config](https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/configuration-options-for-dependency-updates) for ideas

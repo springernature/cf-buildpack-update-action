@@ -1,0 +1,9 @@
+---
+applications:
+- name: dummier-manifest-for-testing
+  instances: 1
+  health-check-type: process
+  no-route: true
+  buildpacks:
+  - https://github.com/cloudfoundry/java-buildpack#v4.39
+

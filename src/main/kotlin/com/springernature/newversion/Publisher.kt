@@ -28,26 +28,31 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
 
     private fun BuildpackUpdate.pullRequestMessage() =
         """
-        Update ${currentBuildpack.name} to ${latestUpdate.version} in ${manifest.toPrettyString()}
-        
-        Update ${currentBuildpack.name} from ${currentBuildpack.version} to ${latestUpdate.version} in ${manifest.toPrettyString()}.
-        
-        * [Release Notes](https://github.com/${currentBuildpack.name}/releases/tag/${latestUpdate.tag.value})
-        * [Diff](https://github.com/${currentBuildpack.name}/compare/${currentBuildpack.tag?.value}...${latestUpdate.tag.value})
-    """.trimIndent()
+        |Update ${currentBuildpack.name} to ${latestUpdate.version}
+        |
+        |Update ${currentBuildpack.name} from ${currentBuildpack.version} to ${latestUpdate.version} in
+        ${manifests.joinToString("\n") { "|* ${it.toPrettyString()}" }}
+        |
+        |* [Release Notes](https://github.com/${currentBuildpack.name}/releases/tag/${latestUpdate.tag.value})
+        |* [Diff](https://github.com/${currentBuildpack.name}/compare/${currentBuildpack.tag?.value}...${latestUpdate.tag.value})
+    """.trimMargin()
 
     private fun File.toPrettyString(): String = toString().replace(Regex("^./"), "")
 
     private fun updateManifest(update: BuildpackUpdate) {
-        LOG.info("Updating manifest for {}#{} -> {}",
-            update.currentBuildpack.name, update.currentBuildpack.tag?.value, update.latestUpdate.tag.value)
-        val manifestContent = update.manifest.readText(Charsets.UTF_8)
-        val newManifest =
-            manifestContent.replace(
-                "${update.currentBuildpack.name}#${update.currentBuildpack.tag?.value}",
-                "${update.currentBuildpack.name}#${update.latestUpdate.tag.value}"
+        update.manifests.forEach { manifest ->
+            LOG.info(
+                "Updating manifest $manifest for {}#{} -> {}",
+                update.currentBuildpack.name, update.currentBuildpack.tag?.value, update.latestUpdate.tag.value
             )
-        update.manifest.writeText(newManifest, Charsets.UTF_8)
+            val manifestContent = manifest.readText(Charsets.UTF_8)
+            val newManifest =
+                manifestContent.replace(
+                    "${update.currentBuildpack.name}#${update.currentBuildpack.tag?.value}",
+                    "${update.currentBuildpack.name}#${update.latestUpdate.tag.value}"
+                )
+            manifest.writeText(newManifest, Charsets.UTF_8)
+        }
     }
 
     private fun createPullRequest(
