@@ -4,7 +4,10 @@ Create pull requests to update Cloud Foundry buildpacks in manifest files.
 
 ## Example usage
 
-    on: [push]
+    on:
+      schedule:
+        - cron: '0 4 * * 1-5' # Every workday at 0500
+      workflow_dispatch:
     
     jobs:
       buildpack_updates_job:
