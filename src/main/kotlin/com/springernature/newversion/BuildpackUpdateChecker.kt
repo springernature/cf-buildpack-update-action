@@ -22,7 +22,8 @@ class GitHubBuildpackUpdateChecker(private val client: HttpClient, private val s
         val request = HttpRequest.newBuilder().uri(URI.create(url)).build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         if (response.statusCode() != 200) {
-            throw RuntimeException("Unexpected response from GitHub for URL $url: ${response.statusCode()}; ${response.body()}")
+            throw RuntimeException("Unexpected response from GitHub for buildpack $buildpack"
+                    + " with URL $url: ${response.statusCode()}; ${response.body()}")
         }
         val message = response.body()
         return Regex(""""tag_name":\s*"(v?([^"]+))"""").find(message)?.let {
