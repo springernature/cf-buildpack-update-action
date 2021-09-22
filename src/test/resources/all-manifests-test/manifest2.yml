@@ -5,5 +5,5 @@ applications:
   health-check-type: process
   no-route: true
   buildpacks:
-  - https://github.com/cloudfoundry/java-buildpack#v4.39
+  - https://github.com/cloudfoundry/java-buildpack.git#v4.39
 

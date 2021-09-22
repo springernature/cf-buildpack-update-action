@@ -323,7 +323,7 @@ class GitHubPullRequestPublisherTest {
             )
         )
         val publisher = GitHubPullRequestPublisher(shell, Settings())
-        val manifests = listOf(createTestManifest(name = "dummy1"), createTestManifest(name = "dummy2"))
+        val manifests = listOf(createTestManifest(name = "dummy1", dotGitVariant = true), createTestManifest(name = "dummy2"))
 
         publisher.publish(
             BuildpackUpdate(
@@ -357,7 +357,8 @@ class GitHubPullRequestPublisherTest {
             "github-pull-request-publisher-test-manifest",
             ".yml"
         ),
-        name: String = "dummy-manifest-for-testing"
+        name: String = "dummy-manifest-for-testing",
+        dotGitVariant: Boolean = false
     ): File =
         file.also {
             it.deleteOnExit()
@@ -370,7 +371,7 @@ class GitHubPullRequestPublisherTest {
                       health-check-type: process
                       no-route: true
                       buildpacks:
-                      - https://a.host/test/buildpack#v2.0.4
+                      - https://a.host/test/buildpack${ if (dotGitVariant) ".git" else "" }#v2.0.4
                 """.trimIndent()
             )
         }

@@ -3,7 +3,6 @@ package com.springernature.newversion
 import net.swiftzer.semver.SemVer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.io.File
 
 interface Publisher {
     fun publish(update: BuildpackUpdate)
@@ -36,8 +35,6 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         * [Diff](https://github.com/${currentBuildpack.name}/compare/${currentBuildpack.tag?.value}...${latestUpdate.tag.value})
     """.trimIndent()
 
-    private fun File.toPrettyString(): String = toString().replace(Regex("^./"), "")
-
     private fun updateManifest(update: BuildpackUpdate) {
         update.manifests.forEach { manifest ->
             LOG.info(
@@ -48,6 +45,9 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
             val newManifest =
                 manifestContent.replace(
                     "${update.currentBuildpack.name}#${update.currentBuildpack.tag?.value}",
+                    "${update.currentBuildpack.name}#${update.latestUpdate.tag.value}"
+                ).replace(
+                    "${update.currentBuildpack.name}.git#${update.currentBuildpack.tag?.value}",
                     "${update.currentBuildpack.name}#${update.latestUpdate.tag.value}"
                 )
             manifest.writeText(newManifest, Charsets.UTF_8)
