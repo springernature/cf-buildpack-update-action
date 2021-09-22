@@ -101,8 +101,7 @@ class GitHubPullRequestPublisherTest {
             "hub" to listOf(
                 "pull-request", "--push",
                 "--message", "Update test/buildpack to 2.3.6\n\n"
-                        + "Update test/buildpack from 2.0.4 to 2.3.6 in\n"
-                        + manifests.joinToString("\n") { "* $it" } + "\n\n"
+                        + "Update test/buildpack from 2.0.4 to 2.3.6.\n\n"
                         + "* [Release Notes](https://github.com/test/buildpack/releases/tag/v2.3.6)\n"
                         + "* [Diff](https://github.com/test/buildpack/compare/v2.0.4...v2.3.6)",
                 "--base", "base-branch", "--labels", "buildpack-update"
@@ -154,8 +153,7 @@ class GitHubPullRequestPublisherTest {
             "hub" to listOf(
                 "pull-request", "--push",
                 "--message", "Update test/buildpack to 2.3.6\n\n"
-                        + "Update test/buildpack from 2.0.5 to 2.3.6 in\n"
-                        + "* $manifest\n\n"
+                        + "Update test/buildpack from 2.0.5 to 2.3.6.\n\n"
                         + "* [Release Notes](https://github.com/test/buildpack/releases/tag/2.3.6)\n"
                         + "* [Diff](https://github.com/test/buildpack/compare/2.0.5...2.3.6)",
                 "--base", "base-branch", "--labels", "buildpack-update"
@@ -215,8 +213,7 @@ class GitHubPullRequestPublisherTest {
             "hub" to listOf(
                 "pull-request", "--push",
                 "--message", "Update test/buildpack to 2.3.6\n\n"
-                        + "Update test/buildpack from 2.0.4 to 2.3.6 in\n"
-                        + "* $manifest\n\n"
+                        + "Update test/buildpack from 2.0.4 to 2.3.6.\n\n"
                         + "* [Release Notes](https://github.com/test/buildpack/releases/tag/v2.3.6)\n"
                         + "* [Diff](https://github.com/test/buildpack/compare/v2.0.4...v2.3.6)",
                 "--base", "base-branch", "--labels", "buildpack-update"
@@ -270,8 +267,7 @@ class GitHubPullRequestPublisherTest {
                         "--push",
                         "--message",
                         "Update test/buildpack to 2.3.6\n\n"
-                                + "Update test/buildpack from 2.0.4 to 2.3.6 in\n"
-                                + "* local-test-manifest.yml\n\n"
+                                + "Update test/buildpack from 2.0.4 to 2.3.6.\n\n"
                                 + "* [Release Notes](https://github.com/test/buildpack/releases/tag/v2.3.6)\n"
                                 + "* [Diff](https://github.com/test/buildpack/compare/v2.0.4...v2.3.6)",
                         "--base",
