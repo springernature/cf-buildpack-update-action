@@ -13,6 +13,7 @@ class BuildpackVersionChecker(
     fun performChecks() {
         ManifestParser.load(manifestPath)
             .flatMap { ManifestBuildpack.from(it) }
+            .filter { it.buildpack.version != Latest }
             .groupBy { it.buildpack }
             .map { (buildpack, manifestBuildpacks) ->
                 BuildpackUpdate(manifestBuildpacks.map { it.manifest }, buildpack, buildpackUpdateChecker.findLatestVersion(buildpack))
