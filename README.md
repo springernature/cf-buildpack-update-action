@@ -17,7 +17,7 @@ Create pull requests to update Cloud Foundry buildpacks in manifest files.
           - name: Check out the repo
             uses: actions/checkout@v2
           - name: run buildpack-update-action
-            uses: springernature/buildpack-update-action@v0.0.19
+            uses: springernature/buildpack-update-action@v1.0.1
             env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               AUTHOR_EMAIL: your-team-email-address@springernature.com
