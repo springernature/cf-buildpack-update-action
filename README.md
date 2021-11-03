@@ -2,6 +2,14 @@
 
 Create pull requests to update Cloud Foundry buildpacks in manifest files.
 
+## Why?
+
+Aiming for reproducible deployments it's a necessary step to pin a buildpack in a project to a specific version in the Cloud Foundry manifest, so it will always use the one you specify.
+
+The disadvantage of pinning is that any improvement in a newer version is not automatically taken over to the project.
+
+With this GitHub action a pull request will be created if there is a newer version of a buildpack available. That way the project can stay up-to-date but with a conscious and deliberate change, traceable in version control.
+
 ## Example usage
 
     on:
@@ -23,11 +31,24 @@ Create pull requests to update Cloud Foundry buildpacks in manifest files.
               AUTHOR_EMAIL: your-team-email-address@springernature.com
               AUTHOR_NAME: Buildpack Update Action
 
+## Development
+
+Before submitting any pull requests, please ensure that you have adhered to the [contribution guidelines][contrib].
+
 ## Roadmap
 
 * enhance documentation
-* create a proper release
-  * have an automated release process? 
+* have an automated release process? 
 * open source it: https://github.com/springernature/open-source
 * improve build time
 * make it configurable, see [Dependabot config](https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/configuration-options-for-dependency-updates) for ideas
+
+## License
+
+[GPL 3][license]
+
+Copyright Springer Nature
+
+[contrib]: CONTRIBUTING.md
+[history]: HISTORY.md
+[license]: LICENSE 
