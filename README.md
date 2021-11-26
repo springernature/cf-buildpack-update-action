@@ -39,7 +39,6 @@ Before submitting any pull requests, please ensure that you have adhered to the 
 
 * enhance documentation
 * have an automated release process? 
-* open source it: https://github.com/springernature/open-source
 * improve build time
 * make it configurable, see [Dependabot config](https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/configuration-options-for-dependency-updates) for ideas
 
