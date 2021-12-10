@@ -25,7 +25,7 @@ With this GitHub action a pull request will be created if there is a newer versi
           - name: Check out the repo
             uses: actions/checkout@v2
           - name: run buildpack-update-action
-            uses: springernature/buildpack-update-action@v1.0.1
+            uses: springernature/buildpack-update-action@v1.0.2
             env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               AUTHOR_EMAIL: your-team-email-address@springernature.com
