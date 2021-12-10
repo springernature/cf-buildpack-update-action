@@ -25,7 +25,7 @@ dependencies {
     testImplementation(kotlin("test-junit5"))
     testImplementation("org.amshove.kluent:kluent:1.68")
 
-    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.5.2")
+    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.8.2")
 }
 
 tasks.withType<KotlinCompile> {
