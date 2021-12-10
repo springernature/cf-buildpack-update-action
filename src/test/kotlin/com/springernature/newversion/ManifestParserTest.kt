@@ -119,7 +119,7 @@ class ManifestParserTest {
                             buildpacks shouldContain VersionedBuildpack(
                                 "springernature/nginx-opentracing-buildpack",
                                 "https://github.com/springernature/nginx-opentracing-buildpack",
-                                Latest,
+                                Unparseable,
                                 null
                             )
                         }

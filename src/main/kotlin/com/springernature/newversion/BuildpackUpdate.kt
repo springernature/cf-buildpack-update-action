@@ -9,6 +9,6 @@ data class BuildpackUpdate(
 ) {
     fun hasUpdate() = when (currentBuildpack.version) {
         is SemanticVersion -> currentBuildpack.version.toSemVer() < latestUpdate.version.toSemVer()
-        is Latest -> false
+        is Unparseable -> false
     }
 }

@@ -14,24 +14,26 @@ data class VersionedBuildpack(val name: String, val url: String, val version: Ve
 
     companion object {
 
+        private const val SEMVER_REGEX = "\\d+(?:\\.\\d+(?:\\.\\d+)?)?"
+
         @JvmStatic
         @JsonCreator
         fun create(value: String) =
             VersionedBuildpack(value.name(), value.buildpackUrl(), value.buildpackVersion(), value.buildpackTag())
 
         private fun String.buildpackUrl(): String =
-            "(.*github.com/.*?)(?:\\.git)?(?:#v?.*)?$".toRegex().find(this)?.groups?.get(1)?.value
+            "(.*github.com/.*?)(?:\\.git)?(?:#v?$SEMVER_REGEX)?$".toRegex().find(this)?.groups?.get(1)?.value
                 ?: throw Exception("Cannot parse buildpack URL: $this")
 
         private fun String.buildpackVersion(): Version =
-            ".*github.com/.*#v?(.*)$".toRegex().find(this)?.groups?.get(1)?.value?.let { SemanticVersion(it) }
-                ?: Latest
+            ".*github.com/.*#v?($SEMVER_REGEX)$".toRegex().find(this)?.groups?.get(1)?.value?.let { SemanticVersion(it) }
+                ?: Unparseable
 
         private fun String.buildpackTag(): GitTag? =
-            ".*github.com/.*#(v?.*)$".toRegex().find(this)?.groups?.get(1)?.value?.let { GitTag(it) }
+            ".*github.com/.*#(v?$SEMVER_REGEX)$".toRegex().find(this)?.groups?.get(1)?.value?.let { GitTag(it) }
 
         private fun String.name(): String =
-            ".*github.com/(.*?)(?:\\.git)?(?:#v.*)?$".toRegex().find(this)?.groups?.get(1)?.value
+            ".*github.com/(.*?)(?:\\.git)?(?:#v$SEMVER_REGEX)?$".toRegex().find(this)?.groups?.get(1)?.value
                 ?: throw Exception("Cannot parse buildpack name: $this")
     }
 }
@@ -42,4 +44,4 @@ data class SemanticVersion(private val versionString: String) : Version() {
     override fun toString() = versionString
 }
 
-object Latest : Version()
+object Unparseable : Version()

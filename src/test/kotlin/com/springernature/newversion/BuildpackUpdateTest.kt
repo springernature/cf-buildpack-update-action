@@ -43,7 +43,7 @@ class BuildpackUpdateTest {
     fun `a buildpack from HEAD has no updates`() {
         val possibleUpdate = BuildpackUpdate(
             listOf(File("a/path")),
-            VersionedBuildpack("test/buildpack1", "https://a.host/path", Latest, null),
+            VersionedBuildpack("test/buildpack1", "https://a.host/path", Unparseable, null),
             BuildpackVersion(SemanticVersion("2.3.4"), GitTag("v2.3.4"))
         )
 

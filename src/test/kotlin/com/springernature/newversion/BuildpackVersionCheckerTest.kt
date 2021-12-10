@@ -57,6 +57,24 @@ class BuildpackVersionCheckerTest {
     }
 
     @Test
+    fun `we don't query GitHub to find if updates are available for buildpacks with non-semver branches or tags`() {
+        val manifest = File("src/test/resources/manifest-without-semver-tag.yml")
+        manifest.exists() shouldBe true
+
+        val settings = Settings(mapOf(GIT_HUB_API_URL.key to baseUrl))
+        val capturingPublisher = CapturingPublisher()
+        val buildpackVersionChecker = BuildpackVersionChecker(
+            manifest,
+            GitHubBuildpackUpdateChecker(HttpClient.newBuilder().build(), settings),
+            capturingPublisher
+        )
+
+        buildpackVersionChecker.performChecks()
+
+        capturingPublisher.updates().size shouldBe 0
+    }
+
+    @Test
     fun `we can find the latest version if version only specifies major and minor but no patch version`() {
         val manifest = File("src/test/resources/manifest-no-patch-version-specified.yml")
         manifest.exists() shouldBe true
