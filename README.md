@@ -11,6 +11,7 @@ The disadvantage of pinning is that any improvement in a newer version is not au
 With this GitHub action a pull request will be created if there is a newer version of a buildpack available. That way the project can stay up-to-date but with a conscious and deliberate change, traceable in version control.
 
 ## Example usage
+Create a file in your repo called .github/workflows/buildpack-update.yml and in it put this code (remember to update 'your-team-email-address@springernature.com' to one that is correct for your team)
 
     on:
       schedule:
@@ -30,6 +31,9 @@ With this GitHub action a pull request will be created if there is a newer versi
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               AUTHOR_EMAIL: your-team-email-address@springernature.com
               AUTHOR_NAME: Buildpack Update Action
+
+This should be picked up automatically in Github as a new Action and produce a PR (Pull Request) with the buildpack version changes whenever a new version is available.
+Just accept and merge the PR and you will be up to date.
 
 ## Development
 
