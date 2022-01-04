@@ -5,5 +5,5 @@ applications:
     health-check-type: process
     no-route: true
     buildpacks:
-      - https://github.com/springernature/nginx-opentracing-buildpack
+      - https://github.com/springernature/a-custom-buildpack
 

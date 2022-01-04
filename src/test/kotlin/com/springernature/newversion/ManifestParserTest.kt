@@ -117,8 +117,8 @@ class ManifestParserTest {
                         it.applications[0].buildpacks().let { buildpacks ->
                             buildpacks.size shouldBe 1
                             buildpacks shouldContain VersionedBuildpack(
-                                "springernature/nginx-opentracing-buildpack",
-                                "https://github.com/springernature/nginx-opentracing-buildpack",
+                                "springernature/a-custom-buildpack",
+                                "https://github.com/springernature/a-custom-buildpack",
                                 Unparseable,
                                 null
                             )
