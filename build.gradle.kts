@@ -33,7 +33,7 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.named<ShadowJar>("shadowJar") {
-    archiveBaseName.set("buildpack-update-action")
+    archiveBaseName.set("cf-buildpack-update-action")
     mergeServiceFiles()
     manifest {
         attributes(mapOf("Main-Class" to "com.springernature.newversion.MainKt"))

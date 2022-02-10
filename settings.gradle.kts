@@ -1,1 +1,1 @@
-rootProject.name = "buildpack-update-action"
+rootProject.name = "cf-buildpack-update-action"

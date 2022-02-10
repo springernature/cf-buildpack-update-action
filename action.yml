@@ -1,4 +1,4 @@
-name: 'buildpack-update-action'
+name: 'cf-buildpack-update-action'
 description: 'Create pull requests to update Cloud Foundry buildpacks in manifest files'
 runs:
   using: 'docker'

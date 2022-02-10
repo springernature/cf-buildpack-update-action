@@ -6,7 +6,7 @@
 * Add yourself to the [authors] file.
 * Feel free to [open an issue][newissue] first, if the change is one that you think needs some discussion.
 
-[readme]: https://github.com/springernature/buildpack-update-action/blob/main/README.md
-[authors]: https://github.com/springernature/buildpack-update-action/blob/main/AUTHORS
-[newissue]: https://github.com/springernature/buildpack-update-action/issues/new
-[issues]: https://github.com/springernature/buildpack-update-action/issues
+[readme]: https://github.com/springernature/cf-buildpack-update-action/blob/main/README.md
+[authors]: https://github.com/springernature/cf-buildpack-update-action/blob/main/AUTHORS
+[newissue]: https://github.com/springernature/cf-buildpack-update-action/issues/new
+[issues]: https://github.com/springernature/cf-buildpack-update-action/issues
