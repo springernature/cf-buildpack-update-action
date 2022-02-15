@@ -35,6 +35,20 @@ Create a file in your repo called .github/workflows/buildpack-update.yml and in 
 This should be picked up automatically in Github as a new Action and produce a PR (Pull Request) with the buildpack version changes whenever a new version is available.
 Just accept and merge the PR and you will be up to date.
 
+## Keep *your* action up-to-date
+
+You can configure dependabot to keep your action which uses `cf-buildpack-update-action` up-to-date for every new version on `cf-buildpack-update-action`.
+
+https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependen[…]automatically/keeping-your-actions-up-to-date-with-dependabot
+
+
+> **Enabling Dependabot version updates for actions**
+> 1. Create a *dependabot.yml* configuration file. If you have already enabled Dependabot version updates for other ecosystems or package managers, simply open the existing *dependabot.yml* file.
+> 1. Specify `"github-actions"` as a `package-ecosystem` to monitor.
+> 1. Set the `directory` to `"/"` to check for workflow files in `.github/workflows`.
+> 1. Set a `schedule.interval` to specify how often to check for new versions.
+> 1. Check the *dependabot.yml* configuration file in to the `.github` directory of the repository. If you have edited an existing file, save your changes.
+
 ## Development
 
 Before submitting any pull requests, please ensure that you have adhered to the [contribution guidelines][contrib].
