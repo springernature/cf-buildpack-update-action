@@ -131,6 +131,34 @@ class ManifestParserTest {
     }
 
     @Test
+    fun `a builtin buildpack is parsed correctly`() {
+        val loadManifests = ManifestParser.load(resourcePath("manifest-with-builtin-buildpack.yml"))
+
+        var parsedManifests = 0
+        loadManifests
+            .also { parsedManifests++ }
+            .forEach {
+                when (it) {
+                    is FailedManifest -> fail("Manifest load failed: $it")
+                    is Manifest -> {
+                        it.applications.size shouldBe 1
+                        it.applications[0].buildpacks().let { buildpacks ->
+                            buildpacks.size shouldBe 1
+                            buildpacks shouldContain VersionedBuildpack(
+                                "cloudfoundry/a-builtin-buildpack",
+                                "https://github.com/cloudfoundry/a-builtin-buildpack",
+                                Unparseable,
+                                null
+                            )
+                        }
+                    }
+                }
+            }
+
+        parsedManifests shouldBe 1
+    }
+
+    @Test
     fun `a manifest with a legacy buildpack attribute is parsed correctly`() {
         val loadManifests = ManifestParser.load(resourcePath("manifest-legacy.yml"))
 

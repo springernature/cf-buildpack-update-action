@@ -23,7 +23,7 @@ data class VersionedBuildpack(val name: String, val url: String, val version: Ve
 
         private fun String.buildpackUrl(): String =
             "(.*github.com/.*?)(?:\\.git)?(?:#v?$SEMVER_REGEX)?$".toRegex().find(this)?.groups?.get(1)?.value
-                ?: throw Exception("Cannot parse buildpack URL: $this")
+                ?: "https://github.com/cloudfoundry/$this"
 
         private fun String.buildpackVersion(): Version =
             ".*github.com/.*#v?($SEMVER_REGEX)$".toRegex().find(this)?.groups?.get(1)?.value?.let { SemanticVersion(it) }
@@ -34,7 +34,7 @@ data class VersionedBuildpack(val name: String, val url: String, val version: Ve
 
         private fun String.name(): String =
             ".*github.com/(.*?)(?:\\.git)?(?:#v$SEMVER_REGEX)?$".toRegex().find(this)?.groups?.get(1)?.value
-                ?: throw Exception("Cannot parse buildpack name: $this")
+                ?: "cloudfoundry/$this"
     }
 }
 
