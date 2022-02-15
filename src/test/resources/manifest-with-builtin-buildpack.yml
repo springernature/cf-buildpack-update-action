@@ -5,5 +5,5 @@ applications:
     health-check-type: process
     no-route: true
     buildpacks:
-      - a-builtin-buildpack
+      - a_builtin_buildpack
 
