@@ -24,7 +24,7 @@ object ManifestParser {
         .filter { it.isFile }
         .filterNot { it.path.contains("\\.git/") }
         .filter { it.name.endsWith(".yml") || it.name.endsWith(".yaml") }
-        .filter { it.name.contains("manifest") }
+        .filter { it.name.contains("manifest") || it.name.contains("cf") }
         .onEach { LOG.debug("Found manifest {}", it) }
         .map {
             try {

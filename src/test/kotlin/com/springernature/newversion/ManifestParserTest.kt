@@ -17,12 +17,37 @@ class ManifestParserTest {
     }
 
     @Test
-    fun `a buildpack can be determined from a manifest`() {
+    fun `a buildpack can be determined from a manifest with manifest in the name`() {
         val loadManifests = ManifestParser.load(resourcePath("manifest.yml"))
 
         var parsedManifests = 0
         loadManifests
-            .also { parsedManifests++ }
+            .onEach { parsedManifests++ }
+            .forEach {
+                when (it) {
+                    is FailedManifest -> fail("Manifest load failed: $it")
+                    is Manifest -> {
+                        it.applications.size shouldBe 1
+                        it.applications[0].buildpacks() shouldContain VersionedBuildpack(
+                            "cloudfoundry/staticfile-buildpack",
+                            "https://github.com/cloudfoundry/staticfile-buildpack",
+                            SemanticVersion("1.5.17"),
+                            GitTag("v1.5.17")
+                        )
+                    }
+                }
+            }
+
+        parsedManifests shouldBe 1
+    }
+
+    @Test
+    fun `a buildpack can be determined from a manifest with cf in the name`() {
+        val loadManifests = ManifestParser.load(resourcePath("cf.yml"))
+
+        var parsedManifests = 0
+        loadManifests
+            .onEach { parsedManifests++ }
             .forEach {
                 when (it) {
                     is FailedManifest -> fail("Manifest load failed: $it")
@@ -47,7 +72,7 @@ class ManifestParserTest {
 
         var parsedManifests = 0
         loadManifests
-            .also { parsedManifests++ }
+            .onEach { parsedManifests++ }
             .forEach {
                 when (it) {
                     is FailedManifest -> fail("Manifest load failed: $it")
@@ -72,7 +97,7 @@ class ManifestParserTest {
 
         var parsedManifests = 0
         loadManifests
-            .also { parsedManifests++ }
+            .onEach { parsedManifests++ }
             .forEach {
                 when (it) {
                     is FailedManifest -> fail("Manifest load failed: $it")
@@ -108,7 +133,7 @@ class ManifestParserTest {
 
         var parsedManifests = 0
         loadManifests
-            .also { parsedManifests++ }
+            .onEach { parsedManifests++ }
             .forEach {
                 when (it) {
                     is FailedManifest -> fail("Manifest load failed: $it")
@@ -136,7 +161,7 @@ class ManifestParserTest {
 
         var parsedManifests = 0
         loadManifests
-            .also { parsedManifests++ }
+            .onEach { parsedManifests++ }
             .forEach {
                 when (it) {
                     is FailedManifest -> fail("Manifest load failed: $it")
@@ -164,7 +189,7 @@ class ManifestParserTest {
 
         var parsedManifests = 0
         loadManifests
-            .also { parsedManifests++ }
+            .onEach { parsedManifests++ }
             .forEach {
                 when (it) {
                     is FailedManifest -> fail("Manifest load failed: $it")
