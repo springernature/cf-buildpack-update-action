@@ -21,6 +21,7 @@ object ManifestParser {
     private val LOG: Logger = LoggerFactory.getLogger(ManifestParser::class.java)
 
     fun load(dir: File): Sequence<ManifestLoadResult> = dir.walk()
+        .sorted()
         .filter { it.isFile }
         .filterNot { it.path.contains("\\.git/") }
         .filter { it.name.endsWith(".yml") || it.name.endsWith(".yaml") }
