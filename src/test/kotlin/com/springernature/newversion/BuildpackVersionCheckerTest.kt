@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -136,7 +137,7 @@ class BuildpackVersionCheckerTest {
         updates.size shouldBe 2
 
         updates[0].let {
-            it.manifests shouldBeEqualTo listOf(File(manifestDir, "manifest2.yml"), File(manifestDir, "manifest3.yml"))
+            it.manifests shouldContainSame listOf(File(manifestDir, "manifest2.yml"), File(manifestDir, "manifest3.yml"))
             it.currentBuildpack.name shouldBeEqualTo "cloudfoundry/java-buildpack"
             it.currentBuildpack.version shouldBeEqualTo SemanticVersion("4.39")
             it.latestUpdate.version shouldBeEqualTo SemanticVersion("4.41")
@@ -144,7 +145,7 @@ class BuildpackVersionCheckerTest {
         }
 
         updates[1].let {
-            it.manifests shouldBeEqualTo listOf(File(manifestDir, "manifest1.yml"))
+            it.manifests shouldContainSame listOf(File(manifestDir, "manifest1.yml"))
             it.currentBuildpack.name shouldBeEqualTo "cloudfoundry/staticfile-buildpack"
             it.currentBuildpack.version shouldBeEqualTo SemanticVersion("1.5.17")
             it.latestUpdate.version shouldBeEqualTo SemanticVersion("1.5.24")
