@@ -3,3 +3,6 @@ description: 'Create pull requests to update Cloud Foundry buildpacks in manifes
 runs:
   using: 'docker'
   image: 'Dockerfile'
+branding:
+  icon: 'package'
+  color: 'blue'
