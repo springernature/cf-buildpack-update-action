@@ -136,7 +136,7 @@ class BuildpackVersionCheckerTest {
         updates.size shouldBe 2
 
         updates[0].let {
-            it.manifests shouldBeEqualTo listOf(File(manifestDir, "manifest3.yml"), File(manifestDir, "manifest2.yml")).sorted()
+            it.manifests shouldBeEqualTo listOf(File(manifestDir, "manifest2.yml"), File(manifestDir, "manifest3.yml"))
             it.currentBuildpack.name shouldBeEqualTo "cloudfoundry/java-buildpack"
             it.currentBuildpack.version shouldBeEqualTo SemanticVersion("4.39")
             it.latestUpdate.version shouldBeEqualTo SemanticVersion("4.41")
