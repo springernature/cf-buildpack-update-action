@@ -39,7 +39,7 @@ Just accept and merge the PR and you will be up to date.
 
 You can configure dependabot to keep your action which uses `cf-buildpack-update-action` up-to-date for every new version on `cf-buildpack-update-action`.
 
-https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependen[…]automatically/keeping-your-actions-up-to-date-with-dependabot
+[Enabling Dependabot version updates for actions — Keeping your actions up to date with Dependabot - GitHub Docs](https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/keeping-your-actions-up-to-date-with-dependabot#enabling-dependabot-version-updates-for-actions)
 
 
 > **Enabling Dependabot version updates for actions**
