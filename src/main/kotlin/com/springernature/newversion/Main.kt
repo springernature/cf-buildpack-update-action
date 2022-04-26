@@ -2,6 +2,7 @@ package com.springernature.newversion
 
 import java.io.File
 import java.net.http.HttpClient
+import kotlin.system.exitProcess
 
 fun main() {
     val settings = Settings(System.getenv())
@@ -11,6 +12,9 @@ fun main() {
     val publisher = GitHubPullRequestPublisher(shellRunner, settings)
     val manifestPath = File(".")
 
-    BuildpackVersionChecker(manifestPath, buildpackUpdateChecker, publisher)
+    var errorDuringChecks = BuildpackVersionChecker(manifestPath, buildpackUpdateChecker, publisher)
         .performChecks()
+    if (errorDuringChecks) {
+        exitProcess(1)
+    }
 }

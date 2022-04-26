@@ -10,13 +10,20 @@ class BuildpackVersionChecker(
     private val publisher: Publisher
 ) {
 
-    fun performChecks() {
+    private var failOnExit: Boolean = false
+
+    fun performChecks(): Boolean {
+        LOG.info("Performing checks")
         ManifestParser.load(manifestPath)
             .flatMap { ManifestBuildpack.from(it) }
             .filter { it.buildpack.version != Unparseable }
             .groupBy { it.buildpack }
             .map { (buildpack, manifestBuildpacks) ->
-                BuildpackUpdate(manifestBuildpacks.map { it.manifest }, buildpack, buildpackUpdateChecker.findLatestVersion(buildpack))
+                BuildpackUpdate(
+                    manifestBuildpacks.map { it.manifest },
+                    buildpack,
+                    buildpackUpdateChecker.findLatestVersion(buildpack)
+                )
             }
             .filter(BuildpackUpdate::hasUpdate)
             .forEach {
@@ -24,8 +31,11 @@ class BuildpackVersionChecker(
                     publisher.publish(it)
                 } catch (e: Exception) {
                     LOG.error("Publish of update failed: {}", it, e)
+                    failOnExit = true
                 }
             }
+        LOG.info("Done")
+        return failOnExit
     }
 
     companion object {
