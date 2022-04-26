@@ -28,7 +28,8 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        buildpackVersionChecker.performChecks()
+        var failed = buildpackVersionChecker.performChecks()
+        failed shouldBe false
 
         capturingPublisher.updates().size shouldBe 1
         val lastUpdate = capturingPublisher.updates().first()
@@ -52,7 +53,8 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        buildpackVersionChecker.performChecks()
+        var failed = buildpackVersionChecker.performChecks()
+        failed shouldBe false
 
         capturingPublisher.updates().size shouldBe 0
     }
@@ -70,7 +72,8 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        buildpackVersionChecker.performChecks()
+        var failed = buildpackVersionChecker.performChecks()
+        failed shouldBe false
 
         capturingPublisher.updates().size shouldBe 0
     }
@@ -88,7 +91,8 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        buildpackVersionChecker.performChecks()
+        var failed = buildpackVersionChecker.performChecks()
+        failed shouldBe false
 
         capturingPublisher.updates().size shouldBe 1
         val lastUpdate = capturingPublisher.updates().first()
@@ -112,7 +116,8 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        buildpackVersionChecker.performChecks()
+        var failed = buildpackVersionChecker.performChecks()
+        failed shouldBe false
 
         capturingPublisher.updates().size shouldBe 0
     }
@@ -131,13 +136,17 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        buildpackVersionChecker.performChecks()
+        var failed = buildpackVersionChecker.performChecks()
+        failed shouldBe false
 
         val updates = capturingPublisher.updates().sortedBy { it.currentBuildpack.name }
         updates.size shouldBe 2
 
         updates[0].let {
-            it.manifests shouldContainSame listOf(File(manifestDir, "manifest2.yml"), File(manifestDir, "manifest3.yml"))
+            it.manifests shouldContainSame listOf(
+                File(manifestDir, "manifest2.yml"),
+                File(manifestDir, "manifest3.yml")
+            )
             it.currentBuildpack.name shouldBeEqualTo "cloudfoundry/java-buildpack"
             it.currentBuildpack.version shouldBeEqualTo SemanticVersion("4.39")
             it.latestUpdate.version shouldBeEqualTo SemanticVersion("4.41")
@@ -153,6 +162,26 @@ class BuildpackVersionCheckerTest {
         }
     }
 
+    @Test
+    fun `a failed publish should lead to an exit with error`() {
+        val manifest = File("src/test/resources/manifest.yml")
+        manifest.exists() shouldBe true
+
+        val settings = Settings(mapOf(GIT_HUB_API_URL.key to baseUrl))
+        val capturingPublisher = CapturingFailingPublisher()
+        val buildpackVersionChecker = BuildpackVersionChecker(
+            manifest,
+            GitHubBuildpackUpdateChecker(HttpClient.newBuilder().build(), settings),
+            capturingPublisher
+        )
+
+        var failed = buildpackVersionChecker.performChecks()
+        failed shouldBe true
+
+        capturingPublisher.updates().size shouldBe 0
+    }
+
+
     class CapturingPublisher : Publisher {
         private val update = mutableListOf<BuildpackUpdate>()
 
@@ -161,6 +190,15 @@ class BuildpackVersionCheckerTest {
         }
 
         fun updates(): List<BuildpackUpdate> = update
+    }
+
+    class CapturingFailingPublisher : Publisher {
+
+        override fun publish(update: BuildpackUpdate) {
+            throw RuntimeException("We cannot publish, e.g. GitHub is down…")
+        }
+
+        fun updates(): List<BuildpackUpdate> = emptyList()
     }
 
     companion object {
