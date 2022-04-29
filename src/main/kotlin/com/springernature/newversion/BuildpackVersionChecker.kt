@@ -4,17 +4,28 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
 
+
+sealed class ChecksResult {
+    abstract val errors: Map<BuildpackUpdate, Exception>
+}
+
+data class SuccessfulChecks(val updates: List<BuildpackUpdate>) : ChecksResult() {
+    override val errors: Map<BuildpackUpdate, Exception> = emptyMap()
+}
+
+data class FailedChecks(val updates: List<BuildpackUpdate>, override val errors: Map<BuildpackUpdate, Exception>) :
+    ChecksResult()
+
 class BuildpackVersionChecker(
     private val manifestPath: File,
     private val buildpackUpdateChecker: BuildpackUpdateChecker,
     private val publisher: Publisher
 ) {
 
-    private var failOnExit: Boolean = false
-
-    fun performChecks(): Boolean {
+    fun performChecks(): ChecksResult {
         LOG.info("Performing checks")
-        ManifestParser.load(manifestPath)
+        val errors = LinkedHashMap<BuildpackUpdate, Exception>()
+        val updates: List<BuildpackUpdate> = ManifestParser.load(manifestPath)
             .flatMap { ManifestBuildpack.from(it) }
             .filter { it.buildpack.version != Unparseable }
             .groupBy { it.buildpack }
@@ -26,16 +37,19 @@ class BuildpackVersionChecker(
                 )
             }
             .filter(BuildpackUpdate::hasUpdate)
+        updates
             .forEach {
                 try {
                     publisher.publish(it)
                 } catch (e: Exception) {
-                    LOG.error("Publish of update failed: {}", it, e)
-                    failOnExit = true
+                    errors.put(it, e)
                 }
             }
         LOG.info("Done")
-        return failOnExit
+        if (errors.isNotEmpty()) {
+            return FailedChecks(updates, errors)
+        }
+        return SuccessfulChecks(updates)
     }
 
     companion object {
