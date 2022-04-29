@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -28,8 +29,8 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        var failed = buildpackVersionChecker.performChecks()
-        failed shouldBe false
+        var results = buildpackVersionChecker.performChecks()
+        results shouldBeInstanceOf SuccessfulChecks::class
 
         capturingPublisher.updates().size shouldBe 1
         val lastUpdate = capturingPublisher.updates().first()
@@ -53,8 +54,8 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        var failed = buildpackVersionChecker.performChecks()
-        failed shouldBe false
+        var results = buildpackVersionChecker.performChecks()
+        results shouldBeInstanceOf SuccessfulChecks::class
 
         capturingPublisher.updates().size shouldBe 0
     }
@@ -72,8 +73,8 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        var failed = buildpackVersionChecker.performChecks()
-        failed shouldBe false
+        var results = buildpackVersionChecker.performChecks()
+        results shouldBeInstanceOf SuccessfulChecks::class
 
         capturingPublisher.updates().size shouldBe 0
     }
@@ -91,8 +92,8 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        var failed = buildpackVersionChecker.performChecks()
-        failed shouldBe false
+        var results = buildpackVersionChecker.performChecks()
+        results shouldBeInstanceOf SuccessfulChecks::class
 
         capturingPublisher.updates().size shouldBe 1
         val lastUpdate = capturingPublisher.updates().first()
@@ -116,8 +117,8 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        var failed = buildpackVersionChecker.performChecks()
-        failed shouldBe false
+        var results = buildpackVersionChecker.performChecks()
+        results shouldBeInstanceOf SuccessfulChecks::class
 
         capturingPublisher.updates().size shouldBe 0
     }
@@ -136,8 +137,8 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        var failed = buildpackVersionChecker.performChecks()
-        failed shouldBe false
+        var results = buildpackVersionChecker.performChecks()
+        results shouldBeInstanceOf SuccessfulChecks::class
 
         val updates = capturingPublisher.updates().sortedBy { it.currentBuildpack.name }
         updates.size shouldBe 2
@@ -175,8 +176,9 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        var failed = buildpackVersionChecker.performChecks()
-        failed shouldBe true
+        var results = buildpackVersionChecker.performChecks()
+        results shouldBeInstanceOf FailedChecks::class
+        println(results.errors)
 
         capturingPublisher.updates().size shouldBe 0
     }

@@ -12,9 +12,14 @@ fun main() {
     val publisher = GitHubPullRequestPublisher(shellRunner, settings)
     val manifestPath = File(".")
 
-    var errorDuringChecks = BuildpackVersionChecker(manifestPath, buildpackUpdateChecker, publisher)
+    var results = BuildpackVersionChecker(manifestPath, buildpackUpdateChecker, publisher)
         .performChecks()
-    if (errorDuringChecks) {
-        exitProcess(1)
+    when (results) {
+        is FailedChecks -> {
+            results.errors.forEach { println("${it.key.currentBuildpack} could not be updated: ${it.value}") }
+            exitProcess(1)
+        }
+        is SuccessfulChecks -> exitProcess(0)
     }
+
 }
