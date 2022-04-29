@@ -164,7 +164,7 @@ class BuildpackVersionCheckerTest {
     }
 
     @Test
-    fun `a failed publish should lead to an exit with error`() {
+    fun `a failed publish should lead to failed check`() {
         val manifest = File("src/test/resources/manifest.yml")
         manifest.exists() shouldBe true
 
