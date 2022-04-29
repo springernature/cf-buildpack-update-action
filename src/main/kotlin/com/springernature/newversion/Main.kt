@@ -16,7 +16,7 @@ fun main() {
         .performChecks()
     when (results) {
         is FailedChecks -> {
-            results.errors.forEach { println("${it.key.currentBuildpack} could not be updated: ${it.value}") }
+            results.errors.forEach { System.err.println("${it.key.currentBuildpack} could not be updated: ${it.value}") }
             exitProcess(1)
         }
         is SuccessfulChecks -> exitProcess(0)
