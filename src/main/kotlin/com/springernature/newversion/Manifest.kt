@@ -1,7 +1,6 @@
 package com.springernature.newversion
 
 import com.fasterxml.jackson.annotation.JsonCreator
-import com.springernature.newversion.VersionedBuildpack.Companion.name
 import net.swiftzer.semver.SemVer
 
 data class CFApplication(
@@ -27,7 +26,8 @@ data class VersionedBuildpack(val name: String, val url: String, val version: Ve
                 ?: "https://github.com/cloudfoundry/${translateBuiltIn(this)}"
 
         private fun String.buildpackVersion(): Version =
-            ".*github.com/.*#v?($SEMVER_REGEX)$".toRegex().find(this)?.groups?.get(1)?.value?.let { SemanticVersion(it) }
+            ".*github.com/.*#v?($SEMVER_REGEX)$".toRegex()
+                .find(this)?.groups?.get(1)?.value?.let { SemanticVersion(it) }
                 ?: Unparseable
 
         private fun String.buildpackTag(): GitTag? =
