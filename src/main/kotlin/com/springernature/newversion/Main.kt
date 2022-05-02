@@ -12,7 +12,7 @@ fun main() {
     val publisher = GitHubPullRequestPublisher(shellRunner, settings)
     val manifestPath = File(".")
 
-    var results = BuildpackVersionChecker(manifestPath, buildpackUpdateChecker, publisher)
+    val results = BuildpackVersionChecker(manifestPath, buildpackUpdateChecker, publisher)
         .performChecks()
     when (results) {
         is FailedChecks -> {
