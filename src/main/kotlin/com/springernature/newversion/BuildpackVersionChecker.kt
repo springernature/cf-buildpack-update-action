@@ -37,8 +37,7 @@ class BuildpackVersionChecker(
                 )
             }
             .filter(BuildpackUpdate::hasUpdate)
-        updates
-            .forEach {
+            .onEach {
                 try {
                     publisher.publish(it)
                 } catch (e: Exception) {
