@@ -5,15 +5,11 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 
-sealed class ChecksResult {
-    abstract val errors: Map<BuildpackUpdate, Exception>
-}
+sealed class ChecksResult
 
-data class SuccessfulChecks(val updates: List<BuildpackUpdate>) : ChecksResult() {
-    override val errors: Map<BuildpackUpdate, Exception> = emptyMap()
-}
+data class SuccessfulChecks(val updates: List<BuildpackUpdate>) : ChecksResult()
 
-data class FailedChecks(val updates: List<BuildpackUpdate>, override val errors: Map<BuildpackUpdate, Exception>) :
+data class FailedChecks(val updates: List<BuildpackUpdate>, val errors: Map<BuildpackUpdate, Exception>) :
     ChecksResult()
 
 class BuildpackVersionChecker(

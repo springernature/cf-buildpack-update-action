@@ -3,10 +3,7 @@ package com.springernature.newversion
 import com.springernature.newversion.Setting.GIT_HUB_API_URL
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldContainSame
+import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -178,8 +175,13 @@ class BuildpackVersionCheckerTest {
 
         val results = buildpackVersionChecker.performChecks()
         results shouldBeInstanceOf FailedChecks::class
-        println(results.errors)
-
+        when (results) {
+            is FailedChecks -> {
+                results.errors.size shouldBe 1
+                results.errors.keys.first() shouldBeInstanceOf BuildpackUpdate::class
+                results.errors.values.first() shouldBeInstanceOf RuntimeException::class
+            }
+        }
         capturingPublisher.updates().size shouldBe 0
     }
 
