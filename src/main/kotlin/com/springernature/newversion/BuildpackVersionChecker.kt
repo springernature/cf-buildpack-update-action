@@ -46,10 +46,10 @@ class BuildpackVersionChecker(
                 }
             }
         LOG.info("Done")
-        if (errors.isNotEmpty()) {
-            return FailedChecks(updates, errors)
-        }
-        return SuccessfulChecks(updates)
+        return if (errors.isNotEmpty())
+            FailedChecks(updates, errors)
+        else
+            SuccessfulChecks(updates)
     }
 
     companion object {
