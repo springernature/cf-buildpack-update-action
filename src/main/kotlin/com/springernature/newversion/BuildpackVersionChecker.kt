@@ -25,7 +25,7 @@ class BuildpackVersionChecker(
     fun performChecks(): ChecksResult {
         LOG.info("Performing checks")
         val errors = LinkedHashMap<BuildpackUpdate, Exception>()
-        val updates: List<BuildpackUpdate> = ManifestParser.load(manifestPath)
+        val updates = ManifestParser.load(manifestPath)
             .flatMap { ManifestBuildpack.from(it) }
             .filter { it.buildpack.version != Unparseable }
             .groupBy { it.buildpack }
