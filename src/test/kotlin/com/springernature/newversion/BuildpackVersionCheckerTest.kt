@@ -29,7 +29,7 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        var results = buildpackVersionChecker.performChecks()
+        val results = buildpackVersionChecker.performChecks()
         results shouldBeInstanceOf SuccessfulChecks::class
 
         capturingPublisher.updates().size shouldBe 1
@@ -54,7 +54,7 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        var results = buildpackVersionChecker.performChecks()
+        val results = buildpackVersionChecker.performChecks()
         results shouldBeInstanceOf SuccessfulChecks::class
 
         capturingPublisher.updates().size shouldBe 0
@@ -73,7 +73,7 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        var results = buildpackVersionChecker.performChecks()
+        val results = buildpackVersionChecker.performChecks()
         results shouldBeInstanceOf SuccessfulChecks::class
 
         capturingPublisher.updates().size shouldBe 0
@@ -92,7 +92,7 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        var results = buildpackVersionChecker.performChecks()
+        val results = buildpackVersionChecker.performChecks()
         results shouldBeInstanceOf SuccessfulChecks::class
 
         capturingPublisher.updates().size shouldBe 1
@@ -117,7 +117,7 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        var results = buildpackVersionChecker.performChecks()
+        val results = buildpackVersionChecker.performChecks()
         results shouldBeInstanceOf SuccessfulChecks::class
 
         capturingPublisher.updates().size shouldBe 0
@@ -137,7 +137,7 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        var results = buildpackVersionChecker.performChecks()
+        val results = buildpackVersionChecker.performChecks()
         results shouldBeInstanceOf SuccessfulChecks::class
 
         val updates = capturingPublisher.updates().sortedBy { it.currentBuildpack.name }
@@ -176,7 +176,7 @@ class BuildpackVersionCheckerTest {
             capturingPublisher
         )
 
-        var results = buildpackVersionChecker.performChecks()
+        val results = buildpackVersionChecker.performChecks()
         results shouldBeInstanceOf FailedChecks::class
         println(results.errors)
 
