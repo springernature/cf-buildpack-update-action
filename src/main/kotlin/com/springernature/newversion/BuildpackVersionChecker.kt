@@ -37,7 +37,7 @@ class BuildpackVersionChecker(
                 try {
                     publisher.publish(it)
                 } catch (e: Exception) {
-                    errors.put(it, e)
+                    errors[it] = e
                 }
             }
         LOG.info("Done")
