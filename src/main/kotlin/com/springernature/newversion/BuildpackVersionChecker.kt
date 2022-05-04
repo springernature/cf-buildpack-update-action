@@ -5,18 +5,17 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 
-sealed class ChecksResult
+sealed class ChecksResult {
+    abstract fun exitStatus(): Int
+}
 
-data class SuccessfulChecks(val updates: List<BuildpackUpdate>) : ChecksResult()
+data class SuccessfulChecks(val updates: List<BuildpackUpdate>) : ChecksResult() {
+    override fun exitStatus() = 0
+}
 
 data class FailedChecks(val updates: List<BuildpackUpdate>, val errors: Map<BuildpackUpdate, Exception>) :
-    ChecksResult()
-
-fun ChecksResult.exitStatus(): Int {
-    return when (this) {
-        is FailedChecks -> 1
-        is SuccessfulChecks -> 0
-    }
+    ChecksResult() {
+    override fun exitStatus() = 1
 }
 
 class BuildpackVersionChecker(
