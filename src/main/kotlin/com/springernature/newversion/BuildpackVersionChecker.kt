@@ -12,6 +12,13 @@ data class SuccessfulChecks(val updates: List<BuildpackUpdate>) : ChecksResult()
 data class FailedChecks(val updates: List<BuildpackUpdate>, val errors: Map<BuildpackUpdate, Exception>) :
     ChecksResult()
 
+fun ChecksResult.exitStatus(): Int {
+    return when (this) {
+        is FailedChecks -> 1
+        is SuccessfulChecks -> 0
+    }
+}
+
 class BuildpackVersionChecker(
     private val manifestPath: File,
     private val buildpackUpdateChecker: BuildpackUpdateChecker,

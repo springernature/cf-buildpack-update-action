@@ -15,11 +15,10 @@ fun main() {
     val results = BuildpackVersionChecker(manifestPath, buildpackUpdateChecker, publisher)
         .performChecks()
     when (results) {
-        is FailedChecks -> {
+        is FailedChecks ->
             results.errors.forEach { System.err.println("${it.key.currentBuildpack} could not be updated: ${it.value}") }
-            exitProcess(1)
-        }
-        is SuccessfulChecks -> exitProcess(0)
+        is SuccessfulChecks -> Unit
     }
 
+    exitProcess(results.exitStatus())
 }
