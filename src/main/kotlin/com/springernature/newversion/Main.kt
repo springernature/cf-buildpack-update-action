@@ -20,5 +20,7 @@ fun main() {
         is SuccessfulChecks -> Unit
     }
 
+    SummaryWriter(System.getenv("GITHUB_STEP_SUMMARY")).write(results)
+
     exitProcess(results.exitStatus())
 }
