@@ -5,12 +5,13 @@ import java.io.File
 class SummaryWriter(val file: File) {
 
     constructor(filename: String?) : this(
-        if (filename == null || filename.isBlank()) {
+        if (filename.isNullOrBlank()) {
             System.err.println("no filename for report provided, will not create a report")
             File("/dev/null")
         } else {
             File(filename)
-        })
+        }
+    )
 
     fun write(results: ChecksResult) {
         writeHeader(file)
@@ -34,8 +35,10 @@ class SummaryWriter(val file: File) {
     }
 
     private fun writeFailures(errors: Map<BuildpackUpdate, Exception>) {
-        file.appendText("\n## failures\n" +
-                "\n")
+        file.appendText(
+            "\n## failures\n" +
+                    "\n"
+        )
         errors.forEach { file.appendText("* ${it.key.currentBuildpack} could not be updated: ${it.value}\n") }
     }
 
