@@ -30,11 +30,19 @@ class SummaryWriter(val file: File) {
     }
 
     private fun writeSuccessfulUpdates(updates: List<BuildpackUpdate>) {
+        if (updates.isEmpty()) {
+            return
+        }
+
         file.appendText("\n## success\n\n")
         updates.forEach { file.appendText("* currentBuildpack ${it.currentBuildpack} ${if (it.hasUpdate()) "has an update to " + it.latestUpdate else "has no update"}\n") }
     }
 
     private fun writeFailures(errors: Map<BuildpackUpdate, Exception>) {
+        if (errors.isEmpty()) {
+            return
+        }
+
         file.appendText(
             "\n## failures\n" +
                     "\n"
