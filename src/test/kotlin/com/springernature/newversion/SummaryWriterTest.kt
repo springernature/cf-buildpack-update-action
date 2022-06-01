@@ -10,8 +10,13 @@ class SummaryWriterTest {
     @Test
     fun `successful checks report`() {
         val tempFile = getTempReportFile()
-
-        SummaryWriter(tempFile).write(successfulChecksResults)
+        val settings = Settings(
+            mapOf(
+                Setting.GITHUB_STEP_SUMMARY.key to tempFile.path,
+                Setting.GITHUB_STEP_SUMMARY_ENABLED.key to true.toString()
+            )
+        )
+        SummaryWriter(settings).write(successfulChecksResults)
 
         tempFile.readText() shouldBeEqualTo """
             |# CF buildpack update action results
@@ -31,8 +36,14 @@ class SummaryWriterTest {
         val results = FailedChecks(updates, errors)
 
         val tempFile = getTempReportFile()
+        val settings = Settings(
+            mapOf(
+                Setting.GITHUB_STEP_SUMMARY.key to tempFile.path,
+                Setting.GITHUB_STEP_SUMMARY_ENABLED.key to true.toString()
+            )
+        )
 
-        SummaryWriter(tempFile).write(results)
+        SummaryWriter(settings).write(results)
 
         tempFile.readText() shouldBeEqualTo """
             |# CF buildpack update action results
@@ -52,20 +63,32 @@ class SummaryWriterTest {
     @Test
     fun `handle blank filename`() {
         try {
-            SummaryWriter("").write(successfulChecksResults)
+            val settings = Settings(
+                mapOf(
+                    Setting.GITHUB_STEP_SUMMARY.key to "",
+                    Setting.GITHUB_STEP_SUMMARY_ENABLED.key to true.toString()
+                )
+            )
+            SummaryWriter(settings).write(successfulChecksResults)
         } catch (e: Exception) {
             fail("Unexpected exception: $e")
         }
     }
 
     @Test
-    fun `handle null filename`() {
-        try {
-            SummaryWriter(null).write(successfulChecksResults)
-        } catch (e: Exception) {
-            fail("Unexpected exception: $e")
-        }
+    fun `don't write report if disabled`() {
+        val tempFile = getTempReportFile()
+        val settings = Settings(
+            mapOf(
+                Setting.GITHUB_STEP_SUMMARY.key to tempFile.path,
+                Setting.GITHUB_STEP_SUMMARY_ENABLED.key to false.toString()
+            )
+        )
+        SummaryWriter(settings).write(successfulChecksResults)
+
+        tempFile.readText() shouldBeEqualTo ""
     }
+
 
     companion object {
         val buildpackUpdate = BuildpackUpdate(
