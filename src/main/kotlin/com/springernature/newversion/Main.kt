@@ -11,6 +11,7 @@ fun main() {
     val shellRunner = TurtleShell()
     val publisher = GitHubPullRequestPublisher(shellRunner, settings)
     val manifestPath = File(".")
+    val summaryWriter = SummaryWriter(settings)
 
     val results = BuildpackVersionChecker(manifestPath, buildpackUpdateChecker, publisher)
         .performChecks()
@@ -20,7 +21,7 @@ fun main() {
         is SuccessfulChecks -> Unit
     }
 
-    SummaryWriter(System.getenv("GITHUB_STEP_SUMMARY")).write(results)
+    summaryWriter.write(results)
 
     exitProcess(results.exitStatus())
 }
