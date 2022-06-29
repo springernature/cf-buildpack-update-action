@@ -181,6 +181,9 @@ class BuildpackVersionCheckerTest {
                 results.errors.keys.first() shouldBeInstanceOf BuildpackUpdate::class
                 results.errors.values.first() shouldBeInstanceOf RuntimeException::class
             }
+            else -> {
+                fail("Got wrong type of results", FailedChecks::class, results::class)
+            }
         }
         capturingPublisher.updates().size shouldBe 0
     }
@@ -236,7 +239,7 @@ class BuildpackVersionCheckerTest {
         private fun HttpExchange.sendResponse(
             status: Int = 200,
             body: String = "",
-            headers: Map<String, String> = emptyMap()
+            headers: Map<String, String> = emptyMap(),
         ) {
             responseHeaders.putAll(headers.mapValues { listOf(it.value) })
             sendResponseHeaders(status, body.length.toLong())
