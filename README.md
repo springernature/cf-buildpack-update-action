@@ -19,7 +19,7 @@ your-team-email-address@springernature.com' to one that is correct for your team
 
     on:
       schedule:
-        - cron: '0 4 * * 1-5' # Every workday at 0500 UTC
+        - cron: '0 4 * * 1-5' # Every workday at 04:00 UTC
       workflow_dispatch:
     
     jobs:
