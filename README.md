@@ -16,7 +16,8 @@ the project can stay up-to-date but with a conscious and deliberate change, trac
 
 Create a file in your repo called .github/workflows/buildpack-update.yml and in it put this code (remember to update '
 your-team-email-address@springernature.com' to one that is correct for your team)
-
+ 
+    name: buildpack-update
     on:
       schedule:
         - cron: '0 4 * * 1-5' # Every workday at 04:00 UTC
@@ -25,6 +26,7 @@ your-team-email-address@springernature.com' to one that is correct for your team
     jobs:
       buildpack_updates_job:
         runs-on: ee-runner
+        timeout-minutes: 30
         name: buildpack updates
         steps:
           - name: Check out the repo
