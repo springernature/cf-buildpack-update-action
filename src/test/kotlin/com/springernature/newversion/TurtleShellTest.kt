@@ -13,6 +13,8 @@ class TurtleShellTest {
             command("sh", listOf("src/test/kotlin/com/springernature/newversion/turtleScriptTestScript.sh"))
         }
 
-        result shouldBeEqualTo "1\n2"
+        result shouldBeEqualTo listOf(
+            "1 <-- std", "2 <-- std", "4 <-- std", "5 <-- std"
+        ).joinToString("\n")
     }
 }
