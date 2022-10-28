@@ -63,7 +63,7 @@ private class LogAndCollectOutputs(private val commandDescription: String) : Pro
 
     override fun onProcessStart(process: Process) {
         val logStdOut = thread(true, name = "logging-std-out($commandDescription)") {
-            process.inputStream.bufferedReader().useLines {
+            process.inputReader().useLines {
                 it.forEach { line ->
                     LOG.info("Shell ({}): {}", commandDescription, line)
                     stdOut += line
@@ -71,7 +71,7 @@ private class LogAndCollectOutputs(private val commandDescription: String) : Pro
             }
         }
         val logStdErr = thread(true, name = "logging-std-err($commandDescription)") {
-            process.errorStream.bufferedReader().useLines {
+            process.errorReader().useLines {
                 it.forEach { line ->
                     LOG.error("Shell ({}): {}", commandDescription, line)
                     stdErr += line
