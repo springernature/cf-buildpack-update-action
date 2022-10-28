@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.slf4j:slf4j-api:2.0.0")
+    implementation("org.slf4j:slf4j-api:2.0.3")
     implementation("com.lordcodes.turtle:turtle:0.8.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.4")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.4")
