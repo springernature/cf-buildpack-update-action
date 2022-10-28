@@ -1,10 +1,10 @@
 # Container image that runs your code
-FROM openjdk:11-jdk AS build
+FROM openjdk:17-jdk AS build
 COPY . /build
 WORKDIR /build
 RUN ./gradlew shadowJar --no-daemon --info --console=plain
 
-FROM openjdk:11-jdk as runtime
+FROM openjdk:17-jdk as runtime
 RUN apt-get update && apt-get --no-install-recommends -y install hub
 RUN mkdir /app
 WORKDIR /app
