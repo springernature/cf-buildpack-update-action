@@ -7,6 +7,8 @@ import com.lordcodes.turtle.shellRun
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.util.*
+import kotlin.concurrent.thread
 
 interface Shell {
     fun run(workingDirectory: File? = null, script: Script.() -> String): String
@@ -56,22 +58,29 @@ class TurtleScript(private val workingDirectory: File?) : Script {
 
 
 private class LogAndCollectOutputs(private val commandDescription: String) : ProcessCallbacks {
-    private val stdOut = mutableListOf<String>()
-    private val stdErr = mutableListOf<String>()
+    private val stdOut = Collections.synchronizedList(mutableListOf<String>())
+    private val stdErr = Collections.synchronizedList(mutableListOf<String>())
 
     override fun onProcessStart(process: Process) {
-        process.inputStream.bufferedReader().useLines {
-            it.forEach { line ->
-                LOG.info("Shell ({}): {}", commandDescription, line)
-                stdOut += line
+        val logStdOut = thread(true, name = "logging-std-out($commandDescription)") {
+            process.inputStream.bufferedReader().useLines {
+                it.forEach { line ->
+                    LOG.info("Shell ({}): {}", commandDescription, line)
+                    stdOut += line
+                }
             }
         }
-        process.errorStream.bufferedReader().useLines {
-            it.forEach { line ->
-                LOG.error("Shell ({}): {}", commandDescription, line)
-                stdErr += line
+        val logStdErr = thread(true, name = "logging-std-err($commandDescription)") {
+            process.errorStream.bufferedReader().useLines {
+                it.forEach { line ->
+                    LOG.error("Shell ({}): {}", commandDescription, line)
+                    stdErr += line
+                }
             }
         }
+
+        logStdOut.join()
+        logStdErr.join()
     }
 
     fun collectedStdOut(): String = stdOut.joinToString("\n")
