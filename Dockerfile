@@ -1,10 +1,10 @@
 # Container image that runs your code
-FROM openjdk:17-jdk AS build
+FROM bellsoft/liberica-openjdk-debian:17 AS build
 COPY . /build
 WORKDIR /build
 RUN ./gradlew shadowJar --no-daemon --info --console=plain
 
-FROM openjdk:17-jdk as runtime
+FROM bellsoft/liberica-openjdk-debian:17 as runtime
 RUN apt-get update && apt-get --no-install-recommends -y install hub
 RUN mkdir /app
 WORKDIR /app
