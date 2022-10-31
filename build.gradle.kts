@@ -23,7 +23,7 @@ dependencies {
     runtimeOnly("ch.qos.logback:logback-classic:1.4.4")
 
     testImplementation(kotlin("test-junit5"))
-    testImplementation("org.amshove.kluent:kluent:1.68")
+    testImplementation("org.amshove.kluent:kluent:1.72")
 
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.8.2")
 }
