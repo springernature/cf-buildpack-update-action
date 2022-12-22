@@ -32,7 +32,7 @@ your-team-email-address@springernature.com' to one that is correct for your team
           - name: Check out the repo
             uses: actions/checkout@v2
           - name: run cf-buildpack-update-action
-            uses: springernature/cf-buildpack-update-action@v1.0.7
+            uses: springernature/cf-buildpack-update-action@v1.0.8
             env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               AUTHOR_EMAIL: your-team-email-address@springernature.com
