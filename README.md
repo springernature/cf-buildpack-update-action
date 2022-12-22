@@ -37,10 +37,16 @@ your-team-email-address@springernature.com' to one that is correct for your team
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               AUTHOR_EMAIL: your-team-email-address@springernature.com
               AUTHOR_NAME: Buildpack Update Action
+              GITHUB_STEP_SUMMARY_ENABLED: true
 
 This should be picked up automatically in Github as a new Action and produce a PR (Pull Request) with the buildpack
 version changes whenever a new version is available.
-Just accept and merge the PR and you will be up to date.
+Just accept and merge the PR and you will be up-to-date.
+
+### GitHub step summary
+
+When setting `GITHUB_STEP_SUMMARY_ENABLED` to `true` (default is `false`) a job summary is created, 
+see [example output](https://github.com/springernature/dpas/actions/runs/3691628035/attempts/1#summary-10080794385).
 
 ## Keep *your* action up-to-date
 
