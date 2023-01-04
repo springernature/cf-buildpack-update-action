@@ -7,7 +7,7 @@ on:
 
 jobs:
   update-gradle-wrapper:
-    runs-on: ubuntu-latest
+    runs-on: ee-runner
 
     steps:
       - uses: actions/checkout@v2

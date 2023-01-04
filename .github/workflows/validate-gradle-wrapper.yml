@@ -4,7 +4,7 @@ on: [push, pull_request]
 jobs:
   validation:
     name: "Validation"
-    runs-on: ubuntu-latest
+    runs-on: ee-runner
     steps:
       - uses: actions/checkout@v2
       - uses: gradle/wrapper-validation-action@v1
