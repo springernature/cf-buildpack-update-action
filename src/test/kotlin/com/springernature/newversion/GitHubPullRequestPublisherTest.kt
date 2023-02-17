@@ -20,7 +20,7 @@ class GitHubPullRequestPublisherTest {
                         origin/main
                         origin/update/scalatest-3.2.9
                         origin/update/handlebars-4.1.2
-                        origin/buildpack-update/test-buildpack-2.3.6
+                        origin/buildpack-update/test-buildpack-2.0.4-2.3.6
                         origin/update/log4j-core-2.13.3
                     """.trimIndent()
                 })
@@ -48,6 +48,64 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("config", "user.email", "do_not_reply@springernature.com"),
             "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
             "git" to listOf("branch", "-r"),
+            "git" to listOf("switch", "base-branch")
+        )
+    }
+
+    @Test
+    fun `we create two pull requests, if we have two different currentVersions of a buildpack`() {
+        val shell = CapturingShell(
+            mapOf(
+                ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
+                ("git" to listOf("branch", "-r") to {
+                    """
+                        origin/HEAD -> origin/main
+                        origin/main
+                        origin/update/scalatest-3.2.9
+                        origin/update/handlebars-4.1.2
+                        origin/buildpack-update/test-buildpack-2.0.3-2.3.6
+                        origin/update/log4j-core-2.13.3
+                    """.trimIndent()
+                })
+            )
+        )
+        val publisher = GitHubPullRequestPublisher(shell, Settings())
+
+        publisher.publish(
+            BuildpackUpdate(
+                listOf(createTestManifest()),
+                VersionedBuildpack(
+                    "test/buildpack",
+                    "https://a.host/test/buildpack",
+                    SemanticVersion("2.0.4"),
+                    GitTag("v2.0.4")
+                ),
+                BuildpackVersion(SemanticVersion("2.3.6"), GitTag("v2.3.6"))
+            )
+        )
+
+        shell.commands shouldBeEqualTo listOf(
+            "git" to listOf("remote", "prune", "origin"),
+            "git" to listOf("fetch", "--prune", "--prune-tags"),
+            "git" to listOf("config", "user.name", "Buildpack Update Action"),
+            "git" to listOf("config", "user.email", "do_not_reply@springernature.com"),
+            "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
+            "git" to listOf("branch", "-r"),
+            "git" to listOf("checkout", "-B", "buildpack-update/test-buildpack-2.0.4-2.3.6", "--quiet"),
+            "git" to listOf(
+                "commit", "-a", "--quiet",
+                "-m", "Update test/buildpack to 2.3.6",
+                "--author", "Buildpack Update Action <do_not_reply@springernature.com>"
+            ),
+            "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/test-buildpack-2.0.4-2.3.6"),
+            "hub" to listOf(
+                "pull-request", "--push",
+                "--message", "Update test/buildpack to 2.3.6\n\n"
+                    + "Update test/buildpack from 2.0.4 to 2.3.6.\n\n"
+                    + "* [Release Notes](https://github.com/test/buildpack/releases/tag/v2.3.6)\n"
+                    + "* [Diff](https://github.com/test/buildpack/compare/v2.0.4...v2.3.6)",
+                "--base", "base-branch", "--labels", "buildpack-update"
+            ),
             "git" to listOf("switch", "base-branch")
         )
     }
@@ -91,13 +149,13 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("config", "user.email", "do_not_reply@springernature.com"),
             "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
             "git" to listOf("branch", "-r"),
-            "git" to listOf("checkout", "-B", "buildpack-update/test-buildpack-2.3.6", "--quiet"),
+            "git" to listOf("checkout", "-B", "buildpack-update/test-buildpack-2.0.4-2.3.6", "--quiet"),
             "git" to listOf(
                 "commit", "-a", "--quiet",
                 "-m", "Update test/buildpack to 2.3.6",
                 "--author", "Buildpack Update Action <do_not_reply@springernature.com>"
             ),
-            "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/test-buildpack-2.3.6"),
+            "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/test-buildpack-2.0.4-2.3.6"),
             "hub" to listOf(
                 "pull-request", "--push",
                 "--message", "Update test/buildpack to 2.3.6\n\n"
@@ -127,7 +185,7 @@ class GitHubPullRequestPublisherTest {
             )
         )
         val publisher = GitHubPullRequestPublisher(shell, Settings())
-        val manifest = createTestManifest()
+        val manifest = createTestManifest(version = "v2.0.5")
 
         publisher.publish(
             BuildpackUpdate(
@@ -143,13 +201,13 @@ class GitHubPullRequestPublisherTest {
         )
 
         shell.commands shouldContainAll listOf(
-            "git" to listOf("checkout", "-B", "buildpack-update/test-buildpack-2.3.6", "--quiet"),
+            "git" to listOf("checkout", "-B", "buildpack-update/test-buildpack-2.0.5-2.3.6", "--quiet"),
             "git" to listOf(
                 "commit", "-a", "--quiet",
                 "-m", "Update test/buildpack to 2.3.6",
                 "--author", "Buildpack Update Action <do_not_reply@springernature.com>"
             ),
-            "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/test-buildpack-2.3.6"),
+            "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/test-buildpack-2.0.5-2.3.6"),
             "hub" to listOf(
                 "pull-request", "--push",
                 "--message", "Update test/buildpack to 2.3.6\n\n"
@@ -174,7 +232,6 @@ class GitHubPullRequestPublisherTest {
                         origin/buildpack-update/test-buildpack-2.3.5
                         origin/update/handlebars-4.1.2
                         origin/buildpack-update/test-buildpack-2.2.1
-                        origin/buildpack-update/test-buildpack-2.4.0
                         origin/update/log4j-core-2.13.3
                     """.trimIndent()
                 }
@@ -203,13 +260,13 @@ class GitHubPullRequestPublisherTest {
             "git" to listOf("config", "user.email", "do_not_reply@springernature.com"),
             "git" to listOf("rev-parse", "--abbrev-ref", "HEAD"),
             "git" to listOf("branch", "-r"),
-            "git" to listOf("checkout", "-B", "buildpack-update/test-buildpack-2.3.6", "--quiet"),
+            "git" to listOf("checkout", "-B", "buildpack-update/test-buildpack-2.0.4-2.3.6", "--quiet"),
             "git" to listOf(
                 "commit", "-a", "--quiet",
                 "-m", "Update test/buildpack to 2.3.6",
                 "--author", "Buildpack Update Action <do_not_reply@springernature.com>"
             ),
-            "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/test-buildpack-2.3.6"),
+            "git" to listOf("push", "--set-upstream", "origin", "buildpack-update/test-buildpack-2.0.4-2.3.6"),
             "hub" to listOf(
                 "pull-request", "--push",
                 "--message", "Update test/buildpack to 2.3.6\n\n"
@@ -359,7 +416,8 @@ class GitHubPullRequestPublisherTest {
             ".yml"
         ),
         name: String = "dummy-manifest-for-testing",
-        dotGitVariant: Boolean = false
+        dotGitVariant: Boolean = false,
+        version: String = "v2.0.4"
     ): File =
         file.also {
             it.deleteOnExit()
@@ -372,7 +430,7 @@ class GitHubPullRequestPublisherTest {
                       health-check-type: process
                       no-route: true
                       buildpacks:
-                      - https://a.host/test/buildpack${ if (dotGitVariant) ".git" else "" }#v2.0.4
+                      - https://a.host/test/buildpack${ if (dotGitVariant) ".git" else "" }#$version
                 """.trimIndent()
             )
         }

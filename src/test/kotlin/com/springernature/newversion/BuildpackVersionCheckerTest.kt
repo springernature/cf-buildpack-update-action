@@ -161,6 +161,46 @@ class BuildpackVersionCheckerTest {
     }
 
     @Test
+    fun `two PR are created for two different source versions of the same buildpack`() {
+        val manifestDir = File("src/test/resources/versions-manifests-test")
+        manifestDir.exists() shouldBe true
+        manifestDir.listFiles()?.size shouldBe 2
+
+        val settings = Settings(mapOf(GIT_HUB_API_URL.key to baseUrl))
+        val capturingPublisher = CapturingPublisher()
+        val buildpackVersionChecker = BuildpackVersionChecker(
+            manifestDir,
+            GitHubBuildpackUpdateChecker(HttpClient.newBuilder().build(), settings),
+            capturingPublisher
+        )
+
+        val results = buildpackVersionChecker.performChecks()
+        results shouldBeInstanceOf SuccessfulChecks::class
+
+        val updates = capturingPublisher.updates().sortedBy { it.currentBuildpack.name }
+        updates.size shouldBe 2
+
+        updates[0].let {
+            it.manifests shouldContainSame listOf(
+                File(manifestDir, "manifest2.yml"),
+                File(manifestDir, "manifest3.yml")
+            )
+            it.currentBuildpack.name shouldBeEqualTo "cloudfoundry/java-buildpack"
+            it.currentBuildpack.version shouldBeEqualTo SemanticVersion("4.39")
+            it.latestUpdate.version shouldBeEqualTo SemanticVersion("4.41")
+            it.latestUpdate.tag shouldBeEqualTo GitTag("v4.41")
+        }
+
+        updates[1].let {
+            it.manifests shouldContainSame listOf(File(manifestDir, "manifest1.yml"))
+            it.currentBuildpack.name shouldBeEqualTo "cloudfoundry/staticfile-buildpack"
+            it.currentBuildpack.version shouldBeEqualTo SemanticVersion("1.5.17")
+            it.latestUpdate.version shouldBeEqualTo SemanticVersion("1.5.24")
+            it.latestUpdate.tag shouldBeEqualTo GitTag("v1.5.24")
+        }
+    }
+
+    @Test
     fun `a failed publish should lead to failed check`() {
         val manifest = File("src/test/resources/manifest.yml")
         manifest.exists() shouldBe true
@@ -179,7 +219,7 @@ class BuildpackVersionCheckerTest {
             is FailedChecks -> {
                 results.errors.size shouldBe 1
                 results.errors.keys.first() shouldBeInstanceOf BuildpackUpdate::class
-                results.errors.values.first() shouldBeInstanceOf RuntimeException::class
+                results.errors.values.first() shouldBeInstanceOf FailureResult::class
             }
             else -> {
                 fail("Got wrong type of results", FailedChecks::class, results::class)
@@ -192,8 +232,9 @@ class BuildpackVersionCheckerTest {
     class CapturingPublisher : Publisher {
         private val update = mutableListOf<BuildpackUpdate>()
 
-        override fun publish(update: BuildpackUpdate) {
+        override fun publish(update: BuildpackUpdate): PublishResult {
             this.update.add(update)
+            return SuccessResult(update)
         }
 
         fun updates(): List<BuildpackUpdate> = update
@@ -201,9 +242,8 @@ class BuildpackVersionCheckerTest {
 
     class CapturingFailingPublisher : Publisher {
 
-        override fun publish(update: BuildpackUpdate) {
-            throw RuntimeException("We cannot publish, e.g. GitHub is down…")
-        }
+        override fun publish(update: BuildpackUpdate): PublishResult =
+            FailureResult(update,"We cannot publish, e.g. GitHub is down…")
 
         fun updates(): List<BuildpackUpdate> = emptyList()
     }

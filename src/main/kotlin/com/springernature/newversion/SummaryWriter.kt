@@ -18,7 +18,7 @@ class SummaryWriter(val settings: Settings) {
         when (results) {
             is FailedChecks -> {
                 writeFailures(results.errors)
-                writeSuccessfulUpdates(results.updates)
+                writeSuccessfulUpdates(results.updates.filterIsInstance<SuccessResult>())
             }
             is SuccessfulChecks -> writeSuccessfulUpdates(results.updates)
         }
@@ -29,20 +29,20 @@ class SummaryWriter(val settings: Settings) {
         file.writeText("# CF buildpack update action results\n")
     }
 
-    private fun writeSuccessfulUpdates(updates: List<BuildpackUpdate>) {
+    private fun writeSuccessfulUpdates(updates: List<SuccessResult>) {
         if (updates.isEmpty()) {
             return
         }
 
         file.appendText("\n## success\n\n")
         updates.forEach {
-            file.appendText("* currentBuildpack ${it.currentBuildpack} ")
-            file.appendText(if (it.hasUpdate()) "has an update to " + it.latestUpdate else "has no update")
+            file.appendText("* currentBuildpack ${it.update.currentBuildpack} ")
+            file.appendText(if (it.update.hasUpdate()) "has an update to " + it.update.latestUpdate else "has no update")
             file.appendText("\n")
         }
     }
 
-    private fun writeFailures(errors: Map<BuildpackUpdate, Exception>) {
+    private fun writeFailures(errors: Map<BuildpackUpdate, FailureResult>) {
         if (errors.isEmpty()) {
             return
         }

@@ -32,8 +32,8 @@ class SummaryWriterTest {
     @Test
     fun `failed checks report`() {
         val updates: List<BuildpackUpdate> = listOf(buildpackUpdate)
-        val errors = mapOf(Pair(buildpackUpdate, RuntimeException("Successful failure!")))
-        val results = FailedChecks(updates, errors)
+        val errors = mapOf(Pair(buildpackUpdate, FailureResult(buildpackUpdate, "Successful failure!")))
+        val results = FailedChecks(updates.map { SuccessResult(it) }, errors)
 
         val tempFile = getTempReportFile()
         val settings = Settings(
@@ -50,7 +50,7 @@ class SummaryWriterTest {
             |
             |## failures
             |
-            |* VersionedBuildpack(name=test/buildpack1, url=https://a.host/path, version=1.3, tag=GitTag(value=v1.3)) could not be updated: java.lang.RuntimeException: Successful failure!
+            |* VersionedBuildpack(name=test/buildpack1, url=https://a.host/path, version=1.3, tag=GitTag(value=v1.3)) could not be updated: FailureResult(update=BuildpackUpdate(manifests=[a/path], currentBuildpack=VersionedBuildpack(name=test/buildpack1, url=https://a.host/path, version=1.3, tag=GitTag(value=v1.3)), latestUpdate=BuildpackVersion(version=1.2.4, tag=GitTag(value=v1.2.4))), reason=Successful failure!)
             |
             |## success
             |
@@ -97,7 +97,7 @@ class SummaryWriterTest {
             BuildpackVersion(SemanticVersion("1.2.4"), GitTag("v1.2.4"))
         )
 
-        val successfulChecksResults = SuccessfulChecks(listOf(buildpackUpdate))
+        val successfulChecksResults = SuccessfulChecks(listOf(SuccessResult(buildpackUpdate)), emptyList())
 
         private fun getTempReportFile(): File {
             val tempFile = kotlin.io.path.createTempFile(suffix = ".md").toFile()

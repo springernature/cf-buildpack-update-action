@@ -7,7 +7,7 @@ class MainTest {
 
     @Test
     fun `exit status for a successful check should be 0`() {
-        val exitStatus = SuccessfulChecks(emptyList()).exitStatus()
+        val exitStatus = SuccessfulChecks(emptyList(), emptyList()).exitStatus()
         exitStatus shouldBe 0
     }
 

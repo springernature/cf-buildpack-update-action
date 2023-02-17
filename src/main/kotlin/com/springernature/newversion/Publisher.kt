@@ -4,8 +4,13 @@ import net.swiftzer.semver.SemVer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+sealed class PublishResult
+data class SuccessResult(val update: BuildpackUpdate) : PublishResult()
+data class FailureResult(val update: BuildpackUpdate, val reason: String) : PublishResult()
+data class SkippedResult(val update: BuildpackUpdate, val reason: String) : PublishResult()
+
 interface Publisher {
-    fun publish(update: BuildpackUpdate)
+    fun publish(update: BuildpackUpdate): PublishResult
 }
 
 class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) : Publisher {
@@ -13,14 +18,13 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
     private val gitEmail: String = settings.lookup(Setting.AUTHOR_EMAIL)
     private val gitName: String = settings.lookup(Setting.AUTHOR_NAME)
 
-    override fun publish(update: BuildpackUpdate) {
+    override fun publish(update: BuildpackUpdate): PublishResult =
         createPullRequest(update) { updateManifest(update) }
-    }
 
     private fun BuildpackUpdate.baseBranchName() =
         "buildpack-update/${currentBuildpack.name.replace('/', '-')}"
 
-    private fun BuildpackUpdate.branchName() = "${baseBranchName()}-${latestUpdate.version}"
+    private fun BuildpackUpdate.branchName() = "${baseBranchName()}-${currentBuildpack.version}-${latestUpdate.version}"
 
     private fun BuildpackUpdate.commitMessage() =
         "Update ${currentBuildpack.name} to ${latestUpdate.version}"
@@ -57,7 +61,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
     private fun createPullRequest(
         update: BuildpackUpdate,
         makeChanges: () -> Unit
-    ) {
+    ): PublishResult {
         gitInit(gitName, gitEmail)
 
         val baseBranchName = getBaseBranch()
@@ -66,7 +70,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         try {
             if (pullRequestForBranchExists(update.branchName(), prBranchNames)) {
                 LOG.info("The PR branch {} already exists; skipping", update.branchName())
-                return
+                return SkippedResult(update, "The PR branch ${update.branchName()} already exists; skipping")
             }
             createAndCheckoutBranch(update.branchName())
             makeChanges()
@@ -75,10 +79,13 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
             createPullRequest(update.pullRequestMessage(), baseBranchName)
 
             cleanUpOldPullRequests(update.baseBranchName(), update.latestUpdate.version, prBranchNames)
-
+        } catch (e: Exception) {
+            return SuccessResult(update)
         } finally {
             switchToBranch(baseBranchName)
         }
+
+        return SuccessResult(update)
     }
 
     private fun getBaseBranch(): String = shell.run {

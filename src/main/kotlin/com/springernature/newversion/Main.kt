@@ -18,7 +18,9 @@ fun main() {
     when (results) {
         is FailedChecks ->
             results.errors.forEach { System.err.println("${it.key.currentBuildpack} could not be updated: ${it.value}") }
-        is SuccessfulChecks -> Unit
+        is SuccessfulChecks -> {
+            results.skippedResult.forEach { println("${it.update.currentBuildpack} was skipped.") }
+        }
     }
 
     summaryWriter.write(results)

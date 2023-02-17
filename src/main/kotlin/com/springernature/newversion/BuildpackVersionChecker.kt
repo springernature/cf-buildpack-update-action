@@ -9,11 +9,11 @@ sealed class ChecksResult {
     abstract fun exitStatus(): Int
 }
 
-data class SuccessfulChecks(val updates: List<BuildpackUpdate>) : ChecksResult() {
+data class SuccessfulChecks(val updates: List<SuccessResult>, val skippedResult: List<SkippedResult>) : ChecksResult() {
     override fun exitStatus() = 0
 }
 
-data class FailedChecks(val updates: List<BuildpackUpdate>, val errors: Map<BuildpackUpdate, Exception>) :
+data class FailedChecks(val updates: List<PublishResult>, val errors: Map<BuildpackUpdate, FailureResult>) :
     ChecksResult() {
     override fun exitStatus() = 1
 }
@@ -26,8 +26,10 @@ class BuildpackVersionChecker(
 
     fun performChecks(): ChecksResult {
         LOG.info("Performing checks")
-        val errors = LinkedHashMap<BuildpackUpdate, Exception>()
-        val updates = ManifestParser.load(manifestPath)
+        val errors = LinkedHashMap<BuildpackUpdate, FailureResult>()
+        val skipped = LinkedHashMap<BuildpackUpdate, SkippedResult>()
+        val successes = LinkedHashMap<BuildpackUpdate, SuccessResult>()
+        val updates: List<PublishResult> = ManifestParser.load(manifestPath)
             .flatMap { ManifestBuildpack.from(it) }
             .filter { it.buildpack.version != Unparseable }
             .groupBy { it.buildpack }
@@ -39,18 +41,19 @@ class BuildpackVersionChecker(
                 )
             }
             .filter(BuildpackUpdate::hasUpdate)
+            .map { publisher.publish(it) }
             .onEach {
-                try {
-                    publisher.publish(it)
-                } catch (e: Exception) {
-                    errors[it] = e
+                when(it) {
+                    is SuccessResult -> successes[it.update] = it
+                    is FailureResult -> errors[it.update] = it
+                    is SkippedResult -> skipped[it.update] = it
                 }
             }
         LOG.info("Done")
         return if (errors.isNotEmpty())
             FailedChecks(updates, errors)
         else
-            SuccessfulChecks(updates)
+            SuccessfulChecks(successes.values.toList(), skipped.values.toList())
     }
 
     companion object {
