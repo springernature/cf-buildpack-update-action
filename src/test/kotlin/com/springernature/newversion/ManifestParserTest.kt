@@ -211,6 +211,16 @@ class ManifestParserTest {
         parsedManifests shouldBe 1
     }
 
+    @Test
+    fun `an empty manifest is handled gracefully`() {
+        val loadManifests = ManifestParser.load(resourcePath("manifest-empty.yml"))
+
+        val failedCount = loadManifests.filterIsInstance<FailedManifest>().count()
+        failedCount shouldBe 1
+        loadManifests.count() shouldBe 1
+    }
+
+
     private fun resourcePath(path: String) = File("src/test/resources/$path")
 
 }
