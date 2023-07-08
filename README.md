@@ -14,8 +14,7 @@ the project can stay up-to-date but with a conscious and deliberate change, trac
 
 ## Example usage
 
-Create a file in your repo called `.github/workflows/buildpack-update.yml` and in it put this code (remember to update '
-your-team-email-address@springernature.com' to one that is correct for your team)
+Create a file in your repo called `.github/workflows/buildpack-update.yml` and in it put this code (remember to update `your-team-email-address@springernature.com` to one that is correct for your team)
  
     name: buildpack-update
     on:
