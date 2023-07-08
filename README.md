@@ -38,7 +38,7 @@ Create a file in your repo called `.github/workflows/buildpack-update.yml` and i
               AUTHOR_NAME: Buildpack Update Action
               GITHUB_STEP_SUMMARY_ENABLED: true
 
-This should be picked up automatically in Github as a new Action and produce a PR (Pull Request) with the buildpack
+This should be picked up automatically in GitHub as a new Action and produce a PR (Pull Request) with the buildpack
 version changes whenever a new version is available.
 Just accept and merge the PR and you will be up-to-date.
 
