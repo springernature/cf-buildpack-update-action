@@ -23,7 +23,7 @@ dependencies {
 
     runtimeOnly("org.junit.platform:junit-platform-launcher:1.9.3")
     testImplementation(kotlin("test-junit5"))
-    testImplementation("org.amshove.kluent:kluent:1.72")
+    testImplementation("org.amshove.kluent:kluent:1.73")
 
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.8.2")
 }
