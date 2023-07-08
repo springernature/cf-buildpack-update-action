@@ -21,6 +21,7 @@ dependencies {
 
     runtimeOnly("ch.qos.logback:logback-classic:1.4.5")
 
+    runtimeOnly("org.junit.platform:junit-platform-launcher:1.9.3")
     testImplementation(kotlin("test-junit5"))
     testImplementation("org.amshove.kluent:kluent:1.72")
 
