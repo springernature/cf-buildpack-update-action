@@ -1,0 +1,18 @@
+# Docs - https://backstage.io/docs/features/software-catalog/descriptor-format/
+# Sample - https://github.com/RoadieHQ/sample-service/blob/main/catalog-info.yaml
+
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: cf-buildpack-update-action
+  title: CF Buildpack Update Action
+  description: A GitHub Actions action to allow for the updating of Cloud Foundry buildpacks via automated pull-requests.
+  tags:
+    - kotlin
+  annotations:
+    github.com/project-slug: springernature/cf-buildpack-update-action
+spec:
+  type: github-action
+  owner: sn-digital
+  lifecycle: production
+  domain: sn-digital
