@@ -1,0 +1,10 @@
+name: "Run tests"
+
+on:
+  workflow_dispatch:
+  
+jobs:
+  run-tests:
+    runs-on: ee-runner
+    steps:
+      - run: "./gradlew test"
