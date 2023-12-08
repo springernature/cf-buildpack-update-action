@@ -14,7 +14,7 @@ class BuildpackUpdateTest {
             BuildpackVersion(SemanticVersion("1.2.3"), GitTag("v1.2.3"))
         )
 
-        possibleUpdate.hasUpdate() shouldBe true
+        possibleUpdate.hasUpdate() shouldBe false // false positive to test GitHub actions
     }
 
     @Test
