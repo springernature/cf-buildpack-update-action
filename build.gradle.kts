@@ -16,10 +16,10 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.9")
     implementation("com.lordcodes.turtle:turtle:0.9.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.16.0")
     implementation("net.swiftzer.semver:semver:1.3.0")
 
-    runtimeOnly("ch.qos.logback:logback-classic:1.4.11")
+    runtimeOnly("ch.qos.logback:logback-classic:1.4.14")
 
     runtimeOnly("org.junit.platform:junit-platform-launcher:1.10.1")
     testImplementation(kotlin("test-junit5"))
