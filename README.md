@@ -42,6 +42,11 @@ This should be picked up automatically in GitHub as a new Action and produce a P
 version changes whenever a new version is available.
 Just accept and merge the PR and you will be up-to-date.
 
+### GitHub token and running automated tests
+From GitHub [documentation](https://docs.github.com/en/actions/using-workflows/triggering-a-workflow#triggering-a-workflow-from-a-workflow):  
+*If you do want to trigger a workflow from within a workflow run, you can use a GitHub App installation access token or a personal access token instead of GITHUB_TOKEN to trigger events that require a token.*
+So, if the opened PR should run some automated tests, you will need a PAT (Personal Access token) or a GitHub app installation access token instead of the normal GitHub token.
+
 ### GitHub step summary
 
 When setting `GITHUB_STEP_SUMMARY_ENABLED` to `true` (default is `false`) a job summary is created, 
