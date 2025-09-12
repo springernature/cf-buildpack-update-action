@@ -1,4 +1,13 @@
 version: 2
+
+registries:
+  gcr-docker:
+    type: docker-registry
+    url: https://eu.gcr.io
+    username: _json_key
+    password: ${{ secrets.EE_GCR_PRIVATE_KEY }}
+
+
 updates:
   - package-ecosystem: "gradle" # See documentation for possible values
     directory: "/" # Location of package manifests
@@ -9,3 +18,10 @@ updates:
     schedule:
       # Check for updates to GitHub Actions every week
       interval: "weekly"
+  - package-ecosystem: "docker"
+    directories:
+      - "**/*"
+    schedule:
+      interval: "weekly"
+    registries:
+      - gcr-docker
