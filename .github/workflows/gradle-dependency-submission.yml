@@ -18,6 +18,11 @@ jobs:
     steps:
       - name: 'Checkout Repository'
         uses: actions/checkout@v5
-
-      - name: Run snapshot action
-        uses: mikepenz/gradle-dependency-submission@v0.9.1
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
+      - name: Generate and submit dependency graph
+        uses: gradle/actions/dependency-submission@v4
+        with:
+          artifact-retention-days: 7
