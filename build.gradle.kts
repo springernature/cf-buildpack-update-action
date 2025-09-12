@@ -19,7 +19,7 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.20.0")
     implementation("net.swiftzer.semver:semver:1.3.0")
 
-    runtimeOnly("ch.qos.logback:logback-classic:1.4.14")
+    runtimeOnly("ch.qos.logback:logback-classic:1.5.18")
 
     runtimeOnly("org.junit.platform:junit-platform-launcher:1.13.4")
     testImplementation(kotlin("test-junit5"))
