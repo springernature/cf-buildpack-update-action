@@ -1,6 +1,5 @@
 package com.springernature.newversion
 
-import net.swiftzer.semver.SemVer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -161,7 +160,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
         LOG.info("Cleaning up old PRs for {}", baseBranchName)
         prBranchNames
             .filter { it.startsWith(baseBranchName) }
-            .filter { SemVer.parse(it.substringAfterLast("-")) < currentVersion.toSemVer() }
+            .filter { SemanticVersion(it.substringAfterLast("-")).toSemVer() < currentVersion.toSemVer() }
             .forEach {
                 LOG.info("Deleting old PR branch {}", it)
                 shell.run {
