@@ -4,7 +4,7 @@ COPY . /build
 WORKDIR /build
 RUN ./gradlew shadowJar --no-daemon --info --console=plain
 
-FROM bellsoft/liberica-openjdk-debian:17 as runtime
+FROM bellsoft/liberica-openjdk-debian:17 AS runtime
 RUN apt-get update && apt-get --no-install-recommends -y install hub
 RUN mkdir /app
 WORKDIR /app
