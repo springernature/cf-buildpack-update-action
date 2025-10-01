@@ -19,7 +19,7 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.20.0")
     implementation("io.github.z4kn4fein:semver:3.0.0")
 
-    runtimeOnly("ch.qos.logback:logback-classic:1.5.18")
+    runtimeOnly("ch.qos.logback:logback-classic:1.5.19")
 
     runtimeOnly("org.junit.platform:junit-platform-launcher:1.13.4")
     testImplementation(kotlin("test-junit5"))
