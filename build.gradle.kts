@@ -16,7 +16,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.17")
     implementation("com.lordcodes.turtle:turtle:0.10.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.20.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.20.1")
     implementation("io.github.z4kn4fein:semver:3.0.0")
 
     runtimeOnly("ch.qos.logback:logback-classic:1.5.20")
