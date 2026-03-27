@@ -1,0 +1,16 @@
+{
+  "url": "https://api.github.com/repos/paketo-buildpacks/java/releases/99999999",
+  "html_url": "https://github.com/paketo-buildpacks/java/releases/tag/v21.5.0",
+  "id": 99999999,
+  "tag_name": "v21.5.0",
+  "target_commitish": "main",
+  "name": "v21.5.0",
+  "draft": false,
+  "prerelease": false,
+  "created_at": "2024-01-01T00:00:00Z",
+  "published_at": "2024-01-01T00:00:00Z",
+  "assets": [],
+  "tarball_url": "https://api.github.com/repos/paketo-buildpacks/java/tarball/v21.5.0",
+  "zipball_url": "https://api.github.com/repos/paketo-buildpacks/java/zipball/v21.5.0",
+  "body": "Release v21.5.0"
+}

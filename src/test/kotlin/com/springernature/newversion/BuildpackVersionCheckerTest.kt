@@ -161,6 +161,31 @@ class BuildpackVersionCheckerTest {
     }
 
     @Test
+    fun `paketo buildpacks in halfpipe manifests are checked and updated`() {
+        val fixtureDir = File("src/test/resources/paketo-wiring-test")
+        fixtureDir.exists() shouldBe true
+
+        val settings = Settings(mapOf(GIT_HUB_API_URL.key to baseUrl))
+        val capturingPublisher = CapturingPublisher()
+        val buildpackVersionChecker = BuildpackVersionChecker(
+            fixtureDir,
+            GitHubBuildpackUpdateChecker(HttpClient.newBuilder().build(), settings),
+            capturingPublisher
+        )
+
+        val results = buildpackVersionChecker.performChecks()
+        results shouldBeInstanceOf SuccessfulChecks::class
+
+        capturingPublisher.updates().size shouldBe 1
+        val update = capturingPublisher.updates().first()
+
+        update.currentBuildpack.name shouldBeEqualTo "paketo-buildpacks/java"
+        update.currentBuildpack.version shouldBeEqualTo SemanticVersion("21.4.0")
+        update.latestUpdate.version shouldBeEqualTo SemanticVersion("21.5.0")
+        update.latestUpdate.tag shouldBeEqualTo GitTag("v21.5.0")
+    }
+
+    @Test
     fun `a failed publish should lead to failed check`() {
         val manifest = File("src/test/resources/manifest.yml")
         manifest.exists() shouldBe true
@@ -218,6 +243,12 @@ class BuildpackVersionCheckerTest {
                 )
             }.also { server ->
                 context(server, "/repos/cloudfoundry/java-buildpack/releases/latest", "/github-latest-java.json")
+            }.also { server ->
+                context(
+                    server,
+                    "/repos/paketo-buildpacks/java/releases/latest",
+                    "/github-latest-paketo-java.json"
+                )
             }
 
         private fun context(server: HttpServer, path: String, responseFile: String) {
