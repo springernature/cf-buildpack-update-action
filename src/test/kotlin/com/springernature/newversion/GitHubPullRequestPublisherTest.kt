@@ -353,6 +353,70 @@ class GitHubPullRequestPublisherTest {
         }
     }
 
+    @Test
+    fun `a Paketo manifest file is updated using fileToken with colon separator`() {
+        val shell = CapturingShell(
+            mapOf(
+                ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" }
+            )
+        )
+        val publisher = GitHubPullRequestPublisher(shell, Settings())
+        val manifest = createPaketoTestManifest()
+
+        publisher.publish(
+            BuildpackUpdate(
+                listOf(manifest),
+                VersionedBuildpack.createPaketo("paketobuildpacks/java:21.4.0"),
+                BuildpackVersion(SemanticVersion("21.5.0"), GitTag("v21.5.0"))
+            )
+        )
+
+        manifest.readText() shouldContain "paketobuildpacks/java:21.5.0"
+        manifest.readText() shouldBeEqualTo """buildpacks: paketobuildpacks/java:21.5.0"""
+    }
+
+    @Test
+    fun `a Paketo PR diff link is reconstructed from version when tag is null`() {
+        val shell = CapturingShell(
+            mapOf(
+                ("git" to listOf("rev-parse", "--abbrev-ref", "HEAD")) to { "base-branch" },
+                ("git" to listOf("branch", "-r")) to { "" }
+            )
+        )
+        val publisher = GitHubPullRequestPublisher(shell, Settings())
+        val manifest = createPaketoTestManifest()
+
+        publisher.publish(
+            BuildpackUpdate(
+                listOf(manifest),
+                VersionedBuildpack.createPaketo("paketobuildpacks/java:21.4.0"),
+                BuildpackVersion(SemanticVersion("21.5.0"), GitTag("v21.5.0"))
+            )
+        )
+
+        shell.commands shouldContain (
+            "hub" to listOf(
+                "pull-request", "--push",
+                "--message", "Update paketo-buildpacks/java to 21.5.0\n\n"
+                        + "Update paketo-buildpacks/java from 21.4.0 to 21.5.0.\n\n"
+                        + "* [Release Notes](https://github.com/paketo-buildpacks/java/releases/tag/v21.5.0)\n"
+                        + "* [Diff](https://github.com/paketo-buildpacks/java/compare/v21.4.0...v21.5.0)",
+                "--base", "base-branch", "--labels", "buildpack-update"
+            )
+        )
+    }
+
+    private fun createPaketoTestManifest(
+        file: File = File.createTempFile(
+            "github-pull-request-publisher-paketo-test",
+            ".yml"
+        )
+    ): File =
+        file.also {
+            it.deleteOnExit()
+            it.writeText("buildpacks: paketobuildpacks/java:21.4.0")
+        }
+
     private fun createTestManifest(
         file: File = File.createTempFile(
             "github-pull-request-publisher-test-manifest",
