@@ -1,0 +1,21 @@
+name: Deploy Subapp
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Deploy nodejs
+        uses: springernature/ee-action-buildpack@v1
+        with:
+          buildpacks: paketobuildpacks/nodejs:1.3.0
+
+      - name: CI step without buildpacks
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
