@@ -10,7 +10,13 @@ data class CFApplication(
     fun buildpacks() = buildpack?.let { buildpacks.plus(buildpack) } ?: buildpacks
 }
 
-data class VersionedBuildpack(val name: String, val url: String, val version: Version, val tag: GitTag?) {
+data class VersionedBuildpack(
+    val name: String,
+    val url: String,
+    val version: Version,
+    val tag: GitTag?,
+    val fileToken: String? = null
+) {
 
     companion object {
 
@@ -20,6 +26,17 @@ data class VersionedBuildpack(val name: String, val url: String, val version: Ve
         @JsonCreator
         fun create(value: String) =
             VersionedBuildpack(value.name(), value.buildpackUrl(), value.buildpackVersion(), value.buildpackTag())
+
+        fun createPaketo(value: String): VersionedBuildpack {
+            val withoutVersion = value.substringBefore(":")
+            val org = withoutVersion.substringBefore("/")
+            val repo = withoutVersion.substringAfter("/")
+            val githubOrg = org.replace("paketobuildpacks", "paketo-buildpacks")
+            val name = "$githubOrg/$repo"
+            val url = "https://github.com/$name"
+            val version = if (value.contains(":")) SemanticVersion(value.substringAfter(":")) else Unparseable
+            return VersionedBuildpack(name, url, version, tag = null, fileToken = withoutVersion)
+        }
 
         private fun String.buildpackUrl(): String =
             "(.*github.com/.*?)(?:\\.git)?(?:#v?$SEMVER_REGEX)?$".toRegex().find(this)?.groups?.get(1)?.value
