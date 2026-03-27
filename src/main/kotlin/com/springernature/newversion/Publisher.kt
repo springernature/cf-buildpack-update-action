@@ -24,15 +24,17 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
     private fun BuildpackUpdate.commitMessage() =
         "Update ${currentBuildpack.name} to ${latestUpdate.version}"
 
-    private fun BuildpackUpdate.pullRequestMessage() =
-        """
+    private fun BuildpackUpdate.pullRequestMessage(): String {
+        val currentTagValue = currentBuildpack.tag?.value ?: "v${currentBuildpack.version}"
+        return """
         Update ${currentBuildpack.name} to ${latestUpdate.version}
         
         Update ${currentBuildpack.name} from ${currentBuildpack.version} to ${latestUpdate.version}.
         
         * [Release Notes](https://github.com/${currentBuildpack.name}/releases/tag/${latestUpdate.tag.value})
-        * [Diff](https://github.com/${currentBuildpack.name}/compare/${currentBuildpack.tag?.value}...${latestUpdate.tag.value})
+        * [Diff](https://github.com/${currentBuildpack.name}/compare/$currentTagValue...${latestUpdate.tag.value})
     """.trimIndent()
+    }
 
     private fun updateManifest(update: BuildpackUpdate) {
         update.manifests.forEach { manifest ->
@@ -41,7 +43,13 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
                 update.currentBuildpack.name, update.currentBuildpack.tag?.value, update.latestUpdate.tag.value
             )
             val manifestContent = manifest.readText(Charsets.UTF_8)
-            val newManifest =
+            val newManifest = if (update.currentBuildpack.fileToken != null) {
+                val token = update.currentBuildpack.fileToken
+                manifestContent.replace(
+                    "$token:${update.currentBuildpack.version}",
+                    "$token:${update.latestUpdate.version}"
+                )
+            } else {
                 manifestContent.replace(
                     "${update.currentBuildpack.name}#${update.currentBuildpack.tag?.value}",
                     "${update.currentBuildpack.name}#${update.latestUpdate.tag.value}"
@@ -49,6 +57,7 @@ class GitHubPullRequestPublisher(private val shell: Shell, settings: Settings) :
                     "${update.currentBuildpack.name}.git#${update.currentBuildpack.tag?.value}",
                     "${update.currentBuildpack.name}.git#${update.latestUpdate.tag.value}"
                 )
+            }
             manifest.writeText(newManifest, Charsets.UTF_8)
         }
     }
