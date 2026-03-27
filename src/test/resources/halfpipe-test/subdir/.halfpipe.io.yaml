@@ -1,0 +1,8 @@
+team: my-team
+pipeline: nested-pipeline
+
+tasks:
+  - type: buildpack
+    name: deploy
+    buildpacks:
+      - paketobuildpacks/java:5.0.0
