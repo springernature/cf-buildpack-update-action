@@ -29,7 +29,7 @@ object GitHubActionsManifestParser {
                     .map { VersionedBuildpack.createPaketo(it) }
                 PaketoManifest(buildpacks, file)
             } catch (e: Exception) {
-                LOG.warn("Failed to parse workflow file {}: {}", file, e.message)
+                LOG.warn("Failed to parse workflow file {}", file, e)
                 FailedPaketoManifest(file, e)
             }
         }
