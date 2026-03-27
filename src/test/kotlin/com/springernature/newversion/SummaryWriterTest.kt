@@ -23,7 +23,7 @@ class SummaryWriterTest {
             |
             |## success
             |
-            |* currentBuildpack VersionedBuildpack(name=test/buildpack1, url=https://a.host/path, version=1.3, tag=GitTag(value=v1.3)) has no update
+            |* currentBuildpack VersionedBuildpack(name=test/buildpack1, url=https://a.host/path, version=1.3, tag=GitTag(value=v1.3), fileToken=null) has no update
             |
             |Thanks for watching!
             |""".trimMargin()
@@ -50,11 +50,11 @@ class SummaryWriterTest {
             |
             |## failures
             |
-            |* VersionedBuildpack(name=test/buildpack1, url=https://a.host/path, version=1.3, tag=GitTag(value=v1.3)) could not be updated: java.lang.RuntimeException: Successful failure!
+            |* VersionedBuildpack(name=test/buildpack1, url=https://a.host/path, version=1.3, tag=GitTag(value=v1.3), fileToken=null) could not be updated: java.lang.RuntimeException: Successful failure!
             |
             |## success
             |
-            |* currentBuildpack VersionedBuildpack(name=test/buildpack1, url=https://a.host/path, version=1.3, tag=GitTag(value=v1.3)) has no update
+            |* currentBuildpack VersionedBuildpack(name=test/buildpack1, url=https://a.host/path, version=1.3, tag=GitTag(value=v1.3), fileToken=null) has no update
             |
             |Thanks for watching!
             |""".trimMargin()
