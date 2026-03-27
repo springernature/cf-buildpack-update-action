@@ -22,7 +22,7 @@ object HalfpipeManifestParser {
 
     fun load(dir: File): Sequence<PaketoManifestLoadResult> = dir.walk()
         .filter { it.isFile }
-        .filterNot { it.path.contains("/.git/") }
+        .filterNot { it.invariantSeparatorsPath.contains("/.git/") }
         .filter { it.name in HALFPIPE_FILENAMES }
         .onEach { LOG.debug("Found halfpipe manifest {}", it) }
         .map { file ->

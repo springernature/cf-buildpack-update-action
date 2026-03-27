@@ -13,7 +13,7 @@ class GitHubActionsManifestParserTest {
         val results = GitHubActionsManifestParser.load(resourcePath("github-actions-test")).toList()
 
         val manifests = results.filterIsInstance<PaketoManifest>()
-        val topLevel = manifests.first { it.path.canonicalPath.contains("/github-actions-test/.github/workflows/") }
+        val topLevel = manifests.first { it.path.invariantSeparatorsPath.contains("/github-actions-test/.github/workflows/") }
         topLevel.buildpacks shouldContain VersionedBuildpack.createPaketo("paketobuildpacks/java:21.4.0")
     }
 
@@ -22,7 +22,7 @@ class GitHubActionsManifestParserTest {
         val results = GitHubActionsManifestParser.load(resourcePath("github-actions-test")).toList()
 
         val manifests = results.filterIsInstance<PaketoManifest>()
-        val nested = manifests.first { it.path.canonicalPath.contains("/subapp/.github/workflows/") }
+        val nested = manifests.first { it.path.invariantSeparatorsPath.contains("/subapp/.github/workflows/") }
         nested.buildpacks shouldContain VersionedBuildpack.createPaketo("paketobuildpacks/nodejs:1.3.0")
     }
 
@@ -46,7 +46,7 @@ class GitHubActionsManifestParserTest {
         val results = GitHubActionsManifestParser.load(resourcePath("github-actions-test")).toList()
 
         val manifests = results.filterIsInstance<PaketoManifest>()
-        val nested = manifests.first { it.path.canonicalPath.contains("/subapp/.github/workflows/") }
+        val nested = manifests.first { it.path.invariantSeparatorsPath.contains("/subapp/.github/workflows/") }
         // Only one buildpack in that file; the setup-node step has no buildpacks
         nested.buildpacks.size shouldBe 1
     }
