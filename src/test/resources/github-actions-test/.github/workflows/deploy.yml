@@ -1,0 +1,19 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Deploy with java buildpack
+        uses: springernature/ee-action-buildpack@v1
+        with:
+          buildpacks: paketobuildpacks/java:21.4.0
+
+      - name: Run tests
+        run: ./gradlew test
