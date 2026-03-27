@@ -35,7 +35,7 @@ object HalfpipeManifestParser {
                     .map { VersionedBuildpack.createPaketo(it) }
                 PaketoManifest(buildpacks, file)
             } catch (e: Exception) {
-                LOG.warn("Failed to parse halfpipe manifest {}: {}", file, e.message)
+                LOG.warn("Failed to parse halfpipe manifest {}", file, e)
                 FailedPaketoManifest(file, e)
             }
         }

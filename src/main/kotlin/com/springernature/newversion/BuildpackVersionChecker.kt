@@ -92,7 +92,7 @@ class BuildpackVersionChecker(
 
             fun from(result: PaketoManifestLoadResult): List<PaketoManifestBuildpack> = when (result) {
                 is FailedPaketoManifest -> {
-                    LOG.warn("Failed to parse Paketo manifest {}: {}", result.path, result.error.message)
+                    LOG.warn("Failed to parse Paketo manifest {}: {}", result.path, result.error.message, result.error)
                     emptyList()
                 }
                 is PaketoManifest -> result.buildpacks.map { PaketoManifestBuildpack(result.path, it) }
