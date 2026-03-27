@@ -16,7 +16,7 @@ object GitHubActionsManifestParser {
 
     fun load(dir: File): Sequence<PaketoManifestLoadResult> = dir.walk()
         .filter { it.isFile }
-        .filterNot { it.path.contains("/.git/") }
+        .filterNot { it.invariantSeparatorsPath.contains("/.git/") }
         .filter { isWorkflowFile(it) }
         .onEach { LOG.debug("Found GitHub Actions workflow {}", it) }
         .map { file ->
@@ -35,7 +35,7 @@ object GitHubActionsManifestParser {
         }
 
     private fun isWorkflowFile(file: File): Boolean {
-        val path = file.path
+        val path = file.invariantSeparatorsPath
         val ext = file.extension.lowercase()
         return (ext == "yml" || ext == "yaml") && path.contains("/.github/workflows/")
     }
