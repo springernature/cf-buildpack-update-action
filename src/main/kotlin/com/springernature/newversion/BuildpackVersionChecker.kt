@@ -27,13 +27,21 @@ class BuildpackVersionChecker(
     fun performChecks(): ChecksResult {
         LOG.info("Performing checks")
         val errors = LinkedHashMap<BuildpackUpdate, Exception>()
-        val updates = ManifestParser.load(manifestPath)
+
+        val cfBuildpacks = ManifestParser.load(manifestPath)
             .flatMap { ManifestBuildpack.from(it) }
+            .map { ManifestEntry(it.manifest, it.buildpack) }
+
+        val paketoBuildpacks = (HalfpipeManifestParser.load(manifestPath) + GitHubActionsManifestParser.load(manifestPath))
+            .flatMap { PaketoManifestBuildpack.from(it) }
+            .map { ManifestEntry(it.manifest, it.buildpack) }
+
+        val updates = (cfBuildpacks + paketoBuildpacks)
             .filter { it.buildpack.version != Unparseable }
             .groupBy { it.buildpack }
-            .map { (buildpack, manifestBuildpacks) ->
+            .map { (buildpack, entries) ->
                 BuildpackUpdate(
-                    manifestBuildpacks.map { it.manifest },
+                    entries.map { it.manifest },
                     buildpack,
                     buildpackUpdateChecker.findLatestVersion(buildpack)
                 )
@@ -57,6 +65,8 @@ class BuildpackVersionChecker(
         private val LOG: Logger = LoggerFactory.getLogger(BuildpackVersionChecker::class.java)
     }
 
+    private data class ManifestEntry(val manifest: File, val buildpack: VersionedBuildpack)
+
     private data class ManifestBuildpack(val manifest: File, val buildpack: VersionedBuildpack) {
 
         companion object {
@@ -70,6 +80,22 @@ class BuildpackVersionChecker(
                 is Manifest -> manifest.applications.flatMap { app -> app.buildpacks() }.map {
                     ManifestBuildpack(manifest.path, it)
                 }
+            }
+        }
+
+    }
+
+    private data class PaketoManifestBuildpack(val manifest: File, val buildpack: VersionedBuildpack) {
+
+        companion object {
+            private val LOG: Logger = LoggerFactory.getLogger(PaketoManifestBuildpack::class.java)
+
+            fun from(result: PaketoManifestLoadResult): List<PaketoManifestBuildpack> = when (result) {
+                is FailedPaketoManifest -> {
+                    LOG.warn("Failed to parse Paketo manifest {}: {}", result.path, result.error.message)
+                    emptyList()
+                }
+                is PaketoManifest -> result.buildpacks.map { PaketoManifestBuildpack(result.path, it) }
             }
         }
 
