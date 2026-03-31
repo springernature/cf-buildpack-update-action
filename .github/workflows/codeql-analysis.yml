@@ -39,7 +39,7 @@ jobs:
             build-mode: manual
     # For languages that require build, teams must specify the container in which CodeQL will run; if language does not require build this section is removed by automation
     container:
-      image: 'eu.gcr.io/halfpipe-io/build-openjdk17' # Teams should adapt, should be in the format 'eu.gcr.io/halfpipe-io/build-image'
+      image: 'bellsoft/liberica-openjre-debian:17' # Teams should adapt, should be in the format 'eu.gcr.io/halfpipe-io/build-image'
 
     steps:
       - name: Checkout repository
