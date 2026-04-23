@@ -70,7 +70,7 @@ Create a file in your repo called `.github/workflows/buildpack-update.yml` and i
           - name: Check out the repo
             uses: actions/checkout@v4
           - name: run cf-buildpack-update-action
-            uses: springernature/cf-buildpack-update-action@v1.0.10
+            uses: springernature/cf-buildpack-update-action@v1.1.0
             env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               AUTHOR_EMAIL: your-team-email-address@springernature.com
