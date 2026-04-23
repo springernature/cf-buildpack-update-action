@@ -1,11 +1,19 @@
 # History
 
-## [1.1.0](https://github.com/springernature/cf-buildpack-update-action/compare/v1.0.10...v1.1.0)
+## [1.2.0](https://github.com/springernature/cf-buildpack-update-action/compare/v1.1.0...v1.2.0)
 
 * Add support for updating Paketo buildpacks in Halfpipe pipelines (`.halfpipe.io` files)
 * Add support for updating Paketo buildpacks in GitHub Actions workflows
 * Document CNB buildpack scanning in README
 * Replace semver library to allow non-strict version parsing
+* Dependency updates
+
+## [1.1.0](https://github.com/springernature/cf-buildpack-update-action/compare/v1.0.10...v1.1.0)
+
+* Upgrade to Gradle 9.0
+* Upgrade Kotlin JVM to 2.2.20
+* Replace obsolete `com.github.johnrengelman.shadow` with `com.gradleup.shadow`
+* Replace obsolete `gradle/wrapper-validation-action` with `gradle/actions/wrapper-validation`
 * Dependency updates
 
 ## [1.0.10](https://github.com/springernature/cf-buildpack-update-action/compare/v1.0.9...v1.0.10)
