@@ -1,16 +1,55 @@
 # Buildpack update action
 
-Create pull requests to update Cloud Foundry buildpacks in manifest files.
+Create pull requests to update buildpacks in Cloud Foundry manifest files, Halfpipe pipelines, and GitHub Actions workflows.
 
 ## Why?
 
-Aiming for reproducible deployments it's a necessary step to pin a buildpack in a project to a specific version in the
-Cloud Foundry manifest, so it will always use the one you specify.
+Aiming for reproducible deployments it's a necessary step to pin a buildpack in a project to a specific version, so it
+will always use the one you specify.
 
 The disadvantage of pinning is that any improvement in a newer version is not automatically taken over to the project.
 
 With this GitHub action a pull request will be created if there is a newer version of a buildpack available. That way
 the project can stay up-to-date but with a conscious and deliberate change, traceable in version control.
+
+## What is scanned?
+
+The action scans the repository for buildpack references in three places:
+
+### Cloud Foundry manifests (`manifest.yml`)
+
+Pinned [classic CF buildpacks](https://docs.cloudfoundry.org/buildpacks/) referenced by GitHub URL and version tag:
+
+```yaml
+applications:
+  - name: my-app
+    buildpacks:
+      - https://github.com/cloudfoundry/java-buildpack#v4.50.0
+```
+
+### Halfpipe pipelines (`.halfpipe.io`, `.halfpipe.io.yml`, `.halfpipe.io.yaml`)
+
+Pinned [Paketo buildpacks](https://paketo.io) in `buildpack` tasks:
+
+```yaml
+tasks:
+  - type: buildpack
+    image: eu.gcr.io/halfpipe-io/my-team/my-app
+    buildpacks:
+      - paketo-buildpacks/java:21.4.0
+```
+
+### GitHub Actions workflows (`.github/workflows/*.yml`)
+
+Pinned Paketo buildpacks passed to steps via the `buildpacks` input (e.g. when using
+[ee-action-buildpack](https://github.com/springernature/ee-action-buildpack)):
+
+```yaml
+- name: Pack n Push
+  uses: springernature/ee-action-buildpack@v1
+  with:
+    buildpacks: paketobuildpacks/java:21.4.0
+```
 
 ## Example usage
 
