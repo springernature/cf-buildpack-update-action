@@ -1,5 +1,12 @@
 # History
 
+## [1.2.1](https://github.com/springernature/cf-buildpack-update-action/compare/v1.2.0...v1.3.0)
+
+* GitHub Actions workflow buildpack updates are now **detected and reported** in the job summary by default, without creating a PR
+* Add `UPDATE_WORKFLOW_FILES=true` opt-in to restore automatic PR creation for workflow file updates
+* Document that updating workflow files requires a GitHub App with the **Workflows: Read and write** permission
+* Add README example using `actions/create-github-app-token` for the opt-in workflow
+
 ## [1.2.0](https://github.com/springernature/cf-buildpack-update-action/compare/v1.1.0...v1.2.0)
 
 * Add support for updating Paketo buildpacks in Halfpipe pipelines (`.halfpipe.io` files)
