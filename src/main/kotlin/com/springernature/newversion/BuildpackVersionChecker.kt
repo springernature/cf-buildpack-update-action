@@ -7,21 +7,29 @@ import java.io.File
 
 sealed class ChecksResult {
     abstract fun exitStatus(): Int
+    abstract val detectedWorkflowUpdates: List<BuildpackUpdate>
 }
 
-data class SuccessfulChecks(val updates: List<BuildpackUpdate>) : ChecksResult() {
+data class SuccessfulChecks(
+    val updates: List<BuildpackUpdate>,
+    override val detectedWorkflowUpdates: List<BuildpackUpdate> = emptyList()
+) : ChecksResult() {
     override fun exitStatus() = 0
 }
 
-data class FailedChecks(val updates: List<BuildpackUpdate>, val errors: Map<BuildpackUpdate, Exception>) :
-    ChecksResult() {
+data class FailedChecks(
+    val updates: List<BuildpackUpdate>,
+    val errors: Map<BuildpackUpdate, Exception>,
+    override val detectedWorkflowUpdates: List<BuildpackUpdate> = emptyList()
+) : ChecksResult() {
     override fun exitStatus() = 1
 }
 
 class BuildpackVersionChecker(
     private val manifestPath: File,
     private val buildpackUpdateChecker: BuildpackUpdateChecker,
-    private val publisher: Publisher
+    private val publisher: Publisher,
+    private val settings: Settings = Settings()
 ) {
 
     fun performChecks(): ChecksResult {
@@ -32,11 +40,21 @@ class BuildpackVersionChecker(
             .flatMap { ManifestBuildpack.from(it) }
             .map { ManifestEntry(it.manifest, it.buildpack) }
 
-        val paketoBuildpacks = (HalfpipeManifestParser.load(manifestPath) + GitHubActionsManifestParser.load(manifestPath))
+        val halfpipeBuildpacks = HalfpipeManifestParser.load(manifestPath)
             .flatMap { PaketoManifestBuildpack.from(it) }
             .map { ManifestEntry(it.manifest, it.buildpack) }
 
-        val updates = (cfBuildpacks + paketoBuildpacks)
+        val githubActionsBuildpacks = GitHubActionsManifestParser.load(manifestPath)
+            .flatMap { PaketoManifestBuildpack.from(it) }
+            .map { ManifestEntry(it.manifest, it.buildpack) }
+            .toList()
+
+        val updateWorkflowFiles = settings.lookup(Setting.UPDATE_WORKFLOW_FILES).toBoolean()
+
+        val toPublish = cfBuildpacks + halfpipeBuildpacks +
+                if (updateWorkflowFiles) githubActionsBuildpacks else emptyList()
+
+        val updates = toPublish
             .filter { it.buildpack.version != Unparseable }
             .groupBy { it.buildpack }
             .map { (buildpack, entries) ->
@@ -54,11 +72,30 @@ class BuildpackVersionChecker(
                     errors[it] = e
                 }
             }
+
+        val detectedWorkflowUpdates = if (!updateWorkflowFiles) {
+            githubActionsBuildpacks
+                .filter { it.buildpack.version != Unparseable }
+                .groupBy { it.buildpack }
+                .mapNotNull { (buildpack, entries) ->
+                    try {
+                        BuildpackUpdate(
+                            entries.map { it.manifest },
+                            buildpack,
+                            buildpackUpdateChecker.findLatestVersion(buildpack)
+                        ).takeIf { it.hasUpdate() }
+                    } catch (e: Exception) {
+                        LOG.warn("Failed to check version for workflow buildpack {}: {}", buildpack.name, e.message)
+                        null
+                    }
+                }
+        } else emptyList()
+
         LOG.info("Done")
         return if (errors.isNotEmpty())
-            FailedChecks(updates, errors)
+            FailedChecks(updates, errors, detectedWorkflowUpdates)
         else
-            SuccessfulChecks(updates)
+            SuccessfulChecks(updates, detectedWorkflowUpdates)
     }
 
     companion object {

@@ -51,6 +51,13 @@ Pinned Paketo buildpacks passed to steps via the `buildpacks` input (e.g. when u
     buildpacks: paketobuildpacks/java:21.4.0
 ```
 
+> **Note:** By default, buildpack updates found in GitHub Actions workflow files are **detected and reported** in the
+> job summary only — no PR is created. This is because modifying `.github/workflows/` files requires the GitHub
+> **Workflows** permission, which is not available to a standard `GITHUB_TOKEN`.
+>
+> To enable automatic PR creation for workflow file updates, set `UPDATE_WORKFLOW_FILES=true` and use a GitHub App
+> that has the **"Workflows: Read and write"** permission (see [Opt-in: updating workflow files](#opt-in-updating-workflow-files) below).
+
 ## Example usage
 
 Create a file in your repo called `.github/workflows/buildpack-update.yml` and in it put this code (remember to update `your-team-email-address@springernature.com` to one that is correct for your team)
@@ -90,6 +97,62 @@ So, if the opened PR should run some automated tests, you will need a PAT (Perso
 
 When setting `GITHUB_STEP_SUMMARY_ENABLED` to `true` (default is `false`) a job summary is created, 
 see [example output](https://github.com/springernature/dpas/actions/runs/3691628035/attempts/1#summary-10080794385).
+
+## Opt-in: updating workflow files
+
+By default the action only **detects and reports** Paketo buildpack updates found in `.github/workflows/` files.
+It does not attempt to create PRs for them.
+
+To opt in to automatic PR creation for workflow file updates, two things are required:
+
+1. A GitHub App that has the **"Workflows: Read and write"** permission installed on your repository.
+2. The `UPDATE_WORKFLOW_FILES=true` environment variable set on the action step.
+
+### Why a special GitHub App is needed
+
+GitHub enforces that any push modifying files under `.github/workflows/` must be authorised by a token whose
+underlying credential has the `workflows` scope.  The built-in `GITHUB_TOKEN` never has this scope. There is no `workflows:` key in the workflow-level `permissions:` YAML
+block — it must be granted at the GitHub App installation level.
+
+### Example with `actions/create-github-app-token`
+
+```yaml
+name: buildpack-update
+on:
+  schedule:
+    - cron: '0 4 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  buildpack_updates_job:
+    runs-on: ee-runner
+    timeout-minutes: 30
+    name: buildpack updates
+    steps:
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.MY_APP_ID }}
+          private-key: ${{ secrets.MY_APP_PRIVATE_KEY }}
+
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: run cf-buildpack-update-action
+        uses: springernature/cf-buildpack-update-action@v1.2.0
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          AUTHOR_EMAIL: your-team-email-address@springernature.com
+          AUTHOR_NAME: Buildpack Update Action
+          GITHUB_STEP_SUMMARY_ENABLED: true
+          UPDATE_WORKFLOW_FILES: true
+```
+
+The GitHub App must be installed with the **"Workflows: Read and write"** permission in addition to
+the usual **"Contents: Read and write"** and **"Pull requests: Read and write"** permissions.
 
 ## Keep *your* action up-to-date
 
@@ -132,3 +195,4 @@ Copyright Springer Nature
 [history]: HISTORY.md
 
 [license]: LICENSE 
+
