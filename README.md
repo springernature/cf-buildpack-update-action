@@ -77,7 +77,7 @@ Create a file in your repo called `.github/workflows/buildpack-update.yml` and i
           - name: Check out the repo
             uses: actions/checkout@v4
           - name: run cf-buildpack-update-action
-            uses: springernature/cf-buildpack-update-action@v1.2.0
+            uses: springernature/cf-buildpack-update-action@v1.2.1
             env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               AUTHOR_EMAIL: your-team-email-address@springernature.com
@@ -142,7 +142,7 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
 
       - name: run cf-buildpack-update-action
-        uses: springernature/cf-buildpack-update-action@v1.2.0
+        uses: springernature/cf-buildpack-update-action@v1.2.1
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           AUTHOR_EMAIL: your-team-email-address@springernature.com
