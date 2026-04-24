@@ -186,6 +186,71 @@ class BuildpackVersionCheckerTest {
     }
 
     @Test
+    fun `paketo buildpacks in github actions workflows are detected but not published by default`() {
+        val fixtureDir = File("src/test/resources/github-actions-test")
+        fixtureDir.exists() shouldBe true
+
+        val settings = Settings(mapOf(GIT_HUB_API_URL.key to baseUrl))
+        val capturingPublisher = CapturingPublisher()
+        val buildpackVersionChecker = BuildpackVersionChecker(
+            fixtureDir,
+            GitHubBuildpackUpdateChecker(HttpClient.newBuilder().build(), settings),
+            capturingPublisher,
+            settings
+        )
+
+        val results = buildpackVersionChecker.performChecks()
+        results shouldBeInstanceOf SuccessfulChecks::class
+
+        capturingPublisher.updates().size shouldBe 0
+
+        val detected = results.detectedWorkflowUpdates.sortedBy { it.currentBuildpack.name }
+        detected.size shouldBe 2
+
+        detected[0].currentBuildpack.name shouldBeEqualTo "paketo-buildpacks/java"
+        detected[0].currentBuildpack.version shouldBeEqualTo SemanticVersion("21.4.0")
+        detected[0].latestUpdate.version shouldBeEqualTo SemanticVersion("21.5.0")
+
+        detected[1].currentBuildpack.name shouldBeEqualTo "paketo-buildpacks/nodejs"
+        detected[1].currentBuildpack.version shouldBeEqualTo SemanticVersion("1.3.0")
+        detected[1].latestUpdate.version shouldBeEqualTo SemanticVersion("1.4.0")
+    }
+
+    @Test
+    fun `paketo buildpacks in github actions workflows are published when UPDATE_WORKFLOW_FILES is true`() {
+        val fixtureDir = File("src/test/resources/github-actions-test")
+        fixtureDir.exists() shouldBe true
+
+        val settings = Settings(
+            mapOf(
+                GIT_HUB_API_URL.key to baseUrl,
+                Setting.UPDATE_WORKFLOW_FILES.key to "true"
+            )
+        )
+        val capturingPublisher = CapturingPublisher()
+        val buildpackVersionChecker = BuildpackVersionChecker(
+            fixtureDir,
+            GitHubBuildpackUpdateChecker(HttpClient.newBuilder().build(), settings),
+            capturingPublisher,
+            settings
+        )
+
+        val results = buildpackVersionChecker.performChecks()
+        results shouldBeInstanceOf SuccessfulChecks::class
+
+        val updates = capturingPublisher.updates().sortedBy { it.currentBuildpack.name }
+        updates.size shouldBe 2
+
+        updates[0].currentBuildpack.name shouldBeEqualTo "paketo-buildpacks/java"
+        updates[0].latestUpdate.version shouldBeEqualTo SemanticVersion("21.5.0")
+
+        updates[1].currentBuildpack.name shouldBeEqualTo "paketo-buildpacks/nodejs"
+        updates[1].latestUpdate.version shouldBeEqualTo SemanticVersion("1.4.0")
+
+        results.detectedWorkflowUpdates.size shouldBe 0
+    }
+
+    @Test
     fun `a failed publish should lead to failed check`() {
         val manifest = File("src/test/resources/manifest.yml")
         manifest.exists() shouldBe true
@@ -248,6 +313,12 @@ class BuildpackVersionCheckerTest {
                     server,
                     "/repos/paketo-buildpacks/java/releases/latest",
                     "/github-latest-paketo-java.json"
+                )
+            }.also { server ->
+                context(
+                    server,
+                    "/repos/paketo-buildpacks/nodejs/releases/latest",
+                    "/github-latest-paketo-nodejs.json"
                 )
             }
 

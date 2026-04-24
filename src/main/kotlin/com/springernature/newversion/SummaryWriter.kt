@@ -22,6 +22,7 @@ class SummaryWriter(val settings: Settings) {
             }
             is SuccessfulChecks -> writeSuccessfulUpdates(results.updates)
         }
+        writeDetectedWorkflowUpdates(results.detectedWorkflowUpdates)
         writeFooter(file)
     }
 
@@ -51,6 +52,24 @@ class SummaryWriter(val settings: Settings) {
             "\n## failures\n" + "\n"
         )
         errors.forEach { file.appendText("* ${it.key.currentBuildpack} could not be updated: ${it.value}\n") }
+    }
+
+    private fun writeDetectedWorkflowUpdates(updates: List<BuildpackUpdate>) {
+        if (updates.isEmpty()) {
+            return
+        }
+
+        file.appendText("\n## detected workflow buildpack updates\n\n")
+        file.appendText(
+            "The following buildpacks were found in GitHub Actions workflow files and have updates available.\n" +
+            "To enable automatic PR creation, set `UPDATE_WORKFLOW_FILES=true` " +
+            "(requires a GitHub App with the **Workflows** permission — see README).\n\n"
+        )
+        updates.forEach {
+            file.appendText("* currentBuildpack ${it.currentBuildpack} ")
+            file.appendText("has an update to " + it.latestUpdate)
+            file.appendText("\n")
+        }
     }
 
     private fun writeFooter(file: File) {

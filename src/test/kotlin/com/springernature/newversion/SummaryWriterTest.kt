@@ -8,6 +8,32 @@ import java.io.File
 class SummaryWriterTest {
 
     @Test
+    fun `detected workflow buildpack updates appear in report`() {
+        val tempFile = getTempReportFile()
+        val settings = Settings(
+            mapOf(
+                Setting.GITHUB_STEP_SUMMARY.key to tempFile.path,
+                Setting.GITHUB_STEP_SUMMARY_ENABLED.key to true.toString()
+            )
+        )
+        val results = SuccessfulChecks(emptyList(), listOf(detectedWorkflowUpdate))
+        SummaryWriter(settings).write(results)
+
+        tempFile.readText() shouldBeEqualTo """
+            |# CF buildpack update action results
+            |
+            |## detected workflow buildpack updates
+            |
+            |The following buildpacks were found in GitHub Actions workflow files and have updates available.
+            |To enable automatic PR creation, set `UPDATE_WORKFLOW_FILES=true` (requires a GitHub App with the **Workflows** permission — see README).
+            |
+            |* currentBuildpack VersionedBuildpack(name=test/buildpack1, url=https://a.host/path, version=1.3, tag=GitTag(value=v1.3), fileToken=null) has an update to BuildpackVersion(version=1.4.0, tag=GitTag(value=v1.4.0))
+            |
+            |Thanks for watching!
+            |""".trimMargin()
+    }
+
+    @Test
     fun `successful checks report`() {
         val tempFile = getTempReportFile()
         val settings = Settings(
@@ -95,6 +121,12 @@ class SummaryWriterTest {
             listOf(File("a/path")),
             VersionedBuildpack("test/buildpack1", "https://a.host/path", SemanticVersion("1.3"), GitTag("v1.3")),
             BuildpackVersion(SemanticVersion("1.2.4"), GitTag("v1.2.4"))
+        )
+
+        val detectedWorkflowUpdate = BuildpackUpdate(
+            listOf(File("a/path")),
+            VersionedBuildpack("test/buildpack1", "https://a.host/path", SemanticVersion("1.3"), GitTag("v1.3")),
+            BuildpackVersion(SemanticVersion("1.4.0"), GitTag("v1.4.0"))
         )
 
         val successfulChecksResults = SuccessfulChecks(listOf(buildpackUpdate))

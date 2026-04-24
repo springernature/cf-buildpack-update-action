@@ -13,7 +13,7 @@ fun main() {
     val manifestPath = File(".")
     val summaryWriter = SummaryWriter(settings)
 
-    val results = BuildpackVersionChecker(manifestPath, buildpackUpdateChecker, publisher)
+    val results = BuildpackVersionChecker(manifestPath, buildpackUpdateChecker, publisher, settings)
         .performChecks()
     when (results) {
         is FailedChecks ->
