@@ -61,9 +61,4 @@ class BuildpackUpdateTest {
         possibleUpdate.hasUpdate() shouldBe false
     }
 
-    private class PresetBuildpackUpdateChecker(private val updates: Map<String, BuildpackVersion> = mapOf()) :
-        BuildpackUpdateChecker {
-        override fun findLatestVersion(buildpack: VersionedBuildpack): BuildpackVersion =
-            updates[buildpack.name] ?: BuildpackVersion(SemanticVersion("1.0.0"), GitTag("v1.0.0"))
-    }
 }
