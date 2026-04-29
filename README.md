@@ -100,7 +100,7 @@ see [example output](https://github.com/springernature/dpas/actions/runs/3691628
 
 ## Opt-in: updating workflow files
 
-By default the action only **detects and reports** Paketo buildpack updates found in `.github/workflows/` files.
+By default, the action only **detects and reports** Paketo buildpack updates found in `.github/workflows/` files.
 It does not attempt to create PRs for them.
 
 To opt in to automatic PR creation for workflow file updates, two things are required:
