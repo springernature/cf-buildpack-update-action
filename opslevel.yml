@@ -1,0 +1,16 @@
+version: 1
+component:
+  name: cf-buildpack-update-action
+  owner: engineering-enablement
+  description: "Create pull requests to update buildpacks in Cloud Foundry manifest files, Halfpipe pipelines, and GitHub Actions workflows"
+  type: application_module
+  lifecycle: core
+  tier: Internal-Only
+  language: kotlin
+  system: APPL-437
+  properties:
+    pipelines:
+      - workflow_43735840  # .github/workflows/codeql.yml
+      - workflow_43736831  # .github/workflows/validate-gradle-wrapper.yml
+      - workflow_43740112  # .github/workflows/gradle-dependency-submission.yml
+      - workflow_78761186  # .github/workflows/run-tests.yml
