@@ -1,5 +1,6 @@
 package com.springernature.newversion
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -29,8 +30,7 @@ object HalfpipeManifestParser {
             try {
                 val parsed = readHalfpipeFile(file)
                 val buildpacks = parsed.tasks
-                    .filter { it.type == "buildpack" }
-                    .flatMap { it.buildpacks }
+                    .flatMap {it.buildpacks() }
                     .filter { it.contains(":") }
                     .map { VersionedBuildpack.createPaketo(it) }
                 PaketoManifest(buildpacks, file)
@@ -48,9 +48,44 @@ object HalfpipeManifestParser {
     @JsonIgnoreProperties(ignoreUnknown = true)
     private data class HalfpipeFile(val tasks: List<HalfpipeTask> = emptyList())
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private data class HalfpipeTask(
-        val type: String = "",
-        val buildpacks: List<String> = emptyList()
-    )
+    private fun HalfpipeTask.buildpacks(): List<String> = when (this) {
+        is HalfpipeBuildpackTask -> this.buildpacks
+        is HalfpipeTasks -> this.tasks.flatMap { it.buildpacks() }
+        is HalfpipeIgnoredTask -> emptyList()
+    }
+
+    private sealed interface HalfpipeTask {
+        val type: String
+
+        companion object {
+            @JsonCreator
+            @JvmStatic
+            fun creator(
+                type: String,
+                tasks: List<HalfpipeTask> = listOf(),
+                buildpacks: List<String> = emptyList()
+            ): HalfpipeTask {
+                val result = when (type) {
+                    "parallel", "sequence" -> HalfpipeTasks(type, tasks)
+                    "buildpack" -> HalfpipeBuildpackTask(type, buildpacks)
+                    else -> HalfpipeIgnoredTask(type)
+                }
+                return result
+            }
+        }
+    }
+
+    private data class HalfpipeBuildpackTask(
+        override val type: String,
+        val buildpacks: List<String>
+    ):HalfpipeTask
+
+    private data class HalfpipeTasks(
+        override val type: String,
+        val tasks: List<HalfpipeTask> = listOf(),
+    ) : HalfpipeTask
+
+    private data class HalfpipeIgnoredTask(
+        override val type: String,
+    ) : HalfpipeTask
 }
