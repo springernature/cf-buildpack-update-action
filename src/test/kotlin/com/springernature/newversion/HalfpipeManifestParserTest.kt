@@ -30,6 +30,19 @@ class HalfpipeManifestParserTest {
         nested.buildpacks shouldContain VersionedBuildpack.createPaketo("paketobuildpacks/java:5.0.0")
     }
 
+
+    @Test
+    fun `loads buildpacks from halfpipe yaml file when buildpack task is nested in parallel or sequence tasks`() {
+        val results = HalfpipeManifestParser.load(resourcePath("halfpipe-nested-task-test")).toList()
+
+        val manifests = results.filterIsInstance<PaketoManifest>()
+        val nested = manifests.first()
+        nested.buildpacks shouldContainAll listOf(
+            VersionedBuildpack.createPaketo("paketobuildpacks/java:1.0.0"),
+            VersionedBuildpack.createPaketo("paketobuildpacks/java:2.0.0")
+        )
+    }
+
     @Test
     fun `finds exactly two manifest files in fixture`() {
         val results = HalfpipeManifestParser.load(resourcePath("halfpipe-test")).toList()

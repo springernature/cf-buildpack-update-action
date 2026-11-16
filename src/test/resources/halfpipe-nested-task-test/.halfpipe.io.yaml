@@ -1,0 +1,16 @@
+team: my-team
+pipeline: nested-pipeline
+
+tasks:
+  - type: parallel
+    tasks:
+      - type: buildpack
+        name: deploy
+        buildpacks:
+          - paketobuildpacks/java:1.0.0
+      - type: sequence
+        tasks:
+          - type: buildpack
+            name: deploy
+            buildpacks:
+              - paketobuildpacks/java:2.0.0
