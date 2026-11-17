@@ -1,6 +1,5 @@
 package com.springernature.newversion
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
@@ -28,10 +27,11 @@ object HalfpipeManifestParser {
         .map { file ->
             try {
                 val parsed = readHalfpipeFile(file)
-                val buildpacks = parsed.tasks.orEmpty()
-                    .flatMap {it.buildpacks() }
-                    .filter { it.contains(":") }
-                    .map { VersionedBuildpack.createPaketo(it) }
+                val buildpacks =
+                    parsed
+                        .buildpacks()
+                        .filter { it.contains(":") }
+                        .map { VersionedBuildpack.createPaketo(it) }
                 PaketoManifest(buildpacks, file)
             } catch (e: Exception) {
                 LOG.warn("Failed to parse halfpipe manifest {}", file, e)
@@ -39,27 +39,24 @@ object HalfpipeManifestParser {
             }
         }
 
-    private fun readHalfpipeFile(f: File): HalfpipeFile = ObjectMapper(YAMLFactory())
+    private fun readHalfpipeFile(f: File): HalfpipeTasks = ObjectMapper(YAMLFactory())
         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
         .registerKotlinModule()
         .readValue(f)
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private data class HalfpipeFile(val tasks: List<HalfpipeTask>? = null)
 
     /**
      * A halfpipe task can be a buildpack task, a nested parallel or sequence task list, or any other ignored task.
      * The buildpack task has a `buildpacks` property, while the nested pipeline has a `tasks` property.
      * We are collecting all buildpacks from both types of tasks.
      */
-    private data class HalfpipeTask(
-        val tasks: List<HalfpipeTask> = emptyList(),
+    private data class HalfpipeTasks(
+        val tasks: List<HalfpipeTasks>? = null,
         val buildpacks: List<String> = emptyList(),
     )
 
-    private fun HalfpipeTask.buildpacks(): List<String> = when  {
+    private fun HalfpipeTasks.buildpacks(): List<String> = when  {
         buildpacks.isNotEmpty() -> buildpacks
-        tasks.isNotEmpty() -> tasks.flatMap { it.buildpacks() }
+        !tasks.isNullOrEmpty() -> tasks.flatMap { it.buildpacks() }
         else -> emptyList()
     }
 }
