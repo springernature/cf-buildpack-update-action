@@ -22,6 +22,6 @@ jobs:
     runs-on: ee-runner
     steps:
       - uses: actions/checkout@v7
-      - uses: springernature/ee-action-validate-opslevel@c59ba8b4a555e178db76536a2f0688098e4cde9e # v1.0.6
+      - uses: springernature/ee-action-validate-opslevel@dfcf34f8a0cdb6f0aad572592dae6943d94db2c0 # v1.0.14
         with:
           opslevel_api_token: ${{ secrets.OPSLEVEL_RW_TOKEN }}
