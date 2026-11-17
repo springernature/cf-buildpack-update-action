@@ -5,6 +5,7 @@ import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldContainAll
+import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -60,8 +61,8 @@ class HalfpipeManifestParserTest {
         val results = HalfpipeManifestParser.load(resourcePath("halfpipe-no-tasks-test")).toList()
 
         val manifests = results.filterIsInstance<PaketoManifest>()
-        val nested = manifests.first()
-        nested.buildpacks.shouldBeEmpty()
+        manifests shouldHaveSize 3
+        manifests.forEach { it.buildpacks.shouldBeEmpty() }
     }
 
     @Test
