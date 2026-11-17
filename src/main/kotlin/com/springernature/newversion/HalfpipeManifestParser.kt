@@ -55,20 +55,17 @@ object HalfpipeManifestParser {
     }
 
     private sealed interface HalfpipeTask {
-        val type: String
-
         companion object {
             @JsonCreator
             @JvmStatic
             fun creator(
-                type: String = "",
                 tasks: List<HalfpipeTask> = emptyList(),
                 buildpacks: List<String> = emptyList()
             ): HalfpipeTask {
-                val result = when (type) {
-                    "parallel", "sequence" -> HalfpipeTasks(type, tasks)
-                    "buildpack" -> HalfpipeBuildpackTask(type, buildpacks)
-                    else -> HalfpipeIgnoredTask(type)
+                val result = when {
+                    tasks.isNotEmpty() -> HalfpipeTasks(tasks)
+                    buildpacks.isNotEmpty() -> HalfpipeBuildpackTask(buildpacks)
+                    else -> HalfpipeIgnoredTask
                 }
                 return result
             }
@@ -76,16 +73,12 @@ object HalfpipeManifestParser {
     }
 
     private data class HalfpipeBuildpackTask(
-        override val type: String,
         val buildpacks: List<String>
     ):HalfpipeTask
 
     private data class HalfpipeTasks(
-        override val type: String,
         val tasks: List<HalfpipeTask> = emptyList(),
     ) : HalfpipeTask
 
-    private data class HalfpipeIgnoredTask(
-        override val type: String,
-    ) : HalfpipeTask
+    private data object HalfpipeIgnoredTask : HalfpipeTask
 }
