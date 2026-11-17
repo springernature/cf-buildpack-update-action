@@ -1,0 +1,12 @@
+team: my-team
+pipeline: non-buildpack-pipeline
+
+tasks:
+  - type: run
+    name: not-a-buildpack
+    buildpacks:
+      - paketobuildpacks/java:9.9.9
+  - type: buildpack
+    name: deploy
+    buildpacks:
+      - paketobuildpacks/java:5.0.0

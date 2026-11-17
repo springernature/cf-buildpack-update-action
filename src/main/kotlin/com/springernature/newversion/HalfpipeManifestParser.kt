@@ -47,16 +47,16 @@ object HalfpipeManifestParser {
     /**
      * A halfpipe task can be a buildpack task, a nested parallel or sequence task list, or any other ignored task.
      * The buildpack task has a `buildpacks` property, while the nested pipeline has a `tasks` property.
-     * We are collecting all buildpacks from both types of tasks.
+     * Only tasks of type `buildpack` contribute their `buildpacks`; any other task is searched for nested `tasks`.
      */
     private data class HalfpipeTasks(
+        val type: String? = null,
         val tasks: List<HalfpipeTasks>? = null,
         val buildpacks: List<String> = emptyList(),
     )
 
-    private fun HalfpipeTasks.buildpacks(): List<String> = when  {
-        buildpacks.isNotEmpty() -> buildpacks
-        !tasks.isNullOrEmpty() -> tasks.flatMap { it.buildpacks() }
-        else -> emptyList()
+    private fun HalfpipeTasks.buildpacks(): List<String> = when (type) {
+        "buildpack" -> buildpacks
+        else -> tasks.orEmpty().flatMap { it.buildpacks() }
     }
 }
