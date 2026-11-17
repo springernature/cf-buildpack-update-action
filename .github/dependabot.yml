@@ -5,6 +5,14 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 10
+    groups:
+      jackson:
+        patterns:
+          - "com.fasterxml.jackson*"
+      junit:
+        patterns:
+          - "org.junit*"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
