@@ -5,6 +5,8 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 10
     groups:
       jackson:
@@ -18,8 +20,16 @@ updates:
     schedule:
       # Check for updates to GitHub Actions every week
       interval: "weekly"
+    cooldown:
+      default-days: 7
+    groups:
+      codeql:
+        patterns:
+          - "github/codeql-action*"
   - package-ecosystem: "docker"
     directories:
       - "**/*"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
