@@ -29,7 +29,7 @@ object HalfpipeManifestParser {
         .map { file ->
             try {
                 val parsed = readHalfpipeFile(file)
-                val buildpacks = parsed.tasks
+                val buildpacks = parsed.tasks.orEmpty()
                     .flatMap {it.buildpacks() }
                     .filter { it.contains(":") }
                     .map { VersionedBuildpack.createPaketo(it) }
@@ -46,7 +46,7 @@ object HalfpipeManifestParser {
         .readValue(f)
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private data class HalfpipeFile(val tasks: List<HalfpipeTask> = emptyList())
+    private data class HalfpipeFile(val tasks: List<HalfpipeTask>? = null)
 
     private fun HalfpipeTask.buildpacks(): List<String> = when (this) {
         is HalfpipeBuildpackTask -> this.buildpacks
@@ -62,7 +62,7 @@ object HalfpipeManifestParser {
             @JvmStatic
             fun creator(
                 type: String = "",
-                tasks: List<HalfpipeTask> = listOf(),
+                tasks: List<HalfpipeTask> = emptyList(),
                 buildpacks: List<String> = emptyList()
             ): HalfpipeTask {
                 val result = when (type) {
@@ -82,7 +82,7 @@ object HalfpipeManifestParser {
 
     private data class HalfpipeTasks(
         override val type: String,
-        val tasks: List<HalfpipeTask> = listOf(),
+        val tasks: List<HalfpipeTask> = emptyList(),
     ) : HalfpipeTask
 
     private data class HalfpipeIgnoredTask(
