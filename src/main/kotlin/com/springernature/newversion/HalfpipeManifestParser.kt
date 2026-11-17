@@ -61,7 +61,7 @@ object HalfpipeManifestParser {
             @JsonCreator
             @JvmStatic
             fun creator(
-                type: String,
+                type: String = "",
                 tasks: List<HalfpipeTask> = listOf(),
                 buildpacks: List<String> = emptyList()
             ): HalfpipeTask {
