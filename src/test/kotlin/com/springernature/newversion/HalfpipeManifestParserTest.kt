@@ -57,6 +57,16 @@ class HalfpipeManifestParserTest {
     }
 
     @Test
+    fun `ignores buildpacks of tasks that are not of type buildpack`() {
+        val results = HalfpipeManifestParser.load(resourcePath("halfpipe-non-buildpack-task-test")).toList()
+
+        val manifest = results.filterIsInstance<PaketoManifest>().single()
+        manifest.buildpacks shouldBeEqualTo listOf(
+            VersionedBuildpack.createPaketo("paketobuildpacks/java:5.0.0"),
+        )
+    }
+
+    @Test
     fun `ignores files without any task`() {
         val results = HalfpipeManifestParser.load(resourcePath("halfpipe-no-tasks-test")).toList()
 
