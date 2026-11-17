@@ -1,0 +1,4 @@
+team: my-team
+pipeline: nested-pipeline
+
+tasks:

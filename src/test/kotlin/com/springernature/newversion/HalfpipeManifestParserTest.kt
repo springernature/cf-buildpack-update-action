@@ -1,5 +1,6 @@
 package com.springernature.newversion
 
+import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
@@ -43,7 +44,6 @@ class HalfpipeManifestParserTest {
         )
     }
 
-
     @Test
     fun `ignores and does not fail on tasks without a type`() {
         val results = HalfpipeManifestParser.load(resourcePath("halfpipe-no-type-task-test")).toList()
@@ -53,6 +53,15 @@ class HalfpipeManifestParserTest {
         nested.buildpacks shouldContainAll listOf(
             VersionedBuildpack.createPaketo("paketobuildpacks/java:5.0.0"),
         )
+    }
+
+    @Test
+    fun `ignores files without any task`() {
+        val results = HalfpipeManifestParser.load(resourcePath("halfpipe-no-tasks-test")).toList()
+
+        val manifests = results.filterIsInstance<PaketoManifest>()
+        val nested = manifests.first()
+        nested.buildpacks.shouldBeEmpty()
     }
 
     @Test
