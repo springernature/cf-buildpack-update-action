@@ -43,6 +43,18 @@ class HalfpipeManifestParserTest {
         )
     }
 
+
+    @Test
+    fun `ignores and does not fail on tasks without a type`() {
+        val results = HalfpipeManifestParser.load(resourcePath("halfpipe-no-type-task-test")).toList()
+
+        val manifests = results.filterIsInstance<PaketoManifest>()
+        val nested = manifests.first()
+        nested.buildpacks shouldContainAll listOf(
+            VersionedBuildpack.createPaketo("paketobuildpacks/java:5.0.0"),
+        )
+    }
+
     @Test
     fun `finds exactly two manifest files in fixture`() {
         val results = HalfpipeManifestParser.load(resourcePath("halfpipe-test")).toList()
