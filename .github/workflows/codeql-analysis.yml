@@ -12,13 +12,6 @@ on:
     - cron: '56 3 * * *' # Randomized per repository, daily runs somewhere between 22:00 and 06:00 UTC
   workflow_dispatch:
 
-env:
-  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
-  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
-  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
-  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
-  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
-
 jobs:
   analyze:
     name: Analyze
