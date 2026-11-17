@@ -1,6 +1,5 @@
 package com.springernature.newversion
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -48,37 +47,19 @@ object HalfpipeManifestParser {
     @JsonIgnoreProperties(ignoreUnknown = true)
     private data class HalfpipeFile(val tasks: List<HalfpipeTask>? = null)
 
-    private fun HalfpipeTask.buildpacks(): List<String> = when (this) {
-        is HalfpipeBuildpackTask -> this.buildpacks
-        is HalfpipeTasks -> this.tasks.flatMap { it.buildpacks() }
-        is HalfpipeIgnoredTask -> emptyList()
-    }
-
-    private sealed interface HalfpipeTask {
-        companion object {
-            @JsonCreator
-            @JvmStatic
-            fun creator(
-                tasks: List<HalfpipeTask> = emptyList(),
-                buildpacks: List<String> = emptyList()
-            ): HalfpipeTask {
-                val result = when {
-                    tasks.isNotEmpty() -> HalfpipeTasks(tasks)
-                    buildpacks.isNotEmpty() -> HalfpipeBuildpackTask(buildpacks)
-                    else -> HalfpipeIgnoredTask
-                }
-                return result
-            }
-        }
-    }
-
-    private data class HalfpipeBuildpackTask(
-        val buildpacks: List<String>
-    ):HalfpipeTask
-
-    private data class HalfpipeTasks(
+    /**
+     * A halfpipe task can be a buildpack task, a nested parallel or sequence task list, or any other ignored task.
+     * The buildpack task has a `buildpacks` property, while the nested pipeline has a `tasks` property.
+     * We are collecting all buildpacks from both types of tasks.
+     */
+    private data class HalfpipeTask(
         val tasks: List<HalfpipeTask> = emptyList(),
-    ) : HalfpipeTask
+        val buildpacks: List<String> = emptyList(),
+    )
 
-    private data object HalfpipeIgnoredTask : HalfpipeTask
+    private fun HalfpipeTask.buildpacks(): List<String> = when  {
+        buildpacks.isNotEmpty() -> buildpacks
+        tasks.isNotEmpty() -> tasks.flatMap { it.buildpacks() }
+        else -> emptyList()
+    }
 }
